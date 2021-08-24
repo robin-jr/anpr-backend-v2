@@ -1,0 +1,6 @@
+anpr/static/full_images/
+anpr/static/anpr/results
+env/
+anpr/static
+static_anpr
+__pycache__/
