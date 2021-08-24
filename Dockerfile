@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM python:3.9-slim
 WORKDIR /app
-RUN apt-get update && apt-get upgrade
+RUN apt-get update -y && apt-get upgrade -y
 # Build dependancies
 RUN apt-get install python3-dev default-libmysqlclient-dev gcc ffmpeg libsm6 libxext6 -y 
 COPY requirements.txt requirements.txt
