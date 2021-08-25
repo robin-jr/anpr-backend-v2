@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             name='Camera',
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('camera_number', models.CharField(help_text='Name of the Camera. AVOID SPACES IN THE NAME.', max_length=100)),
+                ('camera_name', models.CharField(help_text='Name of the Camera. AVOID SPACES IN THE NAME.', max_length=100)),
                 ('latitude', models.DecimalField(decimal_places=7, help_text='Latitude of the Camera Location.', max_digits=10)),
                 ('longitude', models.DecimalField(decimal_places=7, help_text='Longitude of the Camera Location.', max_digits=10)),
                 ('url', models.CharField(help_text='Functioning RTSP link(rtsp://localhost:8554/ds-test) or Path to Local Video(/home/user/vid.mp4). AVOID SPACES IN THE NAME.', max_length=400)),

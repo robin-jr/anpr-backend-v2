@@ -23,6 +23,8 @@ import time
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.views.decorators.csrf import csrf_exempt
+
 
 
 @api_view(['GET'])
@@ -59,13 +61,7 @@ def index(request):
     cameraQuerySet = Camera.objects.all()
     cameras = []
     for cam in cameraQuerySet:
-        temp = {}
-        temp["id"] = cam.id
-        temp["camera_number"] = cam.camera_number
-        temp["latitude"] = str(cam.latitude)
-        temp["longitude"] = str(cam.longitude)
-        temp["url"] = cam.url
-        cameras.append(temp)
+        cameras.append(cam.camera_name)
 
     count = LicensePlates.objects.count()
 
@@ -76,13 +72,11 @@ def index(request):
 
     response = HttpResponse(
         json.dumps( {
-            "count": count,
             "cameras": cameras,
-            "plates":serializers.serialize('json' ,a),
-            "evidence_images":serializers.serialize('json' ,b),
-            "violations":serializers.serialize('json' ,c),
+            "junction_names":[],
             "violationRef":serializers.serialize('json' ,d),
-        },),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"}
+        },),content_type="application/json"
+        ,headers={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"*"}
     )
     return response
 
@@ -139,18 +133,20 @@ def get_violations(request):
             "filter_conditions": form_data,
         }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
+
+@csrf_exempt
 def plate_search(request):
 
-    if request.method == "GET":
-        form_data = request.GET
+    if request.method == "POST":
+        form_data = request.POST
         print("form_data", form_data)
 
         try:
-            # vehicle_no= form_data["vehicle_no"] #can be empty 
-            # cameras = form_data["camera_numbers"] #can be empty
-            # junction_names =form_data["junction_names"] #can be empty
-            # start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
-            # end_date_time=form_data["end_date_time"] #can be empty 
+            vehicle_no= form_data["vehicle_number"] #can be empty 
+            cameras = form_data["camera_names"] #can be empty
+            junction_names =form_data["junction_names"] #can be empty
+            start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
+            end_date_time=form_data["end_date_time"] #can be empty 
 
             ## for now
             # vehicle_no= "1234"
@@ -158,17 +154,17 @@ def plate_search(request):
             # junction_names =["Sathya Showroom"]
             # start_date_time="2000-01-01T00:00"
             # end_date_time="2025-01-01T00:00"
-            vehicle_no= ""
-            cameras = []
-            junction_names =[]
-            start_date_time=""
-            end_date_time=""
+            # vehicle_no= ""
+            # cameras = []
+            # junction_names =[]
+            # start_date_time=""
+            # end_date_time=""
 
             plates=LicensePlates.objects.all()
             if vehicle_no!="":
                 plates = LicensePlates.objects.filter(number_plate_number__contains=vehicle_no)
             if len(cameras)>0:
-                plates =plates.filter(camera_number__in=cameras)
+                plates =plates.filter(camera_name__in=cameras)
             if len(junction_names)>0:
                 plates=plates.filter(junction_name__in=junction_names)
             if start_date_time!="":
@@ -184,7 +180,7 @@ def plate_search(request):
             for e in plates:
                 temp={}
                 temp["id"]= e.pk
-                temp["camera_number"]= e.camera_number
+                temp["camera_name"]= e.camera_name
                 temp["junction_name"]= e.junction_name
                 temp["evidence_camera_name"]= e.evidence_camera_name
                 temp["number_plate_number"]= e.number_plate_number
@@ -203,14 +199,15 @@ def plate_search(request):
             # license_plates= LicensePlates.objects.all()[:5] #temporary
             return HttpResponse(json.dumps({
                 "count":count,
-                "license_plates":json.dumps(d),
+                "entries":json.dumps(d),
                 "filter_conditions": form_data,
             }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
         except Exception as e:
             print("error--> ",e)
-            return HttpResponse(json.dumps({"error":"error"})
+            return HttpResponse(json.dumps({"error":str(e)})
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
     else:
         logging.info("Plate Search - End")
         return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
+

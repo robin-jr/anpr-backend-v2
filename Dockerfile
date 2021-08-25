@@ -7,4 +7,5 @@ RUN apt-get install python3-dev default-libmysqlclient-dev gcc ffmpeg libsm6 lib
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 RUN pip install djangorestframework
+RUN pip install django-cors-headers 
 EXPOSE 8000
