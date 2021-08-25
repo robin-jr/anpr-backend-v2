@@ -10,20 +10,38 @@ CREATE TABLE `evidence_cam_img` (
   `entry_id` bigint(11) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage1.jpg',1);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage2.jpg',1);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage1.jpg',3);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage2.jpg',3);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage1.jpg',4);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage2.jpg',4);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage3.jpg',4);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage1.jpg',2);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage2.jpg',2);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage3.jpg',2);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage4.jpg',2);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage1.jpg',5);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage2.jpg',5);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage3.jpg',5);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage4.jpg',5);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage1.jpg',6);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('/home/user/images/results/EvidenceImage2.jpg',6);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev11.png',1);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev12.png',1);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev13.png',1);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev14.png',1);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev15.png',1);
+
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev21.png',2);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev22.png',2);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev23.png',2);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev24.png',2);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev25.png',2);
+
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev31.png',3);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev32.png',3);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev33.png',3);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev34.png',3);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev35.png',3);
+
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev41.png',4);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev42.png',4);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev43.png',4);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev44.png',4);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev45.png',4);
+
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev51.png',5);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev52.png',5);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev53.png',5);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev54.png',5);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev55.png',5);
+
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev51.png',6);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev52.png',6);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev53.png',6);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev54.png',6);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev55.png',6);

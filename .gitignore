@@ -4,3 +4,4 @@ env/
 anpr/static
 static_anpr
 __pycache__/
+public/
