@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='LicensePlatesRlvd',
             fields=[
-                ('slno', models.AutoField(primary_key=True, serialize=False)),
+                ('entry_id', models.AutoField(primary_key=True, serialize=False)),
                 ('camera_name', models.CharField(max_length=100)),
                 ('junction_name', models.CharField(max_length=100)),
                 ('evidence_camera_name', models.CharField(max_length=100)),

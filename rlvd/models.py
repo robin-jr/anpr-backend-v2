@@ -3,7 +3,7 @@ from django.utils import timezone
 
 
 class LicensePlatesRlvd(models.Model):
-    slno = models.AutoField(primary_key=True)
+    entry_id = models.AutoField(primary_key=True)
     camera_name = models.CharField(max_length=100)
     junction_name = models.CharField(max_length=100)
     evidence_camera_name = models.CharField(max_length=100)
@@ -27,7 +27,7 @@ class LicensePlatesRlvd(models.Model):
 
 class EvidenceCamImg(models.Model):
     id = models.AutoField(primary_key=True)
-    vehicle = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
+    entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
     evidence_image = models.CharField(max_length=100)
 
     class Meta:
@@ -49,7 +49,7 @@ class ViolationRef(models.Model):
 class Violation(models.Model):
     id = models.AutoField(primary_key=True)
     violation = models.ForeignKey(ViolationRef,on_delete=models.CASCADE)
-    vehicle = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
+    entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'violations'

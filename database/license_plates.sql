@@ -27,7 +27,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `license_plates_db` (
-  `slno` bigint(11) UNSIGNED NOT NULL,
+  `entry_id` bigint(11) UNSIGNED NOT NULL,
   `camera_name` varchar(100) NOT NULL,
   `number_plate_number` varchar(50) NOT NULL,
   `image` varchar(100) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE `license_plates_db` (
 -- Dumping data for table `license_plates_db`
 --
 
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (399361, 'No4_Sidco_Nagar', '0N03399', 'results/No4_Sidco_Nagar_0N03399_28-12-2020_06:52:19.jpg', '2020-12-28 06:52:20', 'full_images/No4_Sidco_Nagar_0N03399_28-12-2020_06:52:19.jpg'),
 (399362, 'No4_Flyover_Starting', '0N03399', 'results/No4_Flyover_Starting_0N03399_28-12-2020_06:52:19.jpg', '2020-12-28 06:52:20', 'full_images/No4_Flyover_Starting_0N03399_28-12-2020_06:52:19.jpg'),
 (399363, 'No2_Flyover_Starting', '0N03399', 'results/No2_Flyover_Starting_0N03399_28-12-2020_06:52:19.jpg', '2020-12-28 06:52:20', 'full_images/No2_Flyover_Starting_0N03399_28-12-2020_06:52:19.jpg'),
@@ -300,7 +300,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (399618, 'No4_Sidco_Nagar', 'TN147227', 'results/No4_Sidco_Nagar_TN147227_28-12-2020_06:54:38.jpg', '2020-12-28 06:54:39', 'full_images/No4_Sidco_Nagar_TN147227_28-12-2020_06:54:38.jpg'),
 (399619, 'No4_Flyover_Starting', 'ATTN1U5780', 'results/No4_Flyover_Starting_ATTN1U5780_28-12-2020_06:54:39.jpg', '2020-12-28 06:54:39', 'full_images/No4_Flyover_Starting_ATTN1U5780_28-12-2020_06:54:39.jpg'),
 (399620, 'No4_Sidco_Nagar', '2', 'results/No4_Sidco_Nagar_2_28-12-2020_06:54:39.jpg', '2020-12-28 06:54:40', 'full_images/No4_Sidco_Nagar_2_28-12-2020_06:54:39.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (399621, 'No4_Sidco_Nagar', 'T07AT1580', 'results/No4_Sidco_Nagar_T07AT1580_28-12-2020_06:54:40.jpg', '2020-12-28 06:54:40', 'full_images/No4_Sidco_Nagar_T07AT1580_28-12-2020_06:54:40.jpg'),
 (399622, 'No4_Sidco_Nagar', 'TN7AT1580', 'results/No4_Sidco_Nagar_TN7AT1580_28-12-2020_06:54:40.jpg', '2020-12-28 06:54:41', 'full_images/No4_Sidco_Nagar_TN7AT1580_28-12-2020_06:54:40.jpg'),
 (399623, 'No4_Sidco_Nagar', 'AN07T1580', 'results/No4_Sidco_Nagar_AN07T1580_28-12-2020_06:54:41.jpg', '2020-12-28 06:54:41', 'full_images/No4_Sidco_Nagar_AN07T1580_28-12-2020_06:54:41.jpg'),
@@ -573,7 +573,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (399890, 'No2_Nathamuni', 'TN07CR292', 'results/No2_Nathamuni_TN07CR292_28-12-2020_11:19:04.jpg', '2020-12-28 11:19:05', 'full_images/No2_Nathamuni_TN07CR292_28-12-2020_11:19:04.jpg'),
 (399891, 'No2_Nathamuni', 'TN07CR22', 'results/No2_Nathamuni_TN07CR22_28-12-2020_11:19:05.jpg', '2020-12-28 11:19:05', 'full_images/No2_Nathamuni_TN07CR22_28-12-2020_11:19:05.jpg'),
 (399892, 'No4_Sidco_Nagar', '03', 'results/No4_Sidco_Nagar_03_28-12-2020_11:19:05.jpg', '2020-12-28 11:19:06', 'full_images/No4_Sidco_Nagar_03_28-12-2020_11:19:05.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (399893, 'No2_Nathamuni', 'TN07CR291', 'results/No2_Nathamuni_TN07CR291_28-12-2020_11:19:05.jpg', '2020-12-28 11:19:06', 'full_images/No2_Nathamuni_TN07CR291_28-12-2020_11:19:05.jpg'),
 (399894, 'No2_Nathamuni', 'TN04AV3999', 'results/No2_Nathamuni_TN04AV3999_28-12-2020_11:19:06.jpg', '2020-12-28 11:19:07', 'full_images/No2_Nathamuni_TN04AV3999_28-12-2020_11:19:06.jpg'),
 (399895, 'No2_Nathamuni', 'N14K443', 'results/No2_Nathamuni_N14K443_28-12-2020_11:19:08.jpg', '2020-12-28 11:19:09', 'full_images/No2_Nathamuni_N14K443_28-12-2020_11:19:08.jpg'),
@@ -850,7 +850,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (400166, 'No2_Nathamuni', 'TN07CR291', 'results/No2_Nathamuni_TN07CR291_28-12-2020_11:22:53.jpg', '2020-12-28 11:22:54', 'full_images/No2_Nathamuni_TN07CR291_28-12-2020_11:22:53.jpg'),
 (400167, 'No2_Nathamuni', 'TN04AV3999', 'results/No2_Nathamuni_TN04AV3999_28-12-2020_11:22:56.jpg', '2020-12-28 11:22:56', 'full_images/No2_Nathamuni_TN04AV3999_28-12-2020_11:22:56.jpg'),
 (400168, 'No2_Nathamuni', 'N14K443', 'results/No2_Nathamuni_N14K443_28-12-2020_11:22:59.jpg', '2020-12-28 11:22:59', 'full_images/No2_Nathamuni_N14K443_28-12-2020_11:22:59.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (400169, 'No4_Sidco_Nagar', '23068', 'results/No4_Sidco_Nagar_23068_28-12-2020_11:23:00.jpg', '2020-12-28 11:23:00', 'full_images/No4_Sidco_Nagar_23068_28-12-2020_11:23:00.jpg'),
 (400170, 'No2_Nathamuni', 'N14K443', 'results/No2_Nathamuni_N14K443_28-12-2020_11:23:00.jpg', '2020-12-28 11:23:00', 'full_images/No2_Nathamuni_N14K443_28-12-2020_11:23:00.jpg'),
 (400171, 'No2_Nathamuni', '4', 'results/No2_Nathamuni_4_28-12-2020_11:23:00.jpg', '2020-12-28 11:23:00', 'full_images/No2_Nathamuni_4_28-12-2020_11:23:00.jpg'),
@@ -1129,7 +1129,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (400444, 'No2_Nathamuni', 'TN02AE1831', 'results/No2_Nathamuni_TN02AE1831_28-12-2020_11:25:58.jpg', '2020-12-28 11:25:58', 'full_images/No2_Nathamuni_TN02AE1831_28-12-2020_11:25:58.jpg'),
 (400445, 'No2_Sathya_Showroom', 'TN0X6269', 'results/No2_Sathya_Showroom_TN0X6269_28-12-2020_11:25:58.jpg', '2020-12-28 11:25:59', 'full_images/No2_Sathya_Showroom_TN0X6269_28-12-2020_11:25:58.jpg'),
 (400446, 'No2_Sathya_Showroom', 'TN066269', 'results/No2_Sathya_Showroom_TN066269_28-12-2020_11:25:59.jpg', '2020-12-28 11:25:59', 'full_images/No2_Sathya_Showroom_TN066269_28-12-2020_11:25:59.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (400447, 'No2_Sathya_Showroom', 'N06', 'results/No2_Sathya_Showroom_N06_28-12-2020_11:25:59.jpg', '2020-12-28 11:26:00', 'full_images/No2_Sathya_Showroom_N06_28-12-2020_11:25:59.jpg'),
 (400448, 'No2_Nathamuni', 'TN07BX7936', 'results/No2_Nathamuni_TN07BX7936_28-12-2020_11:26:00.jpg', '2020-12-28 11:26:00', 'full_images/No2_Nathamuni_TN07BX7936_28-12-2020_11:26:00.jpg'),
 (400449, 'No2_Sathya_Showroom', 'TN118', 'results/No2_Sathya_Showroom_TN118_28-12-2020_11:26:00.jpg', '2020-12-28 11:26:01', 'full_images/No2_Sathya_Showroom_TN118_28-12-2020_11:26:00.jpg'),
@@ -1406,7 +1406,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (400720, 'No2_Flyover_Starting', '0', 'results/No2_Flyover_Starting_0_28-12-2020_11:28:31.jpg', '2020-12-28 11:28:31', 'full_images/No2_Flyover_Starting_0_28-12-2020_11:28:31.jpg'),
 (400721, 'No2_Flyover_Starting', '0', 'results/No2_Flyover_Starting_0_28-12-2020_11:28:32.jpg', '2020-12-28 11:28:32', 'full_images/No2_Flyover_Starting_0_28-12-2020_11:28:32.jpg'),
 (400722, 'No2_Flyover_Starting', '0', 'results/No2_Flyover_Starting_0_28-12-2020_11:28:33.jpg', '2020-12-28 11:28:34', 'full_images/No2_Flyover_Starting_0_28-12-2020_11:28:33.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (400723, 'No2_Flyover_Starting', '0', 'results/No2_Flyover_Starting_0_28-12-2020_11:28:35.jpg', '2020-12-28 11:28:36', 'full_images/No2_Flyover_Starting_0_28-12-2020_11:28:35.jpg'),
 (400724, 'No2_Nathamuni', 'TN22Y098', 'results/No2_Nathamuni_TN22Y098_28-12-2020_11:28:38.jpg', '2020-12-28 11:28:38', 'full_images/No2_Nathamuni_TN22Y098_28-12-2020_11:28:38.jpg'),
 (400725, 'No2_Nathamuni', '9', 'results/No2_Nathamuni_9_28-12-2020_11:28:41.jpg', '2020-12-28 11:28:41', 'full_images/No2_Nathamuni_9_28-12-2020_11:28:41.jpg'),
@@ -1684,7 +1684,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (400997, 'No2_Nathamuni', '21NTN7', 'results/No2_Nathamuni_21NTN7_28-12-2020_11:31:13.jpg', '2020-12-28 11:31:13', 'full_images/No2_Nathamuni_21NTN7_28-12-2020_11:31:13.jpg'),
 (400998, 'No2_Nathamuni', 'TN0', 'results/No2_Nathamuni_TN0_28-12-2020_11:31:13.jpg', '2020-12-28 11:31:13', 'full_images/No2_Nathamuni_TN0_28-12-2020_11:31:13.jpg'),
 (400999, 'No4_Flyover_Starting', 'N07C09005', 'results/No4_Flyover_Starting_N07C09005_28-12-2020_11:31:13.jpg', '2020-12-28 11:31:14', 'full_images/No4_Flyover_Starting_N07C09005_28-12-2020_11:31:13.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (401000, 'No2_Sathya_Showroom', 'TN22DM1572', 'results/No2_Sathya_Showroom_TN22DM1572_28-12-2020_11:31:13.jpg', '2020-12-28 11:31:14', 'full_images/No2_Sathya_Showroom_TN22DM1572_28-12-2020_11:31:13.jpg'),
 (401001, 'No2_Nathamuni', '21722', 'results/No2_Nathamuni_21722_28-12-2020_11:31:14.jpg', '2020-12-28 11:31:14', 'full_images/No2_Nathamuni_21722_28-12-2020_11:31:14.jpg'),
 (401002, 'No2_Nathamuni', 'N0', 'results/No2_Nathamuni_N0_28-12-2020_11:31:14.jpg', '2020-12-28 11:31:14', 'full_images/No2_Nathamuni_N0_28-12-2020_11:31:14.jpg'),
@@ -1958,7 +1958,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (401270, 'No2_Sathya_Showroom', '01TN3', 'results/No2_Sathya_Showroom_01TN3_28-12-2020_12:50:17.jpg', '2020-12-28 12:50:17', 'full_images/No2_Sathya_Showroom_01TN3_28-12-2020_12:50:17.jpg'),
 (401271, 'No2_Sathya_Showroom', 'TN015739', 'results/No2_Sathya_Showroom_TN015739_28-12-2020_12:50:17.jpg', '2020-12-28 12:50:18', 'full_images/No2_Sathya_Showroom_TN015739_28-12-2020_12:50:17.jpg'),
 (401272, 'No2_Sathya_Showroom', '0739', 'results/No2_Sathya_Showroom_0739_28-12-2020_12:50:18.jpg', '2020-12-28 12:50:18', 'full_images/No2_Sathya_Showroom_0739_28-12-2020_12:50:18.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (401273, 'No2_Nathamuni', 'TNC', 'results/No2_Nathamuni_TNC_28-12-2020_12:50:18.jpg', '2020-12-28 12:50:19', 'full_images/No2_Nathamuni_TNC_28-12-2020_12:50:18.jpg'),
 (401274, 'No2_Sathya_Showroom', 'N01T5739', 'results/No2_Sathya_Showroom_N01T5739_28-12-2020_12:50:18.jpg', '2020-12-28 12:50:19', 'full_images/No2_Sathya_Showroom_N01T5739_28-12-2020_12:50:18.jpg'),
 (401275, 'No2_Nathamuni', 'TN1112', 'results/No2_Nathamuni_TN1112_28-12-2020_12:50:19.jpg', '2020-12-28 12:50:19', 'full_images/No2_Nathamuni_TN1112_28-12-2020_12:50:19.jpg'),
@@ -2234,7 +2234,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (401545, 'No2_Nathamuni', 'TN02AE1831', 'results/No2_Nathamuni_TN02AE1831_28-12-2020_12:54:26.jpg', '2020-12-28 12:54:26', 'full_images/No2_Nathamuni_TN02AE1831_28-12-2020_12:54:26.jpg'),
 (401546, 'No2_Sathya_Showroom', '01TN3', 'results/No2_Sathya_Showroom_01TN3_28-12-2020_12:54:26.jpg', '2020-12-28 12:54:27', 'full_images/No2_Sathya_Showroom_01TN3_28-12-2020_12:54:26.jpg'),
 (401547, 'No2_Sathya_Showroom', 'TN015739', 'results/No2_Sathya_Showroom_TN015739_28-12-2020_12:54:27.jpg', '2020-12-28 12:54:28', 'full_images/No2_Sathya_Showroom_TN015739_28-12-2020_12:54:27.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (401548, 'No2_Nathamuni', 'TN07X7936', 'results/No2_Nathamuni_TN07X7936_28-12-2020_12:54:27.jpg', '2020-12-28 12:54:28', 'full_images/No2_Nathamuni_TN07X7936_28-12-2020_12:54:27.jpg'),
 (401549, 'No2_Sathya_Showroom', '0739', 'results/No2_Sathya_Showroom_0739_28-12-2020_12:54:29.jpg', '2020-12-28 12:54:29', 'full_images/No2_Sathya_Showroom_0739_28-12-2020_12:54:29.jpg'),
 (401550, 'No2_Nathamuni', 'TN07BX7936', 'results/No2_Nathamuni_TN07BX7936_28-12-2020_12:54:29.jpg', '2020-12-28 12:54:29', 'full_images/No2_Nathamuni_TN07BX7936_28-12-2020_12:54:29.jpg'),
@@ -2510,7 +2510,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (401820, 'No2_Nathamuni', 'TN22DE9176', 'results/No2_Nathamuni_TN22DE9176_28-12-2020_12:57:54.jpg', '2020-12-28 12:57:55', 'full_images/No2_Nathamuni_TN22DE9176_28-12-2020_12:57:54.jpg'),
 (401821, 'No2_Flyover_Starting', '09', 'results/No2_Flyover_Starting_09_28-12-2020_12:57:57.jpg', '2020-12-28 12:57:57', 'full_images/No2_Flyover_Starting_09_28-12-2020_12:57:57.jpg'),
 (401822, 'No2_Nathamuni', 'TNP38', 'results/No2_Nathamuni_TNP38_28-12-2020_12:57:59.jpg', '2020-12-28 12:57:59', 'full_images/No2_Nathamuni_TNP38_28-12-2020_12:57:59.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (401823, 'No2_Nathamuni', '07B616', 'results/No2_Nathamuni_07B616_28-12-2020_12:58:01.jpg', '2020-12-28 12:58:02', 'full_images/No2_Nathamuni_07B616_28-12-2020_12:58:01.jpg'),
 (401824, 'No2_Nathamuni', 'TN07CB4318', 'results/No2_Nathamuni_TN07CB4318_28-12-2020_12:58:02.jpg', '2020-12-28 12:58:03', 'full_images/No2_Nathamuni_TN07CB4318_28-12-2020_12:58:02.jpg'),
 (401825, 'No2_Nathamuni', 'TN07BV6116', 'results/No2_Nathamuni_TN07BV6116_28-12-2020_12:58:03.jpg', '2020-12-28 12:58:04', 'full_images/No2_Nathamuni_TN07BV6116_28-12-2020_12:58:03.jpg'),
@@ -2786,7 +2786,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (402095, 'No2_Nathamuni', 'TN07', 'results/No2_Nathamuni_TN07_28-12-2020_13:01:49.jpg', '2020-12-28 13:01:49', 'full_images/No2_Nathamuni_TN07_28-12-2020_13:01:49.jpg'),
 (402096, 'No2_Nathamuni', 'TN22C3579', 'results/No2_Nathamuni_TN22C3579_28-12-2020_13:01:49.jpg', '2020-12-28 13:01:50', 'full_images/No2_Nathamuni_TN22C3579_28-12-2020_13:01:49.jpg'),
 (402097, 'No2_Nathamuni', 'N07BY693', 'results/No2_Nathamuni_N07BY693_28-12-2020_13:01:50.jpg', '2020-12-28 13:01:50', 'full_images/No2_Nathamuni_N07BY693_28-12-2020_13:01:50.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (402098, 'No2_Nathamuni', 'TN22C79', 'results/No2_Nathamuni_TN22C79_28-12-2020_13:01:50.jpg', '2020-12-28 13:01:51', 'full_images/No2_Nathamuni_TN22C79_28-12-2020_13:01:50.jpg'),
 (402099, 'No4_Sidco_Nagar', '02', 'results/No4_Sidco_Nagar_02_28-12-2020_13:01:54.jpg', '2020-12-28 13:01:55', 'full_images/No4_Sidco_Nagar_02_28-12-2020_13:01:54.jpg'),
 (402100, 'No2_Nathamuni', 'TN1AC2', 'results/No2_Nathamuni_TN1AC2_28-12-2020_13:01:54.jpg', '2020-12-28 13:01:55', 'full_images/No2_Nathamuni_TN1AC2_28-12-2020_13:01:54.jpg'),
@@ -3063,7 +3063,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (402371, 'No2_Nathamuni', 'N09BZ6801', 'results/No2_Nathamuni_N09BZ6801_28-12-2020_13:06:04.jpg', '2020-12-28 13:06:05', 'full_images/No2_Nathamuni_N09BZ6801_28-12-2020_13:06:04.jpg'),
 (402372, 'No2_Nathamuni', 'CN0K6071', 'results/No2_Nathamuni_CN0K6071_28-12-2020_13:06:05.jpg', '2020-12-28 13:06:05', 'full_images/No2_Nathamuni_CN0K6071_28-12-2020_13:06:05.jpg'),
 (402373, 'No2_Nathamuni', '12372', 'results/No2_Nathamuni_12372_28-12-2020_13:06:05.jpg', '2020-12-28 13:06:06', 'full_images/No2_Nathamuni_12372_28-12-2020_13:06:05.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (402374, 'No2_Nathamuni', 'TN09BZ6801', 'results/No2_Nathamuni_TN09BZ6801_28-12-2020_13:06:05.jpg', '2020-12-28 13:06:06', 'full_images/No2_Nathamuni_TN09BZ6801_28-12-2020_13:06:05.jpg'),
 (402375, 'No2_Nathamuni', 'TN0607', 'results/No2_Nathamuni_TN0607_28-12-2020_13:06:06.jpg', '2020-12-28 13:06:07', 'full_images/No2_Nathamuni_TN0607_28-12-2020_13:06:06.jpg'),
 (402376, 'No4_Sidco_Nagar', '453', 'results/No4_Sidco_Nagar_453_28-12-2020_13:06:07.jpg', '2020-12-28 13:06:07', 'full_images/No4_Sidco_Nagar_453_28-12-2020_13:06:07.jpg'),
@@ -3336,7 +3336,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (402643, 'No2_Sathya_Showroom', '9055', 'results/No2_Sathya_Showroom_9055_28-12-2020_15:48:40.jpg', '2020-12-28 15:48:41', 'full_images/No2_Sathya_Showroom_9055_28-12-2020_15:48:40.jpg'),
 (402644, 'No2_Sathya_Showroom', '055', 'results/No2_Sathya_Showroom_055_28-12-2020_15:48:41.jpg', '2020-12-28 15:48:41', 'full_images/No2_Sathya_Showroom_055_28-12-2020_15:48:41.jpg'),
 (402645, 'No2_Nathamuni', 'TN0BB7756', 'results/No2_Nathamuni_TN0BB7756_28-12-2020_15:48:41.jpg', '2020-12-28 15:48:41', 'full_images/No2_Nathamuni_TN0BB7756_28-12-2020_15:48:41.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (402646, 'No2_Sathya_Showroom', '5', 'results/No2_Sathya_Showroom_5_28-12-2020_15:48:41.jpg', '2020-12-28 15:48:42', 'full_images/No2_Sathya_Showroom_5_28-12-2020_15:48:41.jpg'),
 (402647, 'No2_Nathamuni', '08B7756', 'results/No2_Nathamuni_08B7756_28-12-2020_15:48:42.jpg', '2020-12-28 15:48:42', 'full_images/No2_Nathamuni_08B7756_28-12-2020_15:48:42.jpg'),
 (402648, 'No2_Sathya_Showroom', '055', 'results/No2_Sathya_Showroom_055_28-12-2020_15:48:43.jpg', '2020-12-28 15:48:43', 'full_images/No2_Sathya_Showroom_055_28-12-2020_15:48:43.jpg'),
@@ -3609,7 +3609,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (402915, 'No2_Sathya_Showroom', 'TN06X6269', 'results/No2_Sathya_Showroom_TN06X6269_28-12-2020_15:54:02.jpg', '2020-12-28 15:54:03', 'full_images/No2_Sathya_Showroom_TN06X6269_28-12-2020_15:54:02.jpg'),
 (402916, 'No4_Flyover_Starting', 'T11AM4306', 'results/No4_Flyover_Starting_T11AM4306_28-12-2020_15:54:02.jpg', '2020-12-28 15:54:03', 'full_images/No4_Flyover_Starting_T11AM4306_28-12-2020_15:54:02.jpg'),
 (402917, 'No2_Sathya_Showroom', 'TN06', 'results/No2_Sathya_Showroom_TN06_28-12-2020_15:54:03.jpg', '2020-12-28 15:54:04', 'full_images/No2_Sathya_Showroom_TN06_28-12-2020_15:54:03.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (402918, 'No2_Nathamuni', 'TN18AK1966', 'results/No2_Nathamuni_TN18AK1966_28-12-2020_15:54:04.jpg', '2020-12-28 15:54:04', 'full_images/No2_Nathamuni_TN18AK1966_28-12-2020_15:54:04.jpg'),
 (402919, 'No2_Nathamuni', 'TN01A93', 'results/No2_Nathamuni_TN01A93_28-12-2020_15:54:04.jpg', '2020-12-28 15:54:04', 'full_images/No2_Nathamuni_TN01A93_28-12-2020_15:54:04.jpg'),
 (402920, 'No2_Sathya_Showroom', 'X0629', 'results/No2_Sathya_Showroom_X0629_28-12-2020_15:54:04.jpg', '2020-12-28 15:54:04', 'full_images/No2_Sathya_Showroom_X0629_28-12-2020_15:54:04.jpg'),
@@ -3885,7 +3885,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (403190, 'No4_Flyover_Starting', 'N9', 'results/No4_Flyover_Starting_N9_28-12-2020_15:57:32.jpg', '2020-12-28 15:57:32', 'full_images/No4_Flyover_Starting_N9_28-12-2020_15:57:32.jpg'),
 (403191, 'No4_Flyover_Starting', 'TN9', 'results/No4_Flyover_Starting_TN9_28-12-2020_15:57:33.jpg', '2020-12-28 15:57:33', 'full_images/No4_Flyover_Starting_TN9_28-12-2020_15:57:33.jpg'),
 (403192, 'No2_Nathamuni', 'TN11AC22', 'results/No2_Nathamuni_TN11AC22_28-12-2020_15:57:34.jpg', '2020-12-28 15:57:34', 'full_images/No2_Nathamuni_TN11AC22_28-12-2020_15:57:34.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (403193, 'No4_Flyover_Starting', 'N', 'results/No4_Flyover_Starting_N_28-12-2020_15:57:34.jpg', '2020-12-28 15:57:34', 'full_images/No4_Flyover_Starting_N_28-12-2020_15:57:34.jpg'),
 (403194, 'No4_Flyover_Starting', 'N9', 'results/No4_Flyover_Starting_N9_28-12-2020_15:57:35.jpg', '2020-12-28 15:57:35', 'full_images/No4_Flyover_Starting_N9_28-12-2020_15:57:35.jpg'),
 (403195, 'No2_Nathamuni', 'TN1AC2', 'results/No2_Nathamuni_TN1AC2_28-12-2020_15:57:35.jpg', '2020-12-28 15:57:35', 'full_images/No2_Nathamuni_TN1AC2_28-12-2020_15:57:35.jpg'),
@@ -4159,7 +4159,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (403463, 'No4_Flyover_Starting', 'TN22C', 'results/No4_Flyover_Starting_TN22C_28-12-2020_18:55:53.jpg', '2020-12-28 18:55:53', 'full_images/No4_Flyover_Starting_TN22C_28-12-2020_18:55:53.jpg'),
 (403464, 'No4_Flyover_Starting', 'TN9', 'results/No4_Flyover_Starting_TN9_28-12-2020_18:55:53.jpg', '2020-12-28 18:55:54', 'full_images/No4_Flyover_Starting_TN9_28-12-2020_18:55:53.jpg'),
 (403465, 'No4_Flyover_Starting', 'N9', 'results/No4_Flyover_Starting_N9_28-12-2020_18:55:54.jpg', '2020-12-28 18:55:54', 'full_images/No4_Flyover_Starting_N9_28-12-2020_18:55:54.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (403466, 'No4_Flyover_Starting', 'N', 'results/No4_Flyover_Starting_N_28-12-2020_18:55:54.jpg', '2020-12-28 18:55:55', 'full_images/No4_Flyover_Starting_N_28-12-2020_18:55:54.jpg'),
 (403467, 'No4_Flyover_Starting', 'N', 'results/No4_Flyover_Starting_N_28-12-2020_18:55:55.jpg', '2020-12-28 18:55:56', 'full_images/No4_Flyover_Starting_N_28-12-2020_18:55:55.jpg'),
 (403468, 'No2_Flyover_Starting', 'N', 'results/No2_Flyover_Starting_N_28-12-2020_18:55:56.jpg', '2020-12-28 18:55:57', 'full_images/No2_Flyover_Starting_N_28-12-2020_18:55:56.jpg'),
@@ -4432,7 +4432,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (403735, 'No2_Nathamuni', '23372', 'results/No2_Nathamuni_23372_28-12-2020_19:38:18.jpg', '2020-12-28 19:38:19', 'full_images/No2_Nathamuni_23372_28-12-2020_19:38:18.jpg'),
 (403736, 'No2_Nathamuni', '3', 'results/No2_Nathamuni_3_28-12-2020_19:38:19.jpg', '2020-12-28 19:38:20', 'full_images/No2_Nathamuni_3_28-12-2020_19:38:19.jpg'),
 (403737, 'No2_Nathamuni', 'CC304', 'results/No2_Nathamuni_CC304_28-12-2020_19:38:20.jpg', '2020-12-28 19:38:20', 'full_images/No2_Nathamuni_CC304_28-12-2020_19:38:20.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (403738, 'No2_Flyover_Starting', '09260', 'results/No2_Flyover_Starting_09260_28-12-2020_19:38:20.jpg', '2020-12-28 19:38:21', 'full_images/No2_Flyover_Starting_09260_28-12-2020_19:38:20.jpg'),
 (403739, 'No4_Sidco_Nagar', '484', 'results/No4_Sidco_Nagar_484_28-12-2020_19:38:27.jpg', '2020-12-28 19:38:27', 'full_images/No4_Sidco_Nagar_484_28-12-2020_19:38:27.jpg'),
 (403740, 'No4_Sidco_Nagar', '43', 'results/No4_Sidco_Nagar_43_28-12-2020_19:38:27.jpg', '2020-12-28 19:38:28', 'full_images/No4_Sidco_Nagar_43_28-12-2020_19:38:27.jpg'),
@@ -4704,7 +4704,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (404006, 'No2_Sathya_Showroom', 'X0629', 'results/No2_Sathya_Showroom_X0629_28-12-2020_19:44:33.jpg', '2020-12-28 19:44:33', 'full_images/No2_Sathya_Showroom_X0629_28-12-2020_19:44:33.jpg'),
 (404007, 'No4_Flyover_Starting', 'TN11A4306', 'results/No4_Flyover_Starting_TN11A4306_28-12-2020_19:44:33.jpg', '2020-12-28 19:44:33', 'full_images/No4_Flyover_Starting_TN11A4306_28-12-2020_19:44:33.jpg'),
 (404008, 'No2_Sathya_Showroom', 'TN06', 'results/No2_Sathya_Showroom_TN06_28-12-2020_19:44:33.jpg', '2020-12-28 19:44:34', 'full_images/No2_Sathya_Showroom_TN06_28-12-2020_19:44:33.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (404009, 'No4_Flyover_Starting', 'TN11AM4306', 'results/No4_Flyover_Starting_TN11AM4306_28-12-2020_19:44:33.jpg', '2020-12-28 19:44:34', 'full_images/No4_Flyover_Starting_TN11AM4306_28-12-2020_19:44:33.jpg'),
 (404010, 'No2_Sathya_Showroom', 'TN1188', 'results/No2_Sathya_Showroom_TN1188_28-12-2020_19:44:33.jpg', '2020-12-28 19:44:34', 'full_images/No2_Sathya_Showroom_TN1188_28-12-2020_19:44:33.jpg'),
 (404011, 'No4_Flyover_Starting', 'T11AM4306', 'results/No4_Flyover_Starting_T11AM4306_28-12-2020_19:44:34.jpg', '2020-12-28 19:44:34', 'full_images/No4_Flyover_Starting_T11AM4306_28-12-2020_19:44:34.jpg'),
@@ -4979,7 +4979,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (404280, 'No4_Flyover_Starting', '3307', 'results/No4_Flyover_Starting_3307_28-12-2020_19:47:35.jpg', '2020-12-28 19:47:36', 'full_images/No4_Flyover_Starting_3307_28-12-2020_19:47:35.jpg'),
 (404281, 'No4_Flyover_Starting', 'N3337', 'results/No4_Flyover_Starting_N3337_28-12-2020_19:47:36.jpg', '2020-12-28 19:47:36', 'full_images/No4_Flyover_Starting_N3337_28-12-2020_19:47:36.jpg'),
 (404282, 'No2_Nathamuni', 'TN07CA1105', 'results/No2_Nathamuni_TN07CA1105_28-12-2020_19:47:36.jpg', '2020-12-28 19:47:36', 'full_images/No2_Nathamuni_TN07CA1105_28-12-2020_19:47:36.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (404283, 'No2_Nathamuni', 'TN18AK1966', 'results/No2_Nathamuni_TN18AK1966_28-12-2020_19:47:36.jpg', '2020-12-28 19:47:37', 'full_images/No2_Nathamuni_TN18AK1966_28-12-2020_19:47:36.jpg'),
 (404284, 'No4_Flyover_Starting', 'TN73L337', 'results/No4_Flyover_Starting_TN73L337_28-12-2020_19:47:36.jpg', '2020-12-28 19:47:37', 'full_images/No4_Flyover_Starting_TN73L337_28-12-2020_19:47:36.jpg'),
 (404285, 'No2_Nathamuni', 'TN18AK1966', 'results/No2_Nathamuni_TN18AK1966_28-12-2020_19:47:37.jpg', '2020-12-28 19:47:37', 'full_images/No2_Nathamuni_TN18AK1966_28-12-2020_19:47:37.jpg'),
@@ -5256,7 +5256,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (404556, 'No2_Sathya_Showroom', 'TN22CF5313', 'results/No2_Sathya_Showroom_TN22CF5313_28-12-2020_19:50:32.jpg', '2020-12-28 19:50:32', 'full_images/No2_Sathya_Showroom_TN22CF5313_28-12-2020_19:50:32.jpg'),
 (404557, 'No2_Nathamuni', '2', 'results/No2_Nathamuni_2_28-12-2020_19:50:32.jpg', '2020-12-28 19:50:32', 'full_images/No2_Nathamuni_2_28-12-2020_19:50:32.jpg'),
 (404558, 'No2_Nathamuni', 'TN0BV6116', 'results/No2_Nathamuni_TN0BV6116_28-12-2020_19:50:32.jpg', '2020-12-28 19:50:33', 'full_images/No2_Nathamuni_TN0BV6116_28-12-2020_19:50:32.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (404559, 'No4_Flyover_Starting', '2', 'results/No4_Flyover_Starting_2_28-12-2020_19:50:33.jpg', '2020-12-28 19:50:33', 'full_images/No4_Flyover_Starting_2_28-12-2020_19:50:33.jpg'),
 (404560, 'No2_Sathya_Showroom', 'TN22CF5313', 'results/No2_Sathya_Showroom_TN22CF5313_28-12-2020_19:50:33.jpg', '2020-12-28 19:50:34', 'full_images/No2_Sathya_Showroom_TN22CF5313_28-12-2020_19:50:33.jpg'),
 (404561, 'No4_Flyover_Starting', '22', 'results/No4_Flyover_Starting_22_28-12-2020_19:50:33.jpg', '2020-12-28 19:50:34', 'full_images/No4_Flyover_Starting_22_28-12-2020_19:50:33.jpg'),
@@ -5532,7 +5532,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (404831, 'No2_Nathamuni', '123', 'results/No2_Nathamuni_123_28-12-2020_19:53:00.jpg', '2020-12-28 19:53:00', 'full_images/No2_Nathamuni_123_28-12-2020_19:53:00.jpg'),
 (404832, 'No2_Sathya_Showroom', 'TN14R1782', 'results/No2_Sathya_Showroom_TN14R1782_28-12-2020_19:53:00.jpg', '2020-12-28 19:53:00', 'full_images/No2_Sathya_Showroom_TN14R1782_28-12-2020_19:53:00.jpg'),
 (404833, 'No2_Flyover_Starting', '09', 'results/No2_Flyover_Starting_09_28-12-2020_19:53:00.jpg', '2020-12-28 19:53:01', 'full_images/No2_Flyover_Starting_09_28-12-2020_19:53:00.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (404834, 'No2_Nathamuni', 'TN0CR8485', 'results/No2_Nathamuni_TN0CR8485_28-12-2020_19:53:01.jpg', '2020-12-28 19:53:01', 'full_images/No2_Nathamuni_TN0CR8485_28-12-2020_19:53:01.jpg'),
 (404835, 'No2_Sathya_Showroom', 'TN14R1782', 'results/No2_Sathya_Showroom_TN14R1782_28-12-2020_19:53:01.jpg', '2020-12-28 19:53:02', 'full_images/No2_Sathya_Showroom_TN14R1782_28-12-2020_19:53:01.jpg'),
 (404836, 'No2_Nathamuni', '11123N', 'results/No2_Nathamuni_11123N_28-12-2020_19:53:01.jpg', '2020-12-28 19:53:02', 'full_images/No2_Nathamuni_11123N_28-12-2020_19:53:01.jpg'),
@@ -5807,7 +5807,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (405105, 'No2_Nathamuni', 'TN13F6325', 'results/No2_Nathamuni_TN13F6325_28-12-2020_20:21:13.jpg', '2020-12-28 20:21:14', 'full_images/No2_Nathamuni_TN13F6325_28-12-2020_20:21:13.jpg'),
 (405106, 'No2_Nathamuni', '2C11477', 'results/No2_Nathamuni_2C11477_28-12-2020_20:21:14.jpg', '2020-12-28 20:21:14', 'full_images/No2_Nathamuni_2C11477_28-12-2020_20:21:14.jpg'),
 (405107, 'No2_Nathamuni', 'TN2CC177', 'results/No2_Nathamuni_TN2CC177_28-12-2020_20:21:14.jpg', '2020-12-28 20:21:15', 'full_images/No2_Nathamuni_TN2CC177_28-12-2020_20:21:14.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (405108, 'No2_Flyover_Starting', '9', 'results/No2_Flyover_Starting_9_28-12-2020_20:21:15.jpg', '2020-12-28 20:21:15', 'full_images/No2_Flyover_Starting_9_28-12-2020_20:21:15.jpg'),
 (405109, 'No2_Nathamuni', 'N7CC54', 'results/No2_Nathamuni_N7CC54_28-12-2020_20:21:15.jpg', '2020-12-28 20:21:15', 'full_images/No2_Nathamuni_N7CC54_28-12-2020_20:21:15.jpg'),
 (405110, 'No2_Nathamuni', '23372', 'results/No2_Nathamuni_23372_28-12-2020_20:21:17.jpg', '2020-12-28 20:21:17', 'full_images/No2_Nathamuni_23372_28-12-2020_20:21:17.jpg'),
@@ -6083,7 +6083,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (405380, 'No4_Flyover_Starting', '7C09005', 'results/No4_Flyover_Starting_7C09005_28-12-2020_20:24:09.jpg', '2020-12-28 20:24:09', 'full_images/No4_Flyover_Starting_7C09005_28-12-2020_20:24:09.jpg'),
 (405381, 'No2_Nathamuni', 'T071230', 'results/No2_Nathamuni_T071230_28-12-2020_20:24:09.jpg', '2020-12-28 20:24:10', 'full_images/No2_Nathamuni_T071230_28-12-2020_20:24:09.jpg'),
 (405382, 'No2_Nathamuni', 'TN07230', 'results/No2_Nathamuni_TN07230_28-12-2020_20:24:10.jpg', '2020-12-28 20:24:11', 'full_images/No2_Nathamuni_TN07230_28-12-2020_20:24:10.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (405383, 'No4_Flyover_Starting', '6000', 'results/No4_Flyover_Starting_6000_28-12-2020_20:24:11.jpg', '2020-12-28 20:24:11', 'full_images/No4_Flyover_Starting_6000_28-12-2020_20:24:11.jpg'),
 (405384, 'No2_Nathamuni', 'TN071233', 'results/No2_Nathamuni_TN071233_28-12-2020_20:24:12.jpg', '2020-12-28 20:24:12', 'full_images/No2_Nathamuni_TN071233_28-12-2020_20:24:12.jpg'),
 (405385, 'No2_Nathamuni', 'B99', 'results/No2_Nathamuni_B99_28-12-2020_20:24:13.jpg', '2020-12-28 20:24:14', 'full_images/No2_Nathamuni_B99_28-12-2020_20:24:13.jpg'),
@@ -6359,7 +6359,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (405655, 'No2_Nathamuni', '0AL119', 'results/No2_Nathamuni_0AL119_28-12-2020_20:26:46.jpg', '2020-12-28 20:26:47', 'full_images/No2_Nathamuni_0AL119_28-12-2020_20:26:46.jpg'),
 (405656, 'No4_Sidco_Nagar', '999', 'results/No4_Sidco_Nagar_999_28-12-2020_20:26:47.jpg', '2020-12-28 20:26:47', 'full_images/No4_Sidco_Nagar_999_28-12-2020_20:26:47.jpg'),
 (405657, 'No2_Nathamuni', 'KL0AL1919', 'results/No2_Nathamuni_KL0AL1919_28-12-2020_20:26:47.jpg', '2020-12-28 20:26:48', 'full_images/No2_Nathamuni_KL0AL1919_28-12-2020_20:26:47.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (405658, 'No2_Nathamuni', 'TN027CK671', 'results/No2_Nathamuni_TN027CK671_28-12-2020_20:26:48.jpg', '2020-12-28 20:26:48', 'full_images/No2_Nathamuni_TN027CK671_28-12-2020_20:26:48.jpg'),
 (405659, 'No4_Flyover_Starting', '19', 'results/No4_Flyover_Starting_19_28-12-2020_20:26:48.jpg', '2020-12-28 20:26:48', 'full_images/No4_Flyover_Starting_19_28-12-2020_20:26:48.jpg'),
 (405660, 'No2_Nathamuni', 'KL09AL1919', 'results/No2_Nathamuni_KL09AL1919_28-12-2020_20:26:48.jpg', '2020-12-28 20:26:49', 'full_images/No2_Nathamuni_KL09AL1919_28-12-2020_20:26:48.jpg'),
@@ -6637,7 +6637,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 (405932, 'No2_Nathamuni', '2', 'results/No2_Nathamuni_2_28-12-2020_20:29:35.jpg', '2020-12-28 20:29:35', 'full_images/No2_Nathamuni_2_28-12-2020_20:29:35.jpg'),
 (405933, 'No2_Nathamuni', '2C11477', 'results/No2_Nathamuni_2C11477_28-12-2020_20:29:35.jpg', '2020-12-28 20:29:36', 'full_images/No2_Nathamuni_2C11477_28-12-2020_20:29:35.jpg'),
 (405934, 'No2_Nathamuni', 'TN02BL4899', 'results/No2_Nathamuni_TN02BL4899_28-12-2020_20:29:35.jpg', '2020-12-28 20:29:36', 'full_images/No2_Nathamuni_TN02BL4899_28-12-2020_20:29:35.jpg');
-INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
+INSERT INTO `license_plates_db` (`entry_id`, `camera_name`, `number_plate_number`, `image`, `date`, `fullimage`) VALUES
 (405935, 'No2_Nathamuni', 'TN10BF2533', 'results/No2_Nathamuni_TN10BF2533_28-12-2020_20:29:36.jpg', '2020-12-28 20:29:36', 'full_images/No2_Nathamuni_TN10BF2533_28-12-2020_20:29:36.jpg'),
 (405936, 'No2_Nathamuni', 'TN2CC177', 'results/No2_Nathamuni_TN2CC177_28-12-2020_20:29:36.jpg', '2020-12-28 20:29:37', 'full_images/No2_Nathamuni_TN2CC177_28-12-2020_20:29:36.jpg'),
 (405937, 'No2_Nathamuni', 'TN02BL4899', 'results/No2_Nathamuni_TN02BL4899_28-12-2020_20:29:36.jpg', '2020-12-28 20:29:37', 'full_images/No2_Nathamuni_TN02BL4899_28-12-2020_20:29:36.jpg'),
@@ -6657,7 +6657,7 @@ INSERT INTO `license_plates_db` (`slno`, `camera_name`, `number_plate_number`, `
 -- Indexes for table `license_plates_db`
 --
 ALTER TABLE `license_plates_db`
-  ADD PRIMARY KEY (`slno`);
+  ADD PRIMARY KEY (`entry_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -6667,7 +6667,7 @@ ALTER TABLE `license_plates_db`
 -- AUTO_INCREMENT for table `license_plates_db`
 --
 ALTER TABLE `license_plates_db`
-  MODIFY `slno` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=405945;
+  MODIFY `entry_id` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=405945;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

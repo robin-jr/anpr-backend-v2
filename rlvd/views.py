@@ -40,7 +40,7 @@ def sample(request):
 #logging.info("STARTED DJANGO SERVER")
 
 def getViolations(id):
-    violations = Violation.objects.filter(vehicle_id=id)
+    violations = Violation.objects.filter(entry_id=id)
     d=[]
     for e in violations:
         temp={}
@@ -50,7 +50,7 @@ def getViolations(id):
     return d
 
 def getEvidenceImages(id):
-    evidenceImages = EvidenceCamImg.objects.filter(vehicle_id=id)
+    evidenceImages = EvidenceCamImg.objects.filter(entry_id=id)
     d=[]
     for e in evidenceImages:
         d.append(e.evidence_image)
@@ -81,18 +81,19 @@ def index(request):
     return response
 
 
+@csrf_exempt
 def update_violations(request):
     if request.method=="GET":
         form_data = request.GET
         print("form_data", form_data)
 
         try:
-            # vehicle_id=form_data["vehicle_id"] # id of the particular entry
+            # entry_id=form_data["entry_id"] # id of the particular entry
             # old_violations=form_data["old_violations"] #[{pk:1,violation_id:2},{pk:2,violation_id:3}]
             # new_violations=form_data["new_violations"] #[1,2,3]
 
-            vehicle_id=1
-            old_violations=[{"pk": 103, "violation_id": 1}, {"pk": 105, "violation_id": 3}]
+            entry_id=1
+            old_violations=[{"pk": 1, "violation_id": 1}, {"pk": 2, "violation_id": 2}]
             new_violations=[1,3]
 
             toRemove=[]
@@ -104,12 +105,12 @@ def update_violations(request):
 
             Violation.objects.filter(pk__in=toRemove).delete()
             for e in new_violations:
-                newV = Violation(violation=ViolationRef.objects.filter(id=e).first(),vehicle=LicensePlates.objects.filter(pk=vehicle_id).first())
+                newV = Violation(violation=ViolationRef.objects.filter(id=e).first(),entry=LicensePlates.objects.filter(pk=entry_id).first())
                 newV.save()
             
-            LicensePlates.objects.filter(pk=vehicle_id).update(reviewed=1)
+            LicensePlates.objects.filter(pk=entry_id).update(reviewed=1)
             
-            violations=getViolations(vehicle_id)
+            violations=getViolations(entry_id)
             return HttpResponse(json.dumps({
             "violations":violations,
             }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
@@ -120,6 +121,7 @@ def update_violations(request):
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
+@csrf_exempt
 def get_violations(request):
     if request.method == "GET":
         form_data = request.GET

@@ -5,7 +5,7 @@ LIMIT 0, 1000
 -- Date: 2021-08-23 22:58
 */
 CREATE TABLE `license_plates_rlvd` (
-  `slno` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `entry_id` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `camera_name` varchar(100) NOT NULL,
   `junction_name` varchar(100) NOT NULL,
   `evidence_camera_name` varchar(100) NOT NULL,
