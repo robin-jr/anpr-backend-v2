@@ -29,7 +29,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 @api_view(['GET'])
 def sample(request):
-    Response("good")
+    HttpResponse("good")
 
 # django_dir = os.environ['DJANGOPATH']#"/home/user/Django_Anpr-master/" # Directory containing Django manage.py
 # logs_dir = os.environ['LOGSPATH']#"/home/"+str(os.environ.get('USER'))+"/logs/"# Directory to store log files and the log file format
@@ -56,25 +56,33 @@ def getEvidenceImages(id):
         d.append(e.evidence_image)
     return d
 
+def getViolationRefs():
+    violationRefs=ViolationRef.objects.all()
+    d=[]
+    for e in violationRefs:
+        temp={}
+        temp["pk"]= e.pk
+        temp["violation_name"]=e.violation_name
+        d.append(temp)
+    return d
 
-def index(request):
+def getCameras():
     cameraQuerySet = Camera.objects.all()
     cameras = []
     for cam in cameraQuerySet:
         cameras.append(cam.camera_name)
+    return cameras
 
-    count = LicensePlates.objects.count()
 
-    a=LicensePlates.objects.all()
-    b=EvidenceCamImg.objects.all()
-    c=Violation.objects.all()
-    d=ViolationRef.objects.all()
+def index(request):
+    cameras=getCameras();
+    violationRefs=getViolationRefs()
 
     response = HttpResponse(
         json.dumps( {
             "cameras": cameras,
             "junction_names":[],
-            "violationRef":serializers.serialize('json' ,d),
+            "violationRefs":violationRefs,
         },),content_type="application/json"
         ,headers={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"*"}
     )
@@ -83,18 +91,24 @@ def index(request):
 
 @csrf_exempt
 def update_violations(request):
-    if request.method=="GET":
-        form_data = request.GET
+    if request.method=="POST":
+        form_data = request.POST
         print("form_data", form_data)
 
         try:
-            # entry_id=form_data["entry_id"] # id of the particular entry
-            # old_violations=form_data["old_violations"] #[{pk:1,violation_id:2},{pk:2,violation_id:3}]
-            # new_violations=form_data["new_violations"] #[1,2,3]
+            entry_id=form_data["entry_id"] # id of the particular entry
+            old_violations=json.loads(form_data["old_violations"]) #[{pk:1,violation_id:2},{pk:2,violation_id:3}]
+            new_violations=json.loads(form_data["new_violations"]) #[1,2,3]
+            new_plate=form_data["new_plate"] 
+            old_plate=form_data["old_plate"] 
+            print("decrypted form data--> ",entry_id,old_plate,new_plate,old_violations,new_violations)
+            if new_plate != old_plate:
+                LicensePlates.objects.filter(pk=entry_id).update(number_plate_number=new_plate)
 
-            entry_id=1
-            old_violations=[{"pk": 1, "violation_id": 1}, {"pk": 2, "violation_id": 2}]
-            new_violations=[1,3]
+            # return HttpResponse(form_data)
+            # entry_id=1
+            # old_violations=[{"pk": 1, "violation_id": 1}, {"pk": 2, "violation_id": 2}]
+            # new_violations=[1,3]
 
             toRemove=[]
             for e in old_violations:
@@ -109,10 +123,23 @@ def update_violations(request):
                 newV.save()
             
             LicensePlates.objects.filter(pk=entry_id).update(reviewed=1)
-            
-            violations=getViolations(entry_id)
+
+            e=LicensePlates.objects.filter(pk=entry_id).first()
+            temp={}
+            temp["id"]= e.pk
+            temp["camera_name"]= e.camera_name
+            temp["junction_name"]= e.junction_name
+            temp["evidence_camera_name"]= e.evidence_camera_name
+            temp["plate"]= e.number_plate_number
+            temp["date"]= str(e.date)
+            temp["anpr_image"]= e.anpr_image
+            temp["cropped_image"]= e.cropped_image
+            temp["violations"]= getViolations(e.pk)
+            temp["evidence_images"]=getEvidenceImages(e.pk)
+            temp["reviewed"]=e.reviewed
+           
             return HttpResponse(json.dumps({
-            "violations":violations,
+            "entry":json.dumps(temp),
             }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
         except Exception as e:
@@ -185,7 +212,7 @@ def plate_search(request):
                 temp["camera_name"]= e.camera_name
                 temp["junction_name"]= e.junction_name
                 temp["evidence_camera_name"]= e.evidence_camera_name
-                temp["number_plate_number"]= e.number_plate_number
+                temp["plate"]= e.number_plate_number
                 temp["date"]= str(e.date)
                 temp["anpr_image"]= e.anpr_image
                 temp["cropped_image"]= e.cropped_image
