@@ -188,10 +188,7 @@ def plate_search(request):
                 temp["number_plate_number"]= e.number_plate_number
                 temp["date"]= str(e.date)
                 temp["anpr_image"]= e.anpr_image
-                temp["xmin"]= e.xmin
-                temp["xmax"]= e.xmax
-                temp["ymin"]= e.ymin
-                temp["ymax"]= e.ymax
+                temp["cropped_image"]= e.cropped_image
                 temp["violations"]= getViolations(e.pk)
                 temp["evidence_images"]=getEvidenceImages(e.pk)
                 temp["reviewed"]=e.reviewed

@@ -10,12 +10,7 @@ class LicensePlatesRlvd(models.Model):
     number_plate_number = models.CharField(max_length=50)
     date = models.DateTimeField()
     anpr_image = models.CharField(max_length=100)
-    # violations = models.CharField(max_length=1000) #todo
-    # evidence_images = models.CharField(max_length=1000) #todo
-    xmin=models.CharField(max_length=50)
-    xmax=models.CharField(max_length=50)
-    ymin=models.CharField(max_length=50)
-    ymax=models.CharField(max_length=50)
+    cropped_image = models.CharField(max_length=100)
     reviewed=models.IntegerField()
 
     class Meta:

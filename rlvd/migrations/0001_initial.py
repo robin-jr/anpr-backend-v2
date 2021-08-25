@@ -22,10 +22,7 @@ class Migration(migrations.Migration):
                 ('number_plate_number', models.CharField(max_length=50)),
                 ('date', models.DateTimeField()),
                 ('anpr_image', models.CharField(max_length=100)),
-                ('xmin', models.CharField(max_length=50)),
-                ('xmax', models.CharField(max_length=50)),
-                ('ymin', models.CharField(max_length=50)),
-                ('ymax', models.CharField(max_length=50)),
+                ('cropped_image', models.CharField(max_length=100)),
                 ('reviewed', models.IntegerField()),
             ],
             options={
