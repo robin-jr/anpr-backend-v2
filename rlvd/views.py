@@ -102,8 +102,9 @@ def index(request):
 
     response = HttpResponse(
         json.dumps( {
-            "cameras": cameras,
-            "junction_names":[],
+            # "cameras": cameras,
+            "cameras": ['SathyaShowroom Front','SathyaShowroom Back','NIFT Entrance','SRP Tools','NIFT Left','SathyaShowroom Left'],
+            "junction_names":['Sathya Showroom','Tidal Park Junction'],
             "violationRefs":violationRefs,
         },),content_type="application/json"
         ,headers={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"*"}
@@ -208,6 +209,11 @@ def plate_search(request):
             start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
             end_date_time=form_data["end_date_time"] #can be empty 
 
+            if cameras!="":
+                cameras=cameras.split(',')
+            if junction_names!="":
+                junction_names=junction_names.split(',')
+            
             ## for now
             # vehicle_no= "1234"
             # cameras = ["SathyaShowroom Front"]
