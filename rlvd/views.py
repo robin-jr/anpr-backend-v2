@@ -293,6 +293,9 @@ download_csv.short_description = "Download selected as csv"
 
 
 @csrf_exempt
+@api_view(['POST', ])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def export_csv(request):
     form_data=request.POST
     try:
