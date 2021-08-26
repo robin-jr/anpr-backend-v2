@@ -6,4 +6,5 @@ urlpatterns = [path("", views.index),
                 path("platesearch/", views.plate_search),
                 path("getViolations/", views.get_violations),
                 path("sample/", views.sample),
+                path("export/", views.export_csv),
                 path("updateViolations/", views.update_violations),]

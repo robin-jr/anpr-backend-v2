@@ -29,6 +29,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 
+import csv
 
 @api_view(['GET', ])
 # @permission_classes([IsAuthenticated])
@@ -54,6 +55,17 @@ def getViolations(id):
         temp["pk"]= e.pk
         temp["violation_id"]=e.violation_id
         d.append(temp)
+    return d
+
+def getViolationNames(id):
+    violations = Violation.objects.filter(entry_id=id)
+    refs= getViolationRefs()
+    d=[]
+    for e in violations:
+        for ele in refs:
+            if(ele["pk"]==e.violation_id):
+                d.append(ele["violation_name"])
+                break
     return d
 
 def getEvidenceImages(id):
@@ -256,3 +268,81 @@ def plate_search(request):
         logging.info("Plate Search - End")
         return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
 
+def download_csv( request, array):
+    # opts = queryset.model._meta
+    # model = queryset.model
+    response = HttpResponse(content_type='text/csv')
+    # force download.
+    response['Content-Disposition'] = 'attachment;filename=export.csv'
+    # the csv writer
+    writer = csv.writer(response)
+    # field_names = [field.name for field in opts.fields]
+    # Write a first row with header information
+    head=['entry_id','vehicle_number','camera_name','junction_name','evidence_camera_name','date','anpr_image',
+    'license_plate_image','evidence_images','violations','reviewed']
+
+    # writer.writerow(field_names)
+    writer.writerow(head)
+    # writer.writerow(body)
+    # Write data rows
+    # array= [['a','b'],['c','d']]
+    for row in array:
+        writer.writerow(row)
+    return response
+download_csv.short_description = "Download selected as csv"
+
+
+@csrf_exempt
+def export_csv(request):
+    form_data=request.POST
+    try:
+        vehicle_no= form_data["vehicle_number"] #can be empty 
+        cameras = form_data["camera_names"] #can be empty
+        junction_names =form_data["junction_names"] #can be empty
+        start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
+        end_date_time=form_data["end_date_time"]
+        status_reviewed=form_data["status_reviewed"] # yes | no
+        status_not_reviewed=form_data["status_not_reviewed"] # yes | no
+
+        plates=LicensePlates.objects.all()
+        if vehicle_no!="":
+            plates = LicensePlates.objects.filter(number_plate_number__contains=vehicle_no)
+        if len(cameras)>0:
+            plates =plates.filter(camera_name__in=cameras)
+        if len(junction_names)>0:
+            plates=plates.filter(junction_name__in=junction_names)
+        if start_date_time!="":
+            plates=plates.filter(date__gte=start_date_time)
+        if end_date_time!="":
+            plates=plates.filter(date__lte=end_date_time)
+        if status_reviewed =="yes" and status_not_reviewed =="no":
+            plates=plates.filter(reviewed=1)
+        if status_reviewed =="no" and status_not_reviewed =="yes":
+            plates=plates.filter(reviewed=0)
+        
+        
+        count = plates.count()
+
+        
+        d=[]
+        for e in plates:
+            temp=[]
+            temp.append(e.pk)
+            temp.append(e.number_plate_number)
+            temp.append(e.camera_name)
+            temp.append(e.junction_name)
+            temp.append(e.evidence_camera_name)
+            temp.append(e.date.strftime('%d/%m/%Y %I:%M %p'))
+            temp.append(e.anpr_image)
+            temp.append(e.cropped_image)
+            temp.append(getEvidenceImages(e.pk))
+            temp.append(getViolationNames(e.pk))
+            temp.append('yes' if e.reviewed else 'no')
+            d.append(temp)
+
+        data = download_csv( request, d)
+        return HttpResponse (data, content_type='text/csv')
+    except Exception as e:
+
+        print("Exxception --> ",e);
+        return HttpResponse("error")
