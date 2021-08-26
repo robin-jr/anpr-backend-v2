@@ -22,14 +22,21 @@ from django.http import StreamingHttpResponse
 import time
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,authentication_classes, permission_classes
 from django.views.decorators.csrf import csrf_exempt
 
 
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 
-@api_view(['GET'])
+
+@api_view(['GET', ])
+# @permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
+@permission_classes([])
+@authentication_classes([])
 def sample(request):
-    HttpResponse("good")
+    return Response("good")
 
 # django_dir = os.environ['DJANGOPATH']#"/home/user/Django_Anpr-master/" # Directory containing Django manage.py
 # logs_dir = os.environ['LOGSPATH']#"/home/"+str(os.environ.get('USER'))+"/logs/"# Directory to store log files and the log file format
@@ -74,6 +81,9 @@ def getCameras():
     return cameras
 
 
+@api_view(['GET', ])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def index(request):
     cameras=getCameras();
     violationRefs=getViolationRefs()
@@ -90,6 +100,9 @@ def index(request):
 
 
 @csrf_exempt
+@api_view(['POST', ])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def update_violations(request):
     if request.method=="POST":
         form_data = request.POST
@@ -149,6 +162,9 @@ def update_violations(request):
 
 
 @csrf_exempt
+@api_view(['GET', ])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def get_violations(request):
     if request.method == "GET":
         form_data = request.GET
@@ -164,6 +180,9 @@ def get_violations(request):
 
 
 @csrf_exempt
+@api_view(['POST', ])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def plate_search(request):
 
     if request.method == "POST":
