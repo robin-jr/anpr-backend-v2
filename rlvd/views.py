@@ -157,7 +157,7 @@ def update_violations(request):
             temp["junction_name"]= e.junction_name
             temp["evidence_camera_name"]= e.evidence_camera_name
             temp["plate"]= e.number_plate_number
-            temp["date"]= str(e.date)
+            temp["date"]= e.date.strftime('%d/%m/%Y %H:%M:%S')
             temp["anpr_image"]= e.anpr_image
             temp["cropped_image"]= e.cropped_image
             temp["violations"]= getViolations(e.pk)
@@ -250,7 +250,7 @@ def plate_search(request):
                 temp["junction_name"]= e.junction_name
                 temp["evidence_camera_name"]= e.evidence_camera_name
                 temp["plate"]= e.number_plate_number
-                temp["date"]= str(e.date)
+                temp["date"]= e.date.strftime('%d/%m/%Y %H:%M:%S')
                 temp["anpr_image"]= e.anpr_image
                 temp["cropped_image"]= e.cropped_image
                 temp["violations"]= getViolations(e.pk)
@@ -341,7 +341,7 @@ def export_csv(request):
             temp.append(e.camera_name)
             temp.append(e.junction_name)
             temp.append(e.evidence_camera_name)
-            temp.append(e.date.strftime('%d/%m/%Y %I:%M %p'))
+            temp.append(e.date.strftime('%d/%m/%Y %H:%M:%S'))
             temp.append(e.anpr_image)
             temp.append(e.cropped_image)
             temp.append(getEvidenceImages(e.pk))
