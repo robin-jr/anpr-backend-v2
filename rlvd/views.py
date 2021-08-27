@@ -96,19 +96,34 @@ def getCameras():
         # cameras.append(cam.camera_name)
     return cameras
 
+def getJuctionsAndCameras():
+    cameraQuerySet = AnprCamera.objects.all()
+    cameras=[]
+    junctions_and_cameras = []
+    unique_junctions=set()
+    for cam in cameraQuerySet:
+        unique_junctions.add(cam.junction_name)
+        temp={}
+        temp["camera_name"]=cam.camera_name
+        temp["junction_name"]=cam.junction_name
+        cameras.append(temp)
+    unique_junctions=list(unique_junctions)
+    for e in unique_junctions:
+        junctions_and_cameras.append({"junction_name":e,"cameras":list(map(lambda x:x["camera_name"],filter(lambda x:x["junction_name"]==e,cameras)))})
+    return junctions_and_cameras
+
 
 @api_view(['GET', ])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
 def index(request):
-    cameras=getCameras();
+    # cameras=getCameras();
+    junctions_and_cameras=getJuctionsAndCameras();
     violationRefs=getViolationRefs()
 
     response = HttpResponse(
         json.dumps( {
-            "cameras": cameras,
-            # "cameras": ['SathyaShowroom Front','SathyaShowroom Back','NIFT Entrance','SRP Tools','NIFT Left','SathyaShowroom Left'],
-            # "junction_names":['Sathya Showroom','Tidal Park Junction'],
+            "junctions_and_cameras": junctions_and_cameras, 
             "violationRefs":violationRefs,
         },),content_type="application/json"
         ,headers={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"*"}
