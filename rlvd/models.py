@@ -53,12 +53,14 @@ class Violation(models.Model):
 
 
 
-class Camera(models.Model):
+class AnprCamera(models.Model):
     id = models.AutoField(primary_key=True)
     camera_name = models.CharField(max_length=100, help_text="Name of the Camera. AVOID SPACES IN THE NAME.")
     latitude = models.DecimalField(max_digits=10, decimal_places=7, help_text="Latitude of the Camera Location.")
     longitude = models.DecimalField(max_digits=10, decimal_places=7, help_text="Longitude of the Camera Location.")
-    url = models.CharField(max_length=400, help_text="Functioning RTSP link(rtsp://localhost:8554/ds-test) or Path to Local Video(/home/user/vid.mp4). AVOID SPACES IN THE NAME.")
+    rtsp_url = models.CharField(max_length=400, help_text="Functioning RTSP link(rtsp://localhost:8554/ds-test) or Path to Local Video(/home/user/vid.mp4). AVOID SPACES IN THE NAME.")
+    junction_name = models.CharField(max_length=400)
+    evidence_camera_name = models.CharField(max_length=400)
     plate_model = models.CharField(max_length=100, default = "T20-FP16",help_text="Name of the Plate Model. Refer to Accuracy Benchmarking Sheet if needed.")
     char_model = models.CharField(max_length=100, default = "chars-ssd",help_text="Name of the Chars Model. Refer to Accuracy Benchmarking Sheet if needed.")
     char_model_width = models.IntegerField(default = 304, help_text="Width of the Input to Char Model. Refer to Chars Training Documentation.")
@@ -82,10 +84,6 @@ class Camera(models.Model):
 
     object_tracking = models.CharField(max_length=100, default = "short-term",help_text="short-term/zero-term/off - Enable Object Tracking.")
     post_processing_method = models.IntegerField(default = 15, help_text="Post-processing Method - 1 to 21. Refer to AB2 for details.")
-    cluster_end = models.IntegerField(default = 30, help_text="Y-axis value beyond which we delcare that vehicle has passed and the cluster has ended. 0 means end of ROI- but then full image of vehicle will be missed. So a value of 20-60 is ideal i.e, save image when plate is at 20 pixels away from top x-axis. This is the same as RLVD. Set it to 0 to disable this.")
-    cluster_end_vehicle = models.IntegerField(default = 10, help_text="Number of plates in a vehicle cluster beyond which we declare that the cluster has ended and start post-processing. This feature is EXPERIMENTAL and was added to handle STATIC VEHICLES. A value of 10 means, if 10 plates are detected in a vehicle cluster, then plate detection is stopped and post-processing starts. Set it to a high value(100) to disable. Both cluster_end and cluster_end_vehicle are used to end clusters.")
-    no_of_active_vehicles = models.IntegerField(default = 3, help_text="Number of vehilces in the done_tracking_ids at a time. Rest will be popped to clear repetition of ids. This parameter was added to counter choppiness.")
-
 
     extras = models.IntegerField(default = -3, help_text="Extra pixels that we manually add to the cropped plate. Increasing this leads to coloured boundingbox in saved image. This is a potential bug - have to change gvawatermark if needed.")
     full_image_save_quality = models.IntegerField(default = 20, help_text="Cv2.Write Quaility of Image.Lesser the quality, lesser the storage space needed. Range of 0-99.")
@@ -96,7 +94,7 @@ class Camera(models.Model):
 
     class Meta:
         #managed = True
-        db_table = "camera_config"
+        db_table = "anpr_cameras"
 
     def __str__(self):
         return self.camera_name

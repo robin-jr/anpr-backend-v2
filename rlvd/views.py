@@ -8,7 +8,7 @@ import xlsxwriter
 import PIL.Image as Image
 from .models import LicensePlatesRlvd as LicensePlates
 from .models import EvidenceCamImg, Violation, ViolationRef
-from rlvd.models import Camera
+from rlvd.models import AnprCamera
 # from .common.validators import is_valid, get_status_date_time
 # from .common.functional_utils import get_filtered_data
 # from .common.file_utils import create_excel
@@ -86,10 +86,14 @@ def getViolationRefs():
     return d
 
 def getCameras():
-    cameraQuerySet = Camera.objects.all()
+    cameraQuerySet = AnprCamera.objects.all()
     cameras = []
     for cam in cameraQuerySet:
-        cameras.append(cam.camera_name)
+        temp={}
+        temp["camera_name"]=cam.camera_name
+        temp["junction_name"]=cam.junction_name
+        cameras.append(temp)
+        # cameras.append(cam.camera_name)
     return cameras
 
 
@@ -102,9 +106,9 @@ def index(request):
 
     response = HttpResponse(
         json.dumps( {
-            # "cameras": cameras,
-            "cameras": ['SathyaShowroom Front','SathyaShowroom Back','NIFT Entrance','SRP Tools','NIFT Left','SathyaShowroom Left'],
-            "junction_names":['Sathya Showroom','Tidal Park Junction'],
+            "cameras": cameras,
+            # "cameras": ['SathyaShowroom Front','SathyaShowroom Back','NIFT Entrance','SRP Tools','NIFT Left','SathyaShowroom Left'],
+            # "junction_names":['Sathya Showroom','Tidal Park Junction'],
             "violationRefs":violationRefs,
         },),content_type="application/json"
         ,headers={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"*"}
