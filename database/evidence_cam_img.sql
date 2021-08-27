@@ -40,8 +40,8 @@ INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/res
 INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev54.png',5);
 INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev55.png',5);
 
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev51.png',6);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev52.png',6);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev53.png',6);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev54.png',6);
-INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev55.png',6);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev61.png',6);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev62.png',6);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev63.png',6);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev64.png',6);
+INSERT INTO `evidence_cam_img` (`evidence_image`,`entry_id`) VALUES ('images/results/ev65.png',6);
