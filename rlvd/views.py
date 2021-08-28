@@ -31,6 +31,8 @@ from rest_framework.authentication import TokenAuthentication
 
 import csv
 
+HOST_STATIC_FOLDER_URL = "http://localhost:8001/static/";
+
 @api_view(['GET', ])
 # @permission_classes([IsAuthenticated])
 # @authentication_classes([TokenAuthentication])
@@ -73,6 +75,13 @@ def getEvidenceImages(id):
     d=[]
     for e in evidenceImages:
         d.append(e.evidence_image)
+    return d
+
+def getEvidenceImagesWithHostUrl(id):
+    evidenceImages = EvidenceCamImg.objects.filter(entry_id=id)
+    d=[]
+    for e in evidenceImages:
+        d.append(HOST_STATIC_FOLDER_URL + e.evidence_image)
     return d
 
 def getViolationRefs():
@@ -323,6 +332,7 @@ download_csv.short_description = "Download selected as csv"
 @authentication_classes([TokenAuthentication])
 def export_csv(request):
     form_data=request.POST
+    print("Form Data", form_data)
     try:
         vehicle_no= form_data["vehicle_number"] #can be empty 
         cameras = form_data["camera_names"] #can be empty
@@ -333,6 +343,13 @@ def export_csv(request):
         status_not_reviewed=form_data["status_not_reviewed"] # yes | no
 
         plates=LicensePlates.objects.all()
+        if cameras!="":
+            cameras=cameras.split(',')
+        if junction_names!="":
+            junction_names=junction_names.split(',')
+            
+
+        print("Vehicle NO: ", vehicle_no, "Cameras", cameras, "Junction Names", junction_names)
         if vehicle_no!="":
             plates = LicensePlates.objects.filter(number_plate_number__contains=vehicle_no)
         if len(cameras)>0:
@@ -361,13 +378,14 @@ def export_csv(request):
             temp.append(e.junction_name)
             temp.append(e.evidence_camera_name)
             temp.append(e.date.strftime('%d/%m/%Y %H:%M:%S'))
-            temp.append(e.anpr_image)
-            temp.append(e.cropped_image)
-            temp.append(getEvidenceImages(e.pk))
+            temp.append(HOST_STATIC_FOLDER_URL + e.anpr_image)
+            temp.append(HOST_STATIC_FOLDER_URL + e.cropped_image)
+            temp.append(getEvidenceImagesWithHostUrl(e.pk))
             temp.append(getViolationNames(e.pk))
             temp.append('yes' if e.reviewed else 'no')
             d.append(temp)
 
+        print("CSV Data", d)
         data = download_csv( request, d)
         return HttpResponse (data, content_type='text/csv')
     except Exception as e:
