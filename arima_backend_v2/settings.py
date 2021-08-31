@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     'account',
     'rlvd',
+    'anpr',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
