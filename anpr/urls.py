@@ -3,7 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    path("", views.say_hello ),
+    path("", views.initialDatas ),
     path("platesearch/", views.plate_search),
 ]
 
