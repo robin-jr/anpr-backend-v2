@@ -14,7 +14,9 @@ import json
 
 
 
-# @api_view(['GET'])
+@api_view(['GET'])
+@permission_classes([])
+@authentication_classes([])
 def initialDatas(request):
     camQuerySet = AnprCamera.objects.only('id', 'camera_name', 'latitude', 'longitude', 'rtsp_url')
     cams = []
@@ -33,16 +35,47 @@ def initialDatas(request):
             }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
+
+@api_view(['POST'])
+@permission_classes([])
+@authentication_classes([])
+def getCameraLatestEntriesAndRecognitions(request):
+    if request.method == "POST":
+        form_data = request.POST
+        print("form_data", form_data)
+        camera_name = form_data["camera_name"]
+        recognitionCount = LicensePlates.objects.filter(camera_name = camera_name).count()
+        entriesQuerySet = LicensePlates.objects.only('entry_id', 'camera_name', 'plate_number', 'date', 'anpr_full_image', 'anpr_cropped_image').filter(camera_name = camera_name).order_by('-entry_id')[:10]
+        entries = []
+        for entry in entriesQuerySet:
+            temp = {}
+            temp["id"] = entry.entry_id
+            temp["camera_name"] = entry.camera_name
+            temp["plate"] = entry.plate_number
+            temp["date"] = entry.date.strftime('%d/%m/%Y %H:%M:%S')
+            temp["anpr_full_image"] = entry.anpr_full_image
+            temp["anpr_cropped_image"] = entry.anpr_cropped_image
+            entries.append(temp)
+        return HttpResponse(json.dumps({
+                    "count":recognitionCount,
+                    "entries":json.dumps(entries),
+                    "filter_conditions": form_data,
+                }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+    else:
+        logging.info("Latest Entries - End")
+        return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
+
+
 @csrf_exempt
 # @api_view(['GET', ])
-@api_view(['POST', 'GET' ])
+@api_view(['POST' ])
 # @permission_classes([IsAuthenticated])
 # @authentication_classes([TokenAuthentication])
 @permission_classes([])
 @authentication_classes([])
 def plate_search(request):
 
-    if request.method == "POST" or request.method == "GET" :
+    if request.method == "POST":
         form_data = request.POST
         print("form_data", form_data)
 
@@ -103,7 +136,7 @@ def plate_search(request):
             return HttpResponse(json.dumps({
                 "count":count,
                 "entries":json.dumps(d),
-                # "filter_conditions": form_data,
+                "filter_conditions": form_data,
             }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
         except Exception as e:
