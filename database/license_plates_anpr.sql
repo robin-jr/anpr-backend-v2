@@ -7,8 +7,8 @@
 -- Server version: 5.7.32-0ubuntu0.18.04.1
 -- PHP Version: 7.2.24-0ubuntu0.18.04.7
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
+-- SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+-- SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -27,7 +27,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `license_plates_anpr` (
-  `entry_id` bigint(11) UNSIGNED NOT NULL,
+  `entry_id` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
   `camera_name` varchar(100) NOT NULL,
   `plate_number` varchar(50) NOT NULL,
   `date` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
