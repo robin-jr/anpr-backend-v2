@@ -1,25 +1,9 @@
-from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.db.models.functions import Length
-from django.db.models import Count
 import json
-import os
-import xlsxwriter
-import PIL.Image as Image
 from .models import LicensePlatesRlvd as LicensePlates
 from .models import EvidenceCamImg, Violation, ViolationRef
 from rlvd.models import AnprCamera
-# from .common.validators import is_valid, get_status_date_time
-# from .common.functional_utils import get_filtered_data
-# from .common.file_utils import create_excel
-# from subprocess import Popen
-# global camname
-from datetime import datetime
 import logging
-from django.core import serializers
-# import cv2
-from django.http import StreamingHttpResponse
-import time
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,authentication_classes, permission_classes
@@ -31,7 +15,7 @@ from rest_framework.authentication import TokenAuthentication
 
 import csv
 
-HOST_STATIC_FOLDER_URL = "http://localhost:8001/static/";
+HOST_STATIC_FOLDER_URL = "http://localhost:8001/static/"
 
 @api_view(['GET', ])
 # @permission_classes([IsAuthenticated])
@@ -50,7 +34,7 @@ def sample(request):
 #logging.info("STARTED DJANGO SERVER")
 
 def getViolations(id):
-    violations = Violation.objects.filter(entry_id=id)
+    violations = Violation.objects.filter(object_id=id)
     d=[]
     for e in violations:
         temp={}
@@ -60,7 +44,7 @@ def getViolations(id):
     return d
 
 def getViolationNames(id):
-    violations = Violation.objects.filter(entry_id=id)
+    violations = Violation.objects.filter(object_id=id)
     refs= getViolationRefs()
     d=[]
     for e in violations:
@@ -71,14 +55,14 @@ def getViolationNames(id):
     return d
 
 def getEvidenceImages(id):
-    evidenceImages = EvidenceCamImg.objects.filter(entry_id=id)
+    evidenceImages = EvidenceCamImg.objects.filter(object_id=id)
     d=[]
     for e in evidenceImages:
         d.append(e.evidence_image)
     return d
 
 def getEvidenceImagesWithHostUrl(id):
-    evidenceImages = EvidenceCamImg.objects.filter(entry_id=id)
+    evidenceImages = EvidenceCamImg.objects.filter(object_id=id)
     d=[]
     for e in evidenceImages:
         d.append(HOST_STATIC_FOLDER_URL + e.evidence_image)
@@ -150,17 +134,17 @@ def update_violations(request):
         print("form_data", form_data)
 
         try:
-            entry_id=form_data["entry_id"] # id of the particular entry
+            object_id=form_data["entry_id"] # id of the particular entry ##have to change name to object_id in frontend
             old_violations=json.loads(form_data["old_violations"]) #[{pk:1,violation_id:2},{pk:2,violation_id:3}]
             new_violations=json.loads(form_data["new_violations"]) #[1,2,3]
             new_plate=form_data["new_plate"] 
             old_plate=form_data["old_plate"] 
-            print("decrypted form data--> ",entry_id,old_plate,new_plate,old_violations,new_violations)
+            print("decrypted form data--> ",object_id,old_plate,new_plate,old_violations,new_violations)
             if new_plate != old_plate:
-                LicensePlates.objects.filter(pk=entry_id).update(number_plate_number=new_plate)
+                LicensePlates.objects.filter(object_id=object_id).update(number_plate_number=new_plate)
 
             # return HttpResponse(form_data)
-            # entry_id=1
+            # object_id=1
             # old_violations=[{"pk": 1, "violation_id": 1}, {"pk": 2, "violation_id": 2}]
             # new_violations=[1,3]
 
@@ -173,14 +157,14 @@ def update_violations(request):
 
             Violation.objects.filter(pk__in=toRemove).delete()
             for e in new_violations:
-                newV = Violation(violation=ViolationRef.objects.filter(id=e).first(),entry=LicensePlates.objects.filter(pk=entry_id).first())
+                newV = Violation(violation=ViolationRef.objects.filter(id=e).first(),object_id=object_id)
                 newV.save()
             
-            LicensePlates.objects.filter(pk=entry_id).update(reviewed=1)
+            LicensePlates.objects.filter(object_id=object_id).update(reviewed=1)
 
-            e=LicensePlates.objects.filter(pk=entry_id).first()
+            e=LicensePlates.objects.filter(object_id=object_id).first()
             temp={}
-            temp["id"]= e.pk
+            temp["id"]= e.object_id
             temp["camera_name"]= e.camera_name
             temp["junction_name"]= e.junction_name
             temp["evidence_camera_name"]= e.evidence_camera_name
@@ -188,8 +172,8 @@ def update_violations(request):
             temp["date"]= e.date.strftime('%d/%m/%Y %H:%M:%S')
             temp["anpr_image"]= e.anpr_image
             temp["cropped_image"]= e.cropped_image
-            temp["violations"]= getViolations(e.pk)
-            temp["evidence_images"]=getEvidenceImages(e.pk)
+            temp["violations"]= getViolations(e.object_id)
+            temp["evidence_images"]=getEvidenceImages(e.object_id)
             temp["reviewed"]=e.reviewed
            
             return HttpResponse(json.dumps({
@@ -273,7 +257,7 @@ def plate_search(request):
             d=[]
             for e in plates:
                 temp={}
-                temp["id"]= e.pk
+                temp["id"]= e.object_id
                 temp["camera_name"]= e.camera_name
                 temp["junction_name"]= e.junction_name
                 temp["evidence_camera_name"]= e.evidence_camera_name
@@ -281,8 +265,8 @@ def plate_search(request):
                 temp["date"]= e.date.strftime('%d/%m/%Y %H:%M:%S')
                 temp["anpr_image"]= e.anpr_image
                 temp["cropped_image"]= e.cropped_image
-                temp["violations"]= getViolations(e.pk)
-                temp["evidence_images"]=getEvidenceImages(e.pk)
+                temp["violations"]= getViolations(e.object_id)
+                temp["evidence_images"]=getEvidenceImages(e.object_id)
                 temp["reviewed"]=e.reviewed
                 d.append(temp)
            
@@ -312,7 +296,7 @@ def download_csv( request, array):
     writer = csv.writer(response)
     # field_names = [field.name for field in opts.fields]
     # Write a first row with header information
-    head=['entry_id','vehicle_number','camera_name','junction_name','evidence_camera_name','date','anpr_image',
+    head=['object_id','vehicle_number','camera_name','junction_name','evidence_camera_name','date','anpr_image',
     'license_plate_image','evidence_images','violations','reviewed']
 
     # writer.writerow(field_names)
@@ -372,7 +356,7 @@ def export_csv(request):
         d=[]
         for e in plates:
             temp=[]
-            temp.append(e.pk)
+            temp.append(e.object_id)
             temp.append(e.number_plate_number)
             temp.append(e.camera_name)
             temp.append(e.junction_name)
@@ -380,8 +364,8 @@ def export_csv(request):
             temp.append(e.date.strftime('%d/%m/%Y %H:%M:%S'))
             temp.append(HOST_STATIC_FOLDER_URL + e.anpr_image)
             temp.append(HOST_STATIC_FOLDER_URL + e.cropped_image)
-            temp.append(getEvidenceImagesWithHostUrl(e.pk))
-            temp.append(getViolationNames(e.pk))
+            temp.append(getEvidenceImagesWithHostUrl(e.object_id))
+            temp.append(getViolationNames(e.object_id))
             temp.append('yes' if e.reviewed else 'no')
             d.append(temp)
 
