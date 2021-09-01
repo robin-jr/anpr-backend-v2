@@ -11,6 +11,8 @@ services:
             - type: bind
               source: ./
               target: /app
+        depends_on: 
+            - mysql
         environment:
             MYSQL_HOST: mysql
             MYSQL_USER: root

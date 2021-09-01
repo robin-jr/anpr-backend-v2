@@ -8,18 +8,18 @@ LIMIT 0, 1000
 CREATE TABLE `violations` (
   `id` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `violation_id` int NOT NULL,
-  `entry_id` bigint(11) UNSIGNED NOT NULL
+  `object_id` varchar(100) DEFAULT NULL 
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-INSERT INTO `violations` (`violation_id`,`entry_id`) VALUES (1,1);
-INSERT INTO `violations` (`violation_id`,`entry_id`) VALUES (2,1);
-INSERT INTO `violations` (`violation_id`,`entry_id`) VALUES (2,2);
-INSERT INTO `violations` (`violation_id`,`entry_id`) VALUES (1,3);
-INSERT INTO `violations` (`violation_id`,`entry_id`) VALUES (2,4);
-INSERT INTO `violations` (`violation_id`,`entry_id`) VALUES (3,4);
-INSERT INTO `violations` (`violation_id`,`entry_id`) VALUES (1,5);
-INSERT INTO `violations` (`violation_id`,`entry_id`) VALUES (3,5);
-INSERT INTO `violations` (`violation_id`,`entry_id`) VALUES (2,6);
+INSERT INTO `violations` (`violation_id`,`object_id`) VALUES (1,1);
+INSERT INTO `violations` (`violation_id`,`object_id`) VALUES (2,1);
+INSERT INTO `violations` (`violation_id`,`object_id`) VALUES (2,2);
+INSERT INTO `violations` (`violation_id`,`object_id`) VALUES (1,3);
+INSERT INTO `violations` (`violation_id`,`object_id`) VALUES (2,4);
+INSERT INTO `violations` (`violation_id`,`object_id`) VALUES (3,4);
+INSERT INTO `violations` (`violation_id`,`object_id`) VALUES (1,5);
+INSERT INTO `violations` (`violation_id`,`object_id`) VALUES (3,5);
+INSERT INTO `violations` (`violation_id`,`object_id`) VALUES (2,6);
 
 
 CREATE TABLE `violation_ref` (
