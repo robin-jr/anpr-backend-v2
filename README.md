@@ -1,6 +1,93 @@
 # Django_ANPR
 
-Some configurations to consider:
+
+
+
+# How to get this working
+
+Considering that we have a lot to setup before starting the project, I've setup DOCKER.
+The doker-compose.yaml file has two apps (anpr_backend and mysql). So no need to setup anything beforehand.
+The initial sql files to run inside mysql are put in 'Database' folder, and will be run automatically inside the mysql container when starting.
+
+## Steps to setup the project
+
+- Make sure you have both docker and docker-compose installed. (latest versions)
+- Clone this repository using ``` https://github.com/robin-jr/anpr-backend-v2.git ```
+
+
+
+
+## To start the server
+
+- Get inside the folder using ``` cd anpr-backend-v2 ```
+- Now build the docker image of the project using ``` sudo docker-compose build ```
+- Now run ``` sudo docker-compose up ```
+- if your terminal stops at some stage, press ``` ctrl+c ``` to terminate 
+- then run again ``` sudo docker-compose up ```
+- now your terminal should show ``` Watching for file changes with StatReloader ``` which means your server is up and running.
+
+
+That's it! Now the app is up and running...
+
+
+- Go ahead and check if it is working by navigating to '127.0.0.1:8001/anpr/' or '127.0.0.1:8001/rlvd/' in your browser
+
+### To reflect the change you make in sample database
+
+- To check the running docker containers, use command ``` sudo docker ps ```
+- run ``` sudo docker-compose down ``` if u have any containers up
+- now run ``` sudo docker container prune ``` then press 'y'
+- then run ``` sudo docker volume prune ``` then press 'y'
+> Now start the server using the steps given above
+
+
+### To get the bash inside the container
+
+- To check the running docker containers, use command ``` sudo docker ps ```
+- Note the container id of the anpr-backend-v2_app_1 
+- To get the bash of the app inside docker, use command ``` sudo docker exec -it container_id /bin/bash ```
+- now you got the access to bash inside docker container
+
+
+### To make migrations in django
+
+- open the bash inside the docker container
+- run ``` python manage.py makemigrations ```
+- then run ``` python manage.py migrate ```
+- if the migrations get terminated due to "table already exist" error apply the migrations one by one (account, admin , auth, authtoken, contenttypes, sessions, anpr, rlvd)
+- to apply migrations one by one run  ``` python manage.py migrate migration_name ```
+
+
+
+### To create super user
+
+- once you made all the migrations correctly, run ``` python manage.py createsuperuser ```
+- enter the username, email, password, confirm password
+- once you entered those details, super user will be created
+- go to '127.0.0.1:8001/admin/' then enter your super user credentials there, you will be able to pass through the authenticaion
+
+
+### To create a normal user
+
+- once you created the super user, go to ``` 127.0.0.1:8001/api/accounts/register/ ````
+- In the content section enter the details for the normal user credentials 
+- E.g  ```{
+    "username":"user1",
+    "email":"user1@email.com",
+    "password":"pass",
+    "password2":"pass"
+    }```
+- This might throw an warning page 'Token matching query does not exist.', but the user will be created
+- you can check the users in ``` 127.0.0.1:8001/admin/ ``` inside the accounts section
+- now you can login as user inside the rlvd/anpr website
+
+
+### To note
+
+- Any updates to the project will be reflected realtime because of the volume binding used in docker. So no need to re-build or restart the containers every time a change is made.
+
+
+### Some configurations to consider:
 
 1) Change db configuration in arima > settings.py   
 DATABASES = {  
@@ -21,27 +108,3 @@ Note: The above configuration is for mysql. Config will change wrt DB engine use
 ## Parameters
 
 1. Latest5 - Refreshes every 2 seconds
-
-
-# How to get this working
-
-Considering that we have a lot to setup before starting the project, I've setup DOCKER.
-The doker-compose.yaml file has two apps (anpr_backend and mysql). So no need to setup anything beforehand.
-The initial sql files to run inside mysql are put in 'Database' folder, and will be run automatically inside the mysql container when starting.
-
-## Steps 
-
-- Make sure you have both docker and docker-compose installed. (latest versions)
-- Clone this repository using ``` git clone https://github.com/kuttyhub/anpr-backend.git ```
-- Get inside the folder using ``` cd anpr_backend ```
-- Now build the docker image of the project and tag it as 'anpr-backend_app:latest' using ``` sudo docker build -t anpr-backend_app:latest . ``` (This exact same tag is referenced in the docker-compose.yaml file)
-- Now run ``` sudo docker-compose up ```
-
-That's it! Now the app is up and running...
-
-- To check the running docker containers, use command ``` sudo docker ps ```
-- Go ahead and check if it is working by navigating to '127.0.0.1:8000/anpr' in your browser
-
-### To note
-
-- Any updates to the project will be reflected realtime because of the volume binding used in docker. So no need to re-build or restart the containers every time a change is made.
