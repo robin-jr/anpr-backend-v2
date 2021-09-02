@@ -8,10 +8,30 @@ from rest_framework.decorators import api_view,authentication_classes, permissio
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+import cv2
+from django.http import StreamingHttpResponse
 
 import json
 
 
+def gen(camera):
+        video = cv2.VideoCapture()
+        video.open(camera)
+        # video.release()
+        print("streaming live feed of ",camera)
+        while True:
+            success, frame = video.read()  # read the video frame
+            if not success:
+                break
+            else:
+                ret, buffer = cv2.imencode('.jpg', frame)
+                frame = buffer.tobytes()
+                yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+def camerafeed(request): 
+    #should get rtsp url from request
+    return StreamingHttpResponse(gen("rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"),content_type="multipart/x-mixed-replace;boundary=frame")
 
 
 @api_view(['GET'])
