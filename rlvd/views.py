@@ -134,7 +134,7 @@ def update_violations(request):
         print("form_data", form_data)
 
         try:
-            object_id=form_data["entry_id"] # id of the particular entry ##have to change name to object_id in frontend
+            object_id=form_data["object_id"] # id of the particular entry ##have to change name to object_id in frontend
             old_violations=json.loads(form_data["old_violations"]) #[{pk:1,violation_id:2},{pk:2,violation_id:3}]
             new_violations=json.loads(form_data["new_violations"]) #[1,2,3]
             new_plate=form_data["new_plate"] 
@@ -164,7 +164,8 @@ def update_violations(request):
 
             e=LicensePlates.objects.filter(object_id=object_id).first()
             temp={}
-            temp["id"]= e.object_id
+            temp["id"]= e.pk
+            temp["object_id"]= e.object_id
             temp["camera_name"]= e.camera_name
             temp["junction_name"]= e.junction_name
             temp["evidence_camera_name"]= e.evidence_camera_name
@@ -257,7 +258,8 @@ def plate_search(request):
             d=[]
             for e in plates:
                 temp={}
-                temp["id"]= e.object_id
+                temp["id"]= e.pk
+                temp["object_id"]= e.object_id
                 temp["camera_name"]= e.camera_name
                 temp["junction_name"]= e.junction_name
                 temp["evidence_camera_name"]= e.evidence_camera_name
