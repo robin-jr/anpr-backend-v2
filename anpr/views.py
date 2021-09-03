@@ -26,12 +26,16 @@ def gen(camera):
             else:
                 ret, buffer = cv2.imencode('.jpg', frame)
                 frame = buffer.tobytes()
+                # print("frame: ", frame)
                 yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
+@api_view(['GET'])
+@permission_classes([])
+@authentication_classes([])
 def camerafeed(request): 
     #should get rtsp url from request
-    return StreamingHttpResponse(gen("rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"),content_type="multipart/x-mixed-replace;boundary=frame")
+    return StreamingHttpResponse(gen("rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen02.stream"),content_type="multipart/x-mixed-replace;boundary=frame")
 
 
 @api_view(['GET'])
@@ -65,7 +69,7 @@ def getCameraLatestEntriesAndRecognitions(request):
         print("form_data", form_data)
         camera_name = form_data["camera_name"]
         recognitionCount = LicensePlates.objects.filter(camera_name = camera_name).count()
-        entriesQuerySet = LicensePlates.objects.only('entry_id', 'camera_name', 'plate_number', 'date', 'anpr_full_image', 'anpr_cropped_image').filter(camera_name = camera_name).order_by('-entry_id')[:10]
+        entriesQuerySet = LicensePlates.objects.only('entry_id', 'camera_name', 'plate_number', 'date', 'anpr_full_image', 'anpr_cropped_image').filter(camera_name = camera_name).order_by('-entry_id')[:5]
         entries = []
         for entry in entriesQuerySet:
             temp = {}
