@@ -1,5 +1,8 @@
+from rlvd.views import HOST_STATIC_FOLDER_URL
 from .models import LicensePlatesAnpr as LicensePlates
 from rlvd.models import AnprCamera
+import csv
+import logging
 
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseBadRequest
@@ -106,34 +109,17 @@ def plate_search(request):
         try:
             vehicle_no= form_data["vehicle_number"] #can be empty 
             cameras = form_data["camera_names"] #can be empty
-            # junction_names =form_data["junction_names"] #can be empty
             start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
             end_date_time=form_data["end_date_time"] #can be empty 
 
             if cameras!="":
                 cameras=cameras.split(',')
-            # if junction_names!="":
-            #     junction_names=junction_names.split(',')
-            
-            ## for now
-            # vehicle_no= ""
-            # cameras = ["No2_Nathamuni"]
-            # # junction_names =["Sathya Showroom"]
-            # start_date_time="2020-01-01T00:00"
-            # end_date_time="2020-01-01T23:00"
-            # vehicle_no= ""
-            # cameras = []
-            # junction_names =[]
-            # start_date_time=""
-            # end_date_time=""
 
             plates=LicensePlates.objects.all()
             if vehicle_no!="":
                 plates = LicensePlates.objects.filter(plate_number__contains=vehicle_no)
             if len(cameras)>0:
                 plates =plates.filter(camera_name__in=cameras)
-            # if len(junction_names)>0:
-            #     plates=plates.filter(junction_name__in=junction_names)
             if start_date_time!="":
                 plates=plates.filter(date__gte=start_date_time)
             if end_date_time!="":
@@ -172,3 +158,71 @@ def plate_search(request):
         return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
 
 
+
+
+def download_csv( request, array):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment;filename=export.csv'
+    writer = csv.writer(response)
+    head=['entry_id','plate_number','camera_name','date','anpr_full_image','anpr_cropped_image']
+
+    # writer.writerow(field_names)
+    writer.writerow(head)
+    # writer.writerow(body)
+    # Write data rows
+    # array= [['a','b'],['c','d']]
+    for row in array:
+        writer.writerow(row)
+    return response
+
+
+@csrf_exempt
+@api_view(['POST', 'GET'])
+@permission_classes([])
+@authentication_classes([])
+def export_csv(request):
+    form_data=request.POST
+    print("Form Data", form_data)
+    try:
+        vehicle_no= form_data["vehicle_number"] #can be empty 
+        cameras = form_data["camera_names"] #can be empty
+        start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
+        end_date_time=form_data["end_date_time"]
+        # vehicle_no = ""
+        # cameras = ""
+        # start_date_time = ""
+        # end_date_time = ""
+
+        plates=LicensePlates.objects.all()
+        if cameras!="":
+            cameras=cameras.split(',')
+            
+
+        print("Vehicle NO: ", vehicle_no, "Cameras", cameras)
+        if vehicle_no!="":
+            plates = LicensePlates.objects.filter(plate_number__contains=vehicle_no)
+        if len(cameras)>0:
+            plates =plates.filter(camera_name__in=cameras)
+        if start_date_time!="":
+            plates=plates.filter(date__gte=start_date_time)
+        if end_date_time!="":
+            plates=plates.filter(date__lte=end_date_time)
+
+        d=[]
+        for e in plates:
+            temp=[]
+            temp.append(e.entry_id)
+            temp.append(e.plate_number)
+            temp.append(e.camera_name)
+            temp.append(e.date.strftime('%d/%m/%Y %H:%M:%S'))
+            temp.append(HOST_STATIC_FOLDER_URL + e.anpr_full_image)
+            temp.append(HOST_STATIC_FOLDER_URL + e.anpr_cropped_image)
+            d.append(temp)
+
+        # print("CSV Data", d)
+        data = download_csv( request, d)
+        return HttpResponse (data, content_type='text/csv')
+    except Exception as e:
+
+        print("Exxception --> ",e);
+        return HttpResponse("error")

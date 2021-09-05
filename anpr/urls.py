@@ -7,6 +7,7 @@ urlpatterns = [
     path("platesearch/", views.plate_search),
     path("getLatestEntries/", views.getCameraLatestEntriesAndRecognitions),
     path("feed/", views.camerafeed),
+    path("export/", views.export_csv),
 ]
 
 
