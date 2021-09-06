@@ -8,4 +8,6 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 RUN pip install djangorestframework
 RUN pip install django-cors-headers 
+RUN pip install XlsxWriter
+RUN pip install Pillow
 EXPOSE 8000

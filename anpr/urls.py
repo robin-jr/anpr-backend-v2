@@ -8,6 +8,7 @@ urlpatterns = [
     path("getLatestEntries/", views.getCameraLatestEntriesAndRecognitions),
     path("feed/", views.camerafeed),
     path("export/", views.export_csv),
+    path("exportExcel/", views.exportExcel),
 ]
 
 
