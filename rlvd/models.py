@@ -45,6 +45,7 @@ class ViolationRef(models.Model):
 
 class Violation(models.Model):
     id = models.AutoField(primary_key=True)
+    # entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
     violation = models.ForeignKey(ViolationRef,on_delete=models.CASCADE)
     # entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
     object_id = models.CharField(max_length=100)

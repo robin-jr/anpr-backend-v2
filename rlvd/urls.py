@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
+
+from anpr.views import exportExcel
 from . import views
 
 urlpatterns = [path("", views.index), 
@@ -7,4 +9,7 @@ urlpatterns = [path("", views.index),
                 path("getViolations/", views.get_violations),
                 path("sample/", views.sample),
                 path("export/", views.export_csv),
-                path("updateViolations/", views.update_violations),]
+                path("exportExcel/", views.exportExcel),
+                path("updateViolations/", views.update_violations),
+                # path("dev/", views.dev)
+                ]

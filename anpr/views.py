@@ -157,8 +157,9 @@ def gen(camera):
 @permission_classes([])
 @authentication_classes([])
 def camerafeed(request): 
-    #should get rtsp url from request
-    return StreamingHttpResponse(gen("rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen02.stream"),content_type="multipart/x-mixed-replace;boundary=frame")
+        #should get rtsp url from request
+    
+    return StreamingHttpResponse(gen("rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"),content_type="multipart/x-mixed-replace;boundary=frame")
 
 
 @api_view(['GET'])

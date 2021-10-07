@@ -1,4 +1,9 @@
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.shortcuts import render
+from django.db import connection
+import io
+from PIL import Image
+import xlsxwriter
 import json
 from .models import LicensePlatesRlvd as LicensePlates
 from .models import EvidenceCamImg, Violation, ViolationRef
@@ -124,7 +129,7 @@ def index(request):
     return response
 
 
-@csrf_exempt
+# @csrf_exempt
 @api_view(['POST', ])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -187,7 +192,7 @@ def update_violations(request):
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
-@csrf_exempt
+# @csrf_exempt
 @api_view(['GET', ])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -205,16 +210,14 @@ def get_violations(request):
         }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
-@csrf_exempt
-@api_view(['POST', ])
+# @csrf_exempt
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
 def plate_search(request):
-
     if request.method == "POST":
         form_data = request.POST
         print("form_data", form_data)
-
         try:
             vehicle_no= form_data["vehicle_number"] #can be empty 
             cameras = form_data["camera_names"] #can be empty
@@ -223,63 +226,60 @@ def plate_search(request):
             end_date_time=form_data["end_date_time"] #can be empty 
 
             if cameras!="":
-                cameras=cameras.split(',')
+                cameras="("+str(cameras.split(','))[1:-1]+")"
             if junction_names!="":
-                junction_names=junction_names.split(',')
-            
-            ## for now
-            # vehicle_no= "1234"
-            # cameras = ["SathyaShowroom Front"]
-            # junction_names =["Sathya Showroom"]
-            # start_date_time="2000-01-01T00:00"
-            # end_date_time="2025-01-01T00:00"
-            # vehicle_no= ""
-            # cameras = []
-            # junction_names =[]
-            # start_date_time=""
-            # end_date_time=""
-
-            plates=LicensePlates.objects.all()
-            if vehicle_no!="":
-                plates = LicensePlates.objects.filter(number_plate_number__contains=vehicle_no)
-            if len(cameras)>0:
-                plates =plates.filter(camera_name__in=cameras)
-            if len(junction_names)>0:
-                plates=plates.filter(junction_name__in=junction_names)
-            if start_date_time!="":
-                plates=plates.filter(date__gte=start_date_time)
-            if end_date_time!="":
-                plates=plates.filter(date__lte=end_date_time)
-            
-            
-            count = plates.count()
-
-            
+                junction_names="("+str(junction_names.split(','))[1:-1]+")"
             d=[]
-            for e in plates:
-                temp={}
-                temp["id"]= e.pk
-                temp["object_id"]= e.object_id
-                temp["camera_name"]= e.camera_name
-                temp["junction_name"]= e.junction_name
-                temp["evidence_camera_name"]= e.evidence_camera_name
-                temp["plate"]= e.number_plate_number
-                temp["date"]= e.date.strftime('%d/%m/%Y %H:%M:%S')
-                temp["anpr_image"]= e.anpr_image
-                temp["cropped_image"]= e.cropped_image
-                temp["violations"]= getViolations(e.object_id)
-                temp["evidence_images"]=getEvidenceImages(e.object_id)
-                temp["reviewed"]=e.reviewed
-                d.append(temp)
-           
 
-            # license_plates= LicensePlates.objects.all()[:5] #temporary
+
+            # #for where clause
+            # condition = ""
+            condition = 'where '
+            # if vehicle_no != '':
+            condition += 'e.number_plate_number like "%'+vehicle_no+'%" '
+            if len(junction_names)>0:
+                condition += 'and e.junction_name in '+str(junction_names) +' '
+            if len(cameras)>0:
+                condition += 'and e.camera_name in '+str(cameras) +' '
+            if start_date_time != "":
+                condition += 'and date >= "{}" '.format(start_date_time)
+            if end_date_time != "":
+                condition += 'and date <= "{}" '.format(end_date_time)
+            #query + where clause
+            query = 'select ec.*, group_concat(concat(v.id,",", v.violation_id)) as violations_made from ( select e.*, group_concat(c.evidence_image) as evidence_images from license_plates_rlvd as e inner join evidence_cam_img as c on c.object_id = e.object_id {}group by e.object_id) as ec inner join violations as v on v.object_id = ec.object_id group by ec.object_id order by ec.entry_id asc;'.format(condition)
+            print(query)
+            with connection.cursor() as cursor:
+                cursor.execute("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));")
+                cursor.execute(query)
+                rows = cursor.fetchall()
+                cols = cursor.description #column names will be available here
+                for row in rows:
+                    temp = {}
+                    for i in range(len(row)):
+                        if cols[i][0] == "entry_id":
+                            temp["id"] = row[i]
+                        elif cols[i][0] == "number_plate_number":
+                            temp["plate"] = row[i]
+                        elif cols[i][0] == "date":
+                            temp[cols[i][0]] = row[i].strftime('%d/%m/%Y %H:%M:%S')
+                        elif cols[i][0] == "evidence_images":
+                            imgs = row[i].split(",")
+                            temp[cols[i][0]] = imgs
+                        elif cols[i][0] == "violations_made":
+                            temp["violations"] = []
+                            vioArr = row[i].split(",")
+                            i = 0
+                            while i < len(vioArr):
+                                temp["violations"].append({"pk": int(vioArr[i]), "violation_id": int(vioArr[i+1])})
+                                i+=2
+                        else:
+                            temp[cols[i][0]] = row[i]
+                    d.append(temp)
             return HttpResponse(json.dumps({
-                "count":count,
+                "count":len(d),
                 "entries":json.dumps(d),
                 "filter_conditions": form_data,
             }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
-
         except Exception as e:
             print("error--> ",e)
             return HttpResponse(json.dumps({"error":str(e)})
@@ -287,6 +287,7 @@ def plate_search(request):
     else:
         logging.info("Plate Search - End")
         return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
+
 
 def download_csv( request, array):
     # opts = queryset.model._meta
@@ -312,7 +313,7 @@ def download_csv( request, array):
 download_csv.short_description = "Download selected as csv"
 
 
-@csrf_exempt
+# @csrf_exempt
 @api_view(['POST', ])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -371,10 +372,178 @@ def export_csv(request):
             temp.append('yes' if e.reviewed else 'no')
             d.append(temp)
 
-        print("CSV Data", d)
+        # print("CSV Data", d)
         data = download_csv( request, d)
         return HttpResponse (data, content_type='text/csv')
     except Exception as e:
-
         print("Exxception --> ",e);
         return HttpResponse("error")
+
+def createExcel(rows, cols):
+    path = "/app/rlvd/static/"
+    output      = io.BytesIO()
+    workbook    = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
+    worksheet.set_row(0,30)
+    headers = ['Entry ID','Object ID','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image', 'Violations', 'Reviewed', 'Evidence Image 1', 'Evidence Image 2', 'Evidence Image 3', 'Evidence Image 4', 'Evidence Image 5', 'Evidence Image 6']
+    row = 0
+    # for col in cols:
+    #     print(col[0])
+    for idx, head in enumerate(headers):
+        worksheet.write(row, idx, head, bold)
+    row += 1
+    if(len(rows)>0):
+        worksheet.set_default_row(100)
+        worksheet.set_column(0, len(rows[0]) + 5, 30)
+        center = workbook.add_format({"align": "center", "font_size": 15})
+        
+        for data in rows:
+            worksheet.write(row, 0, data[0], center)
+            worksheet.write(row, 1, data[1], center)        
+            worksheet.write(row, 2, data[5], center)
+            worksheet.write(row, 3, data[3], center)
+            worksheet.write(row, 4, data[2], center)       
+            worksheet.write(row, 5, data[4], center)        
+            worksheet.write(row, 6, str(data[6].strftime('%d/%m/%Y %H:%M:%S')), center)              
+            worksheet.write(row, 9, data[11], center)
+            worksheet.write(row, 10, "Yes" if data[9] else "No", center)
+            imagePath =path+data[7]
+            try:
+                with Image.open(imagePath) as img:
+                    width, height = img.size
+                    x_scale = 30/width
+                    y_scale = 100/height
+                    worksheet.insert_image(row, 7,imagePath, {"x_scale": x_scale*7.2,
+                                                        "y_scale": y_scale*1.5,
+                                                        "positioning": 1})
+            except Exception as e:
+                imagePath = path+"images/results/noImage.png"
+                with Image.open(imagePath) as img:
+                    img_width, img_height = img.size
+                    #print("path",path,"img_width", img_width, "img_height", img_height)
+                    x_scale = 30/img_width
+                    y_scale = 100/img_height
+                    worksheet.insert_image(row,
+                                        7,
+                                        imagePath,
+                                        {"x_scale": x_scale*7.2,
+                                            "y_scale": y_scale*1.5,
+                                            "positioning": 1})
+
+            imagePath = path+data[8]
+            try:
+                with Image.open(imagePath) as img:
+                    width, height = img.size
+                    x_scale = 30/width
+                    y_scale = 100/height
+                    worksheet.insert_image(row, 8,imagePath, {"x_scale": x_scale*7.2,
+                                                        "y_scale": y_scale*1.5,
+                                                        "positioning": 1})
+            except Exception as e:
+                imagePath = path+"images/results/noImage.png"
+                with Image.open(imagePath) as img:
+                    img_width, img_height = img.size
+                    #print("path",path,"img_width", img_width, "img_height", img_height)
+                    x_scale = 30/img_width
+                    y_scale = 100/img_height
+                    worksheet.insert_image(row,
+                                        8,
+                                        imagePath,
+                                        {"x_scale": x_scale*7.2,
+                                            "y_scale": y_scale*1.5,
+                                            "positioning": 1})
+            evidenceImages = data[10].split(',')
+            for i in range(6):
+                try:
+                    imagePath = path+evidenceImages[i]
+                    with Image.open(imagePath) as img:
+                        width, height = img.size
+                        x_scale = 30/width
+                        y_scale = 100/height
+                        worksheet.insert_image(row, 11 + i,imagePath, {"x_scale": x_scale*7.2,
+                                                            "y_scale": y_scale*1.5,
+                                                            "positioning": 1})
+                except Exception as e:
+                    imagePath = path+"images/results/noImage.png"
+                    with Image.open(imagePath) as img:
+                        img_width, img_height = img.size
+                        #print("path",path,"img_width", img_width, "img_height", img_height)
+                        x_scale = 30/img_width
+                        y_scale = 100/img_height
+                        worksheet.insert_image(row,
+                                            11 + i,
+                                            imagePath,
+                                            {"x_scale": x_scale*7.2,
+                                                "y_scale": y_scale*1.5,
+                                                "positioning": 1})
+            row += 1
+    workbook.close()
+    return output.getvalue()
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def exportExcel(request):
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format("RLVD entries.xlsx")
+    form_data=request.POST
+    print("Form Data", form_data)
+    try:
+        vehicle_no= form_data["vehicle_number"] #can be empty 
+        cameras = form_data["camera_names"] #can be empty
+        junction_names = form_data["junction_names"]
+        start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
+        end_date_time=form_data["end_date_time"]
+        status_reviewed=form_data["status_reviewed"] # yes | no
+        status_not_reviewed=form_data["status_not_reviewed"] # yes | no
+        # status_reviewed = "no"
+        # status_not_reviewed = "no"
+        # vehicle_no = ""
+        # cameras = ""
+        # junction_names = ""
+        # start_date_time = ""
+        # end_date_time = ""
+        if cameras!="":
+                cameras="("+str(cameras.split(','))[1:-1]+")"
+        if junction_names!="":
+            junction_names="("+str(junction_names.split(','))[1:-1]+")"
+        # #for where clause
+        # condition = ""
+        condition = 'where '
+        # if vehicle_no != '':
+        condition += 'e.number_plate_number like "%'+vehicle_no+'%" '
+        # condition += 'e.number_plate_number like "%TN05AB%" '
+
+        if len(junction_names)>0:
+            condition += 'and e.junction_name in '+str(junction_names) +' '
+        if len(cameras)>0:
+            condition += 'and e.camera_name in '+str(cameras) +' '
+        if start_date_time != "":
+            condition += 'and e.date >= "{}" '.format(start_date_time)
+        if end_date_time != "":
+            condition += 'and e.date <= "{}" '.format(end_date_time)
+        if status_reviewed =="yes" and status_not_reviewed =="no":
+            condition += 'and e.reviewed = 1 '
+        if status_reviewed =="no" and status_not_reviewed =="yes":
+            condition += 'and e.reviewed = 0 '
+        #query + where clause
+        query = 'select ec.*, vvr.violations_made from ( select e.*,group_concat(c.evidence_image) as evidence_images from license_plates_rlvd as e inner join evidence_cam_img as c on c.object_id = e.object_id {}group by e.object_id) as ec inner join (select v.object_id, group_concat(violation_name) as violations_made from violations as v inner join violation_ref as vr on v.violation_id = vr.id group by v.object_id) as vvr on vvr.object_id = ec.object_id order by ec.entry_id asc;'.format(condition)
+        print(query)
+        with connection.cursor() as cursor:
+            # cursor.execute("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));")
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            cols = cursor.description #column names will be available here
+            xlsx_data = createExcel(rows, cols)
+            response.write(xlsx_data)
+            return response
+    except Exception as e:
+        print("this one throws error--> ",str(e))
+        return HttpResponse(json.dumps({"error":str(e)})
+            ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+
+        
+
+        
