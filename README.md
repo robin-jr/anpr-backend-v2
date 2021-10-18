@@ -102,6 +102,8 @@ Note: The above configuration is for mysql. Config will change with DB engine us
 
 ## To speed up search time:
 
+    ``` DO THIS AFTER YOU CREATE ALL THE TABLES ```
+
 1) Open a terminal session of mysql server
 2) Login to mysql
 3) Setup the working database using ``` USE __DATABASE NAME__; ```
