@@ -6,7 +6,7 @@ from PIL import Image
 import xlsxwriter
 import json
 from .models import LicensePlatesRlvd as LicensePlates
-from .models import EvidenceCamImg, Violation, ViolationRef
+from .models import EvidenceCamImg, Violation, ViolationRef, AnprCamera
 from rlvd.models import AnprCamera
 import logging
 from rest_framework import status

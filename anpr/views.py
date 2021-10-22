@@ -158,8 +158,10 @@ def gen(camera):
 @authentication_classes([])
 def camerafeed(request): 
         #should get rtsp url from request
-    
-    return StreamingHttpResponse(gen("rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"),content_type="multipart/x-mixed-replace;boundary=frame")
+    camid = request.GET.get("camid")
+    rtsp = AnprCamera.objects.filter(id=camid).first().rtsp_url
+    print("Rtsp  ---->  ", rtsp)
+    return StreamingHttpResponse(gen(rtsp),content_type="multipart/x-mixed-replace;boundary=frame")
 
 
 @api_view(['GET'])
