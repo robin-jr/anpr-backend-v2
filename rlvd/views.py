@@ -545,5 +545,3 @@ def exportExcel(request):
             ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
         
-
-        

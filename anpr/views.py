@@ -92,8 +92,8 @@ def createExcel(entries):
 
 
 @api_view(['POST'])
-@permission_classes([])
-@authentication_classes([])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def exportExcel(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format("ANPR entries.xlsx")
@@ -165,8 +165,8 @@ def camerafeed(request):
 
 
 @api_view(['GET'])
-@permission_classes([])
-@authentication_classes([])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def initialDatas(request):
     camQuerySet = AnprCamera.objects.only('id', 'camera_name', 'latitude', 'longitude', 'rtsp_url')
     cams = []
@@ -187,8 +187,8 @@ def initialDatas(request):
 
 
 @api_view(['POST'])
-@permission_classes([])
-@authentication_classes([])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def getCameraLatestEntriesAndRecognitions(request):
     if request.method == "POST":
         form_data = request.POST
@@ -216,13 +216,10 @@ def getCameraLatestEntriesAndRecognitions(request):
         return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
 
 
-@csrf_exempt
-# @api_view(['GET', ])
+# @csrf_exempt
 @api_view(['POST' ])
-# @permission_classes([IsAuthenticated])
-# @authentication_classes([TokenAuthentication])
-@permission_classes([])
-@authentication_classes([])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def plate_search(request):
 
     if request.method == "POST":
@@ -298,11 +295,11 @@ def download_csv( request, array):
         writer.writerow(row)
     return response
 
+# @csrf_exempt
 
-@csrf_exempt
-@api_view(['POST', 'GET'])
-@permission_classes([])
-@authentication_classes([])
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def export_csv(request):
     form_data=request.POST
     print("Form Data", form_data)
@@ -347,5 +344,5 @@ def export_csv(request):
         return HttpResponse (data, content_type='text/csv')
     except Exception as e:
 
-        print("Exxception --> ",e);
+        print("Exxception --> ",e)
         return HttpResponse("error")

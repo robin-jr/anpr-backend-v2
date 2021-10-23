@@ -42,13 +42,13 @@ class Account(AbstractBaseUser):
 	is_superuser			= models.BooleanField(default=False)
 
 
-	USERNAME_FIELD = 'email'
-	REQUIRED_FIELDS = ['username']
+	USERNAME_FIELD = 'username'
+	# REQUIRED_FIELDS = ['username']
 
 	objects = MyAccountManager()
 
 	def __str__(self):
-		return self.email
+		return self.username
 
 	# For checking permissions. to keep it simple all admin have ALL permissons
 	def has_perm(self, perm, obj=None):
