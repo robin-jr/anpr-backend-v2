@@ -141,7 +141,7 @@ def gen(camera):
     video = cv2.VideoCapture()
     video.open(camera)
     # video.release()
-    print("streaming live feed of ",camera)
+    # print("streaming live feed of ",camera)
     while True:
         success, frame = video.read()  # read the video frame
         if not success:
@@ -149,7 +149,7 @@ def gen(camera):
         else:
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
-            print("frame: ", frame)
+            # print("frame: ", frame)
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
