@@ -20,12 +20,7 @@ from django.http import StreamingHttpResponse
 import json
 
 
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication])
-def initialDatas(request):
+def getCameras():
     camQuerySet = AnprCamera.objects.only('id', 'camera_name', 'latitude', 'longitude', 'rtsp_url')
     cams = []
     for cam in camQuerySet:
@@ -36,9 +31,74 @@ def initialDatas(request):
         temp["longitude"] = str(cam.longitude)
         temp["rtsp_url"] = cam.rtsp_url
         cams.append(temp)
+
+    return cams
+
+def getVehicleTypes():
+    typesQuerySet = VehicleTypeRef.objects.all()
+    types = []
+    for type in typesQuerySet:
+        temp = {}
+        temp["id"] = type.pk
+        temp["name"] = type.name
+        types.append(temp)
+
+    return types
+
+def getVehicleMakes():
+    makesQuerySet = VehicleMakeRef.objects.all()
+    makes = []
+    for make in makesQuerySet:
+        temp = {}
+        temp['id'] = make.pk
+        temp['name'] = make.name
+        temp['type'] = make.type_id
+        makes.append(temp)
+    return makes
+
+def getVehicleModels():
+    modelsQuerySet = VehicleModelRef.objects.select_related('type').select_related('make').all()
+    models = []
+    for model in modelsQuerySet:
+        temp = {}
+        temp['id'] = model.pk
+        temp['name'] = model.name
+        temp['make'] = model.make.id
+        temp['type'] = model.type.id
+        print(model.type.name)
+        models.append(temp)
+    return models
+
+def getVehicleColors():
+    colorsQuerySet = VehicleColorRef.objects.all()
+    colors = []
+    for color in colorsQuerySet:
+        temp = {}
+        temp['id'] = color.pk
+        temp['name'] = color.name
+        colors.append(temp)
+    return colors
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
+def initialDatas(request):
+    cameras = getCameras()
+    vehicleTypes = getVehicleTypes()
+    vehicleMakes = getVehicleMakes()
+    vehicleModels = getVehicleModels()
+    vehicleColors = getVehicleColors()
+    print("types", vehicleTypes)
+    print("make", vehicleMakes)
+    print("models", vehicleModels)
+    print("colors", vehicleColors)
+    
     return HttpResponse(json.dumps({
-                "count":len(cams),
-                "cameras":json.dumps(cams),
+                "cameras":json.dumps(cameras),
+                "vehicle_types": json.dumps(vehicleTypes),
+                "vehicle_makes": json.dumps(vehicleMakes),
+                "vehicle_models": json.dumps(vehicleModels),
+                "vehicle_colors": json.dumps(vehicleColors)
                 # "filter_conditions": form_data,
             }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 

@@ -116,7 +116,7 @@ def getJuctionsAndCameras():
 @authentication_classes([TokenAuthentication])
 def index(request):
     # cameras=getCameras();
-    junctions_and_cameras=getJuctionsAndCameras();
+    junctions_and_cameras=getJuctionsAndCameras()
     violationRefs=getViolationRefs()
 
     response = HttpResponse(

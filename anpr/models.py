@@ -21,6 +21,7 @@ class VehicleModelRef(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=45)
     make = models.ForeignKey(VehicleMakeRef,to_field='id', on_delete=models.DO_NOTHING)
+    type = models.ForeignKey(VehicleTypeRef, to_field='id', on_delete=models.DO_NOTHING)
 
     class Meta:
         db_table = "vehicle_model_ref"
