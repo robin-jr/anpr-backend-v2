@@ -353,7 +353,7 @@ def export_csv(request):
             plates=plates.filter(reviewed=0)
         
         
-        count = plates.count()
+        # count = plates.count()
 
         
         d=[]
