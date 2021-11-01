@@ -41,10 +41,10 @@ class LicensePlatesAnpr(models.Model):
     date = models.DateTimeField()
     anpr_full_image = models.CharField(max_length=100)
     anpr_cropped_image = models.CharField(max_length=100)
-    vehicle_type = models.ForeignKey(VehicleTypeRef, to_field='id', on_delete= models.DO_NOTHING)
-    vehicle_make = models.ForeignKey(VehicleMakeRef, to_field='id', on_delete= models.DO_NOTHING)
-    vehicle_model = models.ForeignKey(VehicleModelRef, to_field='id', on_delete=models.DO_NOTHING)
-    vehicle_color = models.ForeignKey(VehicleColorRef, to_field='id', on_delete=models.DO_NOTHING)
+    vehicle_type = models.ForeignKey(VehicleTypeRef, to_field='id', on_delete= models.DO_NOTHING, default=1)
+    vehicle_make = models.ForeignKey(VehicleMakeRef, to_field='id', on_delete= models.DO_NOTHING, default=1)
+    vehicle_model = models.ForeignKey(VehicleModelRef, to_field='id', on_delete=models.DO_NOTHING, default=1)
+    vehicle_color = models.ForeignKey(VehicleColorRef, to_field='id', on_delete=models.DO_NOTHING, default=1)
 
     class Meta:
         #managed = True
