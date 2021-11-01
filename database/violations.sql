@@ -5,11 +5,11 @@ LIMIT 0, 1000
 -- Date: 2021-08-23 22:57
 */
 
-CREATE TABLE `violations` (
-  `id` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `violation_id` int NOT NULL,
-  `object_id` varchar(100) DEFAULT NULL 
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- CREATE TABLE `violations` (
+--   `id` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+--   `violation_id` int NOT NULL,
+--   `object_id` varchar(100) DEFAULT NULL 
+-- ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- INSERT INTO `violations` (`violation_id`,`object_id`) VALUES (1,1);
 -- INSERT INTO `violations` (`violation_id`,`object_id`) VALUES (2,1);
@@ -29,9 +29,10 @@ CREATE TABLE `violation_ref` (
 INSERT INTO `violation_ref` (`id`,`violation_name`) VALUES (1,'Red Light');
 INSERT INTO `violation_ref` (`id`,`violation_name`) VALUES (2,'Helmet');
 INSERT INTO `violation_ref` (`id`,`violation_name`) VALUES (3,'Triples');
+INSERT INTO `violation_ref` (`id`,`violation_name`) VALUES (4,'Speed');
 
 
-
+/*
 INSERT INTO `violations` (`id`, `object_id`, `violation_id`) VALUES
 (1, '120_ALCO_DEMO_Junction1_EvidenceCamera1_03-09-2021_06:59:13', 1),
 (2, '121_ALCO_DEMO_Junction1_EvidenceCamera1_03-09-2021_06:59:13', 1),

@@ -12,6 +12,10 @@ class LicensePlatesRlvd(models.Model):
     date = models.DateTimeField()
     anpr_image = models.CharField(max_length=100)
     cropped_image = models.CharField(max_length=100)
+    evidence_images=models.CharField(max_length=1000)
+    violations=models.CharField(max_length=1000)
+    speed=models.DecimalField(max_digits=5,decimal_places=2)
+    speed_limit=models.DecimalField(max_digits=5,decimal_places=2)
     reviewed=models.IntegerField()
 
     class Meta:
@@ -21,16 +25,16 @@ class LicensePlatesRlvd(models.Model):
     def str(self):
         return self.number_plate_number
 
-class EvidenceCamImg(models.Model):
-    id = models.AutoField(primary_key=True)
-    # entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
-    object_id = models.CharField(max_length=100)
-    evidence_image = models.CharField(max_length=100)
+# class EvidenceCamImg(models.Model):
+    # id = models.AutoField(primary_key=True)
+    # # entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
+    # object_id = models.CharField(max_length=100)
+    # evidence_image = models.CharField(max_length=100)
 
-    class Meta:
-        db_table = 'evidence_cam_img'
-    def str(self):
-        return self.evidence_image
+    # class Meta:
+    #     db_table = 'evidence_cam_img'
+    # def str(self):
+    #     return self.evidence_image
 
 
 class ViolationRef(models.Model):
@@ -43,17 +47,17 @@ class ViolationRef(models.Model):
         return self.violation_name
 
 
-class Violation(models.Model):
-    id = models.AutoField(primary_key=True)
-    # entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
-    violation = models.ForeignKey(ViolationRef,on_delete=models.CASCADE)
-    # entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
-    object_id = models.CharField(max_length=100)
+# class Violation(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     # entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
+#     violation = models.ForeignKey(ViolationRef,on_delete=models.CASCADE)
+#     # entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
+#     object_id = models.CharField(max_length=100)
 
-    class Meta:
-        db_table = 'violations'
-    def str(self):
-        return self.violation
+#     class Meta:
+#         db_table = 'violations'
+#     def str(self):
+#         return self.violation
 
 
 

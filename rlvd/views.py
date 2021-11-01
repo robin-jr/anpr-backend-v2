@@ -1,3 +1,4 @@
+from datetime import date
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from django.db import connection
@@ -6,14 +7,14 @@ from PIL import Image
 import xlsxwriter
 import json
 from .models import LicensePlatesRlvd as LicensePlates
-from .models import EvidenceCamImg, Violation, ViolationRef, AnprCamera
+from .models import ViolationRef, AnprCamera
 from rlvd.models import AnprCamera
 import logging
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,authentication_classes, permission_classes
 from django.views.decorators.csrf import csrf_exempt
-
+from django.db.models import F
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
@@ -22,13 +23,6 @@ import csv
 
 HOST_STATIC_FOLDER_URL = "http://localhost:8001/static/"
 
-@api_view(['GET', ])
-# @permission_classes([IsAuthenticated])
-# @authentication_classes([TokenAuthentication])
-@permission_classes([])
-@authentication_classes([])
-def sample(request):
-    return Response("good")
 
 # django_dir = os.environ['DJANGOPATH']#"/home/user/Django_Anpr-master/" # Directory containing Django manage.py
 # logs_dir = os.environ['LOGSPATH']#"/home/"+str(os.environ.get('USER'))+"/logs/"# Directory to store log files and the log file format
@@ -38,40 +32,40 @@ def sample(request):
 #     format=("%(asctime)s - %(levelname)s:%(process)d:%(processName)s:%(filename)s - Function Name:%(funcName)s - Line No:%(lineno)d - %(message)s  "))
 #logging.info("STARTED DJANGO SERVER")
 
-def getViolations(id):
-    violations = Violation.objects.filter(object_id=id)
-    d=[]
-    for e in violations:
-        temp={}
-        temp["pk"]= e.pk
-        temp["violation_id"]=e.violation_id
-        d.append(temp)
-    return d
+# def getViolations(id):
+#     violations = Violation.objects.filter(object_id=id)
+#     d=[]
+#     for e in violations:
+#         temp={}
+#         temp["pk"]= e.pk
+#         temp["violation_id"]=e.violation_id
+#         d.append(temp)
+#     return d
 
-def getViolationNames(id):
-    violations = Violation.objects.filter(object_id=id)
-    refs= getViolationRefs()
-    d=[]
-    for e in violations:
-        for ele in refs:
-            if(ele["pk"]==e.violation_id):
-                d.append(ele["violation_name"])
-                break
-    return d
+# def getViolationNames(id):
+#     violations = Violation.objects.filter(object_id=id)
+#     refs= getViolationRefs()
+#     d=[]
+#     for e in violations:
+#         for ele in refs:
+#             if(ele["pk"]==e.violation_id):
+#                 d.append(ele["violation_name"])
+#                 break
+#     return d
 
-def getEvidenceImages(id):
-    evidenceImages = EvidenceCamImg.objects.filter(object_id=id)
-    d=[]
-    for e in evidenceImages:
-        d.append(e.evidence_image)
-    return d
+# def getEvidenceImages(id):
+#     evidenceImages = EvidenceCamImg.objects.filter(object_id=id)
+#     d=[]
+#     for e in evidenceImages:
+#         d.append(e.evidence_image)
+#     return d
 
-def getEvidenceImagesWithHostUrl(id):
-    evidenceImages = EvidenceCamImg.objects.filter(object_id=id)
-    d=[]
-    for e in evidenceImages:
-        d.append(HOST_STATIC_FOLDER_URL + e.evidence_image)
-    return d
+# def getEvidenceImagesWithHostUrl(id):
+#     evidenceImages = EvidenceCamImg.objects.filter(object_id=id)
+#     d=[]
+#     for e in evidenceImages:
+#         d.append(HOST_STATIC_FOLDER_URL + e.evidence_image)
+#     return d
 
 def getViolationRefs():
     violationRefs=ViolationRef.objects.all()
@@ -111,9 +105,9 @@ def getJuctionsAndCameras():
     return junctions_and_cameras
 
 
-@api_view(['GET', ])
-@permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication])
+# @api_view(['GET', ])
+# @permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
 def index(request):
     # cameras=getCameras();
     junctions_and_cameras=getJuctionsAndCameras()
@@ -128,11 +122,28 @@ def index(request):
     )
     return response
 
+def getDictValue(e):
+    temp={}
+    temp['id']=e.entry_id
+    temp['object_id']=e.object_id
+    temp["plate"]=e.number_plate_number
+    temp["anpr_image"]=e.anpr_image
+    temp["cropped_image"]=e.cropped_image
+    temp["violations"]=e.violations.split(',') if len(e.violations)>0 else []
+    temp["evidence_images"]=e.evidence_images.split(',') if len(e.evidence_images)>0 else []
+    temp["junction_name"]=e.junction_name
+    temp["camera_name"]=e.camera_name
+    temp["evidence_camera_name"]=e.evidence_camera_name
+    temp['speed']=str(e.speed)
+    temp['speed_limit']=str(e.speed_limit)
+    temp['date_time']=str(e.date)
+    temp['reviewed']=True if e.reviewed else False
+    return temp
 
-# @csrf_exempt
-@api_view(['POST', ])
-@permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication])
+@csrf_exempt
+# @api_view(['POST', ])
+# @permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
 def update_violations(request):
     if request.method=="POST":
         form_data = request.POST
@@ -140,50 +151,20 @@ def update_violations(request):
 
         try:
             object_id=form_data["object_id"] # id of the particular entry ##have to change name to object_id in frontend
-            old_violations=json.loads(form_data["old_violations"]) #[{pk:1,violation_id:2},{pk:2,violation_id:3}]
-            new_violations=json.loads(form_data["new_violations"]) #[1,2,3]
+            new_violations=form_data["new_violations"] #[1,2,3]
             new_plate=form_data["new_plate"] 
             old_plate=form_data["old_plate"] 
-            print("decrypted form data--> ",object_id,old_plate,new_plate,old_violations,new_violations)
+            print("decrypted form data--> ",object_id,old_plate,new_plate,new_violations)
+            print("new violations--> ",new_violations)
             if new_plate != old_plate:
                 LicensePlates.objects.filter(object_id=object_id).update(number_plate_number=new_plate)
 
-            # return HttpResponse(form_data)
-            # object_id=1
-            # old_violations=[{"pk": 1, "violation_id": 1}, {"pk": 2, "violation_id": 2}]
-            # new_violations=[1,3]
-
-            toRemove=[]
-            for e in old_violations:
-                if e["violation_id"] in new_violations:
-                    new_violations.remove(e["violation_id"])
-                else:   
-                    toRemove.append(e["pk"])
-
-            Violation.objects.filter(pk__in=toRemove).delete()
-            for e in new_violations:
-                newV = Violation(violation=ViolationRef.objects.filter(id=e).first(),object_id=object_id)
-                newV.save()
-            
-            LicensePlates.objects.filter(object_id=object_id).update(reviewed=1)
+            LicensePlates.objects.filter(object_id=object_id).update(violations=new_violations,reviewed=1)
 
             e=LicensePlates.objects.filter(object_id=object_id).first()
-            temp={}
-            temp["id"]= e.pk
-            temp["object_id"]= e.object_id
-            temp["camera_name"]= e.camera_name
-            temp["junction_name"]= e.junction_name
-            temp["evidence_camera_name"]= e.evidence_camera_name
-            temp["plate"]= e.number_plate_number
-            temp["date"]= e.date.strftime('%d/%m/%Y %H:%M:%S')
-            temp["anpr_image"]= e.anpr_image
-            temp["cropped_image"]= e.cropped_image
-            temp["violations"]= getViolations(e.object_id)
-            temp["evidence_images"]=getEvidenceImages(e.object_id)
-            temp["reviewed"]=e.reviewed
-           
+            temp=getDictValue(e)
             return HttpResponse(json.dumps({
-            "entry":json.dumps(temp),
+            "entry":temp,
             }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
         except Exception as e:
@@ -192,92 +173,75 @@ def update_violations(request):
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
-# @csrf_exempt
-@api_view(['GET', ])
-@permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication])
-def get_violations(request):
-    if request.method == "GET":
-        form_data = request.GET
-        print("form_data", form_data)
-        # id=form_data["id"]
-        id=1
-        violations= getViolations(id)
+# # @csrf_exempt
+# @api_view(['GET', ])
+# @permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
+# def get_violations(request):
+#     if request.method == "GET":
+#         form_data = request.GET
+#         print("form_data", form_data)
+#         # id=form_data["id"]
+#         id=1
+#         violations= getViolations(id)
 
-        return HttpResponse(json.dumps({
-            "violations":json.dumps(violations),
-            "filter_conditions": form_data,
-        }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+#         return HttpResponse(json.dumps({
+#             "violations":json.dumps(violations),
+#             "filter_conditions": form_data,
+#         }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
+def getQueryFromFormData(form_data):
+    vehicle_no= form_data["vehicle_number"] #can be empty 
+    cameras = form_data["camera_names"] #can be empty
+    junction_names =form_data["junction_names"] #can be empty
+    start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
+    end_date_time=form_data["end_date_time"] #can be empty
+    violations=form_data["violations"] #can be empty [1,2,3,4]
 
-# @csrf_exempt
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication])
+    if cameras!="":
+        cameras=cameras.split(',')
+    if junction_names!="":
+        junction_names=junction_names.split(',')
+
+    query = LicensePlates.objects.all()
+    if len(vehicle_no)>0:
+        query = query.filter(number_plate_number__contains=vehicle_no)
+    if len(junction_names)>0:
+        query = query.filter(junction_name__in=junction_names)
+    if len(cameras)>0:
+        query = query.filter(camera_name__in=cameras)
+    if start_date_time != "":
+        query = query.filter(date__gte=start_date_time)
+    if end_date_time != "":
+        query = query.filter(date__lte=end_date_time)
+    if 1 in violations:
+        query=query.filter(violations__contains='1')
+    if 2 in violations:
+        query=query.filter(violations__contains='2')
+    if 3 in violations:
+        query=query.filter(violations__contains='3')
+    if 4 in violations:
+        query=query.filter(speed__gte=F('speed_limit'))
+    return query
+
+@csrf_exempt
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
 def plate_search(request):
     if request.method == "POST":
         form_data = request.POST
         print("form_data", form_data)
         try:
-            vehicle_no= form_data["vehicle_number"] #can be empty 
-            cameras = form_data["camera_names"] #can be empty
-            junction_names =form_data["junction_names"] #can be empty
-            start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
-            end_date_time=form_data["end_date_time"] #can be empty 
-
-            if cameras!="":
-                cameras="("+str(cameras.split(','))[1:-1]+")"
-            if junction_names!="":
-                junction_names="("+str(junction_names.split(','))[1:-1]+")"
+            query = getQueryFromFormData(form_data)
             d=[]
-
-
-            # #for where clause
-            # condition = ""
-            condition = 'where '
-            # if vehicle_no != '':
-            condition += 'e.number_plate_number like "%'+vehicle_no+'%" '
-            if len(junction_names)>0:
-                condition += 'and e.junction_name in '+str(junction_names) +' '
-            if len(cameras)>0:
-                condition += 'and e.camera_name in '+str(cameras) +' '
-            if start_date_time != "":
-                condition += 'and date >= "{}" '.format(start_date_time)
-            if end_date_time != "":
-                condition += 'and date <= "{}" '.format(end_date_time)
-            #query + where clause
-            query = 'select ec.*, group_concat(concat(v.id,",", v.violation_id)) as violations_made from ( select e.*, group_concat(c.evidence_image) as evidence_images from license_plates_rlvd as e inner join evidence_cam_img as c on c.object_id = e.object_id {}group by e.object_id) as ec inner join violations as v on v.object_id = ec.object_id group by ec.object_id order by ec.entry_id asc;'.format(condition)
-            print(query)
-            with connection.cursor() as cursor:
-                cursor.execute("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));")
-                cursor.execute(query)
-                rows = cursor.fetchall()
-                cols = cursor.description #column names will be available here
-                for row in rows:
-                    temp = {}
-                    for i in range(len(row)):
-                        if cols[i][0] == "entry_id":
-                            temp["id"] = row[i]
-                        elif cols[i][0] == "number_plate_number":
-                            temp["plate"] = row[i]
-                        elif cols[i][0] == "date":
-                            temp[cols[i][0]] = row[i].strftime('%d/%m/%Y %H:%M:%S')
-                        elif cols[i][0] == "evidence_images":
-                            imgs = row[i].split(",")
-                            temp[cols[i][0]] = imgs
-                        elif cols[i][0] == "violations_made":
-                            temp["violations"] = []
-                            vioArr = row[i].split(",")
-                            i = 0
-                            while i < len(vioArr):
-                                temp["violations"].append({"pk": int(vioArr[i]), "violation_id": int(vioArr[i+1])})
-                                i+=2
-                        else:
-                            temp[cols[i][0]] = row[i]
-                    d.append(temp)
+            for e in query:
+                temp=getDictValue(e)
+                d.append(temp)
+                print(temp)
             return HttpResponse(json.dumps({
                 "count":len(d),
-                "entries":json.dumps(d),
+                "entries":d,
                 "filter_conditions": form_data,
             }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
         except Exception as e:
