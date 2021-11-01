@@ -26,7 +26,7 @@ def getCameras():
     for cam in camQuerySet:
         temp = {}
         temp["id"] = cam.id
-        temp["camera_name"] = cam.camera_name
+        temp["name"] = cam.camera_name
         temp["latitude"] = str(cam.latitude)
         temp["longitude"] = str(cam.longitude)
         temp["rtsp_url"] = cam.rtsp_url
@@ -65,7 +65,7 @@ def getVehicleModels():
         temp['name'] = model.name
         temp['make'] = model.make.id
         temp['type'] = model.type.id
-        print(model.type.name)
+        # print(model.type.name)
         models.append(temp)
     return models
 
@@ -79,19 +79,15 @@ def getVehicleColors():
         colors.append(temp)
     return colors
 
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# @authentication_classes([TokenAuthentication])
-def initialDatas(request):
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def initialData(request):
     cameras = getCameras()
     vehicleTypes = getVehicleTypes()
     vehicleMakes = getVehicleMakes()
     vehicleModels = getVehicleModels()
     vehicleColors = getVehicleColors()
-    print("types", vehicleTypes)
-    print("make", vehicleMakes)
-    print("models", vehicleModels)
-    print("colors", vehicleColors)
     
     return HttpResponse(json.dumps({
                 "cameras":json.dumps(cameras),
@@ -110,7 +106,7 @@ def initialDatas(request):
 def getCameraLatestEntriesAndRecognitions(request):
     if request.method == "POST":
         form_data = request.POST
-        print("form_data", form_data)
+        # print("form_data", form_data)
         camera_name = form_data["camera_name"]
         recognitionCount = LicensePlates.objects.filter(camera_name = camera_name).count()
         plateQuerySet = LicensePlates.objects.filter(camera_name = camera_name).select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')[:5]
@@ -146,16 +142,33 @@ def getCameraLatestEntriesAndRecognitions(request):
 def plate_search(request):
     if request.method == "POST":
         form_data = request.POST
+        print(form_data)
         try:
             vehicle_no= form_data["vehicle_number"] #can be empty 
             cameras = form_data["camera_names"] #can be empty
             start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
             end_date_time=form_data["end_date_time"] #can be empty 
+            vehicle_type = form_data["vehicle_type"]#can be empty
+            vehicle_make = form_data["vehicle_make"]#can be empty
+            vehicle_model = form_data["vehicle_model"]#can be empty
+            vehicle_color = form_data["vehicle_color"]#can be empty
 
             if cameras!="":
                 cameras=cameras.split(',')
+            if vehicle_type!="":
+                vehicle_type = list(map(lambda x: int(x), list(vehicle_type.split(','))))
+                # print("vehicle type", vehicle_type, "data type", type(vehicle_type[0]))
+            if vehicle_make!="":
+                vehicle_make = list(map(lambda x: int(x), list(vehicle_make.split(','))))
+            if vehicle_model!="":
+                vehicle_model = list(map(lambda x: int(x), list(vehicle_model.split(','))))
+            if vehicle_color!="":
+                vehicle_color = list(map(lambda x: int(x), list(vehicle_color.split(','))))
+
+
 
             platesQuerySet=LicensePlates.objects
+
             if vehicle_no!="":
                 platesQuerySet = platesQuerySet.filter(plate_number__contains=vehicle_no)
             if len(cameras)>0:
@@ -164,6 +177,14 @@ def plate_search(request):
                 platesQuerySet=platesQuerySet.filter(date__gte=start_date_time)
             if end_date_time!="":
                 platesQuerySet=platesQuerySet.filter(date__lte=end_date_time)
+            if len(vehicle_type)>0:
+                platesQuerySet = platesQuerySet.filter(vehicle_type__in=vehicle_type)
+            if len(vehicle_make)>0:
+                platesQuerySet = platesQuerySet.filter(vehicle_make__in=vehicle_make)
+            if len(vehicle_model)>0:
+                platesQuerySet = platesQuerySet.filter(vehicle_model__in=vehicle_model)
+            if len(vehicle_color)>0:
+                platesQuerySet = platesQuerySet.filter(vehicle_color__in=vehicle_color)
             
 
             platesQuerySet = platesQuerySet.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color')
@@ -475,6 +496,7 @@ def camerafeed(request):
 
 def debug(request):
     entriesQuerySet = LicensePlates.objects.filter(camera_name = "cam1").select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')[:5]
+    recognitionCount = LicensePlates.objects.filter(camera_name = "cam1").count()
 
     d=[]
     for data in entriesQuerySet:
