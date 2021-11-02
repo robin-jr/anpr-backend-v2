@@ -1,5 +1,5 @@
 from arima_backend_v2.settings import STATIC_ROOT, STATIC_URL
-from rlvd.views import HOST_STATIC_FOLDER_URL
+from rlvd.views import HOST_STATIC_FOLDER_URL, getQueryFromFormData
 from .models import LicensePlatesAnpr as LicensePlates, VehicleColorRef, VehicleModelRef, VehicleMakeRef, VehicleTypeRef
 from rlvd.models import AnprCamera
 import csv
@@ -135,237 +135,111 @@ def getCameraLatestEntriesAndRecognitions(request):
         return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
 
 
-@csrf_exempt
+
+def getQueryFromFormData(form_data):
+    vehicle_no= form_data["vehicle_number"] #can be empty 
+    cameras = form_data["camera_names"] #can be empty
+    start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
+    end_date_time=form_data["end_date_time"] #can be empty 
+    vehicle_type = form_data["vehicle_type"]#can be empty
+    vehicle_make = form_data["vehicle_make"]#can be empty
+    vehicle_model = form_data["vehicle_model"]#can be empty
+    vehicle_color = form_data["vehicle_color"]#can be empty
+
+    if cameras!="":
+        cameras=cameras.split(',')
+    if vehicle_type!="":
+        vehicle_type = list(map(lambda x: int(x), list(vehicle_type.split(','))))
+    if vehicle_make!="":
+        vehicle_make = list(map(lambda x: int(x), list(vehicle_make.split(','))))
+    if vehicle_model!="":
+        vehicle_model = list(map(lambda x: int(x), list(vehicle_model.split(','))))
+    if vehicle_color!="":
+        vehicle_color = list(map(lambda x: int(x), list(vehicle_color.split(','))))
+
+
+
+    platesQuerySet=LicensePlates.objects.all()
+
+    if vehicle_no!="":
+        platesQuerySet = platesQuerySet.filter(plate_number__contains=vehicle_no)
+    if len(cameras)>0:
+        platesQuerySet =platesQuerySet.filter(camera_name__in=cameras)
+    if start_date_time!="":
+        platesQuerySet=platesQuerySet.filter(date__gte=start_date_time)
+    if end_date_time!="":
+        platesQuerySet=platesQuerySet.filter(date__lte=end_date_time)
+    if len(vehicle_type)>0:
+        platesQuerySet = platesQuerySet.filter(vehicle_type__in=vehicle_type)
+    if len(vehicle_make)>0:
+        platesQuerySet = platesQuerySet.filter(vehicle_make__in=vehicle_make)
+    if len(vehicle_model)>0:
+        platesQuerySet = platesQuerySet.filter(vehicle_model__in=vehicle_model)
+    if len(vehicle_color)>0:
+        platesQuerySet = platesQuerySet.filter(vehicle_color__in=vehicle_color)
+    
+
+    platesQuerySet = platesQuerySet.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color')
+    return platesQuerySet
+
+
+def getDictFromQuery(platesQuerySet):
+    d=[]
+    for data in platesQuerySet:
+        temp={}
+        temp["id"]= data.pk
+        temp["camera_name"]= data.camera_name
+        temp["plate"]= data.plate_number
+        temp["date"]= data.date.strftime('%d/%m/%Y %H:%M:%S')
+        temp["anpr_full_image"]= data.anpr_full_image
+        temp["anpr_cropped_image"]= data.anpr_cropped_image
+        temp["vehicle_type"] = data.vehicle_type.name
+        temp["vehicle_make"] = data.vehicle_make.name
+        temp["vehicle_model"] = data.vehicle_model.name
+        temp["vehicle_color"] = data.vehicle_color.name
+        d.append(temp)
+    print(d)
+    return d
+
 @api_view(['POST' ])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
 def plate_search(request):
-    if request.method == "POST":
-        form_data = request.POST
-        print(form_data)
-        try:
-            vehicle_no= form_data["vehicle_number"] #can be empty 
-            cameras = form_data["camera_names"] #can be empty
-            start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
-            end_date_time=form_data["end_date_time"] #can be empty 
-            vehicle_type = form_data["vehicle_type"]#can be empty
-            vehicle_make = form_data["vehicle_make"]#can be empty
-            vehicle_model = form_data["vehicle_model"]#can be empty
-            vehicle_color = form_data["vehicle_color"]#can be empty
-
-            if cameras!="":
-                cameras=cameras.split(',')
-            if vehicle_type!="":
-                vehicle_type = list(map(lambda x: int(x), list(vehicle_type.split(','))))
-                # print("vehicle type", vehicle_type, "data type", type(vehicle_type[0]))
-            if vehicle_make!="":
-                vehicle_make = list(map(lambda x: int(x), list(vehicle_make.split(','))))
-            if vehicle_model!="":
-                vehicle_model = list(map(lambda x: int(x), list(vehicle_model.split(','))))
-            if vehicle_color!="":
-                vehicle_color = list(map(lambda x: int(x), list(vehicle_color.split(','))))
-
-
-
-            platesQuerySet=LicensePlates.objects
-
-            if vehicle_no!="":
-                platesQuerySet = platesQuerySet.filter(plate_number__contains=vehicle_no)
-            if len(cameras)>0:
-                platesQuerySet =platesQuerySet.filter(camera_name__in=cameras)
-            if start_date_time!="":
-                platesQuerySet=platesQuerySet.filter(date__gte=start_date_time)
-            if end_date_time!="":
-                platesQuerySet=platesQuerySet.filter(date__lte=end_date_time)
-            if len(vehicle_type)>0:
-                platesQuerySet = platesQuerySet.filter(vehicle_type__in=vehicle_type)
-            if len(vehicle_make)>0:
-                platesQuerySet = platesQuerySet.filter(vehicle_make__in=vehicle_make)
-            if len(vehicle_model)>0:
-                platesQuerySet = platesQuerySet.filter(vehicle_model__in=vehicle_model)
-            if len(vehicle_color)>0:
-                platesQuerySet = platesQuerySet.filter(vehicle_color__in=vehicle_color)
-            
-
-            platesQuerySet = platesQuerySet.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color')
-            d=[]
-            for data in platesQuerySet:
-                temp={}
-                temp["id"]= data.pk
-                temp["camera_name"]= data.camera_name
-                # temp["junction_name"]= e.junction_name
-                temp["plate"]= data.plate_number
-                temp["date"]= data.date.strftime('%d/%m/%Y %H:%M:%S')
-                temp["anpr_full_image"]= data.anpr_full_image
-                temp["anpr_cropped_image"]= data.anpr_cropped_image
-                temp["vehicle_type"] = data.vehicle_type.name
-                temp["vehicle_make"] = data.vehicle_make.name
-                temp["vehicle_model"] = data.vehicle_model.name
-                temp["vehicle_color"] = data.vehicle_color.name
-                d.append(temp)
-
-            # license_plates= LicensePlates.objects.all()[:5] #temporary
-            return HttpResponse(json.dumps({
-                "count":platesQuerySet.count(),
-                "entries":json.dumps(d),
-                # "filter_conditions": form_data,
-            }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
-
-        except Exception as e:
-            print("error--> ",e)
-            return HttpResponse(json.dumps({"error":str(e)})
-                ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
-    else:
-        logging.info("Plate Search - End")
-        return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
-
-
-# @api_view(['POST', 'GET' ])
-def plate_search1(request):
-    if request.method == "POST" or request.method == "GET":
-        # form_data = request.POST
-        try:
-            # vehicle_no= form_data["vehicle_number"] #can be empty 
-            # cameras = form_data["camera_names"] #can be empty
-            # start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
-            # end_date_time=form_data["end_date_time"] #can be empty 
-
-            # if cameras!="":
-            #     cameras=cameras.split(',')
-
-            # plates=LicensePlates.objects.all()
-            # if vehicle_no!="":
-            #     plates = LicensePlates.objects.filter(plate_number__contains=vehicle_no)
-            # if len(cameras)>0:
-            #     plates =plates.filter(camera_name__in=cameras)
-            # if start_date_time!="":
-            #     plates=plates.filter(date__gte=start_date_time)
-            # if end_date_time!="":
-            #     plates=plates.filter(date__lte=end_date_time)
-            
-            
-            # count = plates.count()
-
-            
-            license_platesQuerySet = LicensePlates.objects.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').all()
-            d=[]
-            for data in license_platesQuerySet:
-                temp={}
-                temp["id"]= data.pk
-                temp["camera_name"]= data.camera_name
-                # temp["junction_name"]= e.junction_name
-                temp["plate"]= data.plate_number
-                temp["date"]= data.date.strftime('%d/%m/%Y %H:%M:%S')
-                temp["anpr_full_image"]= data.anpr_full_image
-                temp["anpr_cropped_image"]= data.anpr_cropped_image
-                temp["vehicle_type"] = data.vehicle_type.name
-                temp["vehicle_make"] = data.vehicle_make.name
-                temp["vehicle_model"] = data.vehicle_model.name
-                temp["vehicle_color"] = data.vehicle_color.name
-                d.append(temp)
-            return HttpResponse(json.dumps({
-                "count": license_platesQuerySet.count(),
-                "entries":json.dumps(d),
-                # "filter_conditions": form_data,
-            }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
-
-
-        except Exception as e:
-            print("error--> ",e)
-            return HttpResponse(json.dumps({"error":str(e)})
-                ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
-    else:
-        logging.info("Plate Search - End")
-        return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
-
-
-def download_csv( request, array):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment;filename=export.csv'
-    writer = csv.writer(response)
-    head=['entry_id','plate_number','camera_name','date','anpr_full_image','anpr_cropped_image']
-
-    # writer.writerow(field_names)
-    writer.writerow(head)
-    # writer.writerow(body)
-    # Write data rows
-    # array= [['a','b'],['c','d']]
-    for row in array:
-        writer.writerow(row)
-    return response
-
-# @csrf_exempt
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-@authentication_classes([TokenAuthentication])
-def export_csv(request):
-    form_data=request.POST
-    print("Form Data", form_data)
+    form_data = request.POST
+    print(form_data)
     try:
-        vehicle_no= form_data["vehicle_number"] #can be empty 
-        cameras = form_data["camera_names"] #can be empty
-        start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
-        end_date_time=form_data["end_date_time"]
-        # vehicle_no = ""
-        # cameras = ""
-        # start_date_time = ""
-        # end_date_time = ""
+        platesQuerySet = getQueryFromFormData(form_data)
+        d = getDictFromQuery(platesQuerySet)
+        return HttpResponse(json.dumps({
+            "count":platesQuerySet.count(),
+            "entries":d,
+            "filter_conditions": form_data,
+        }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
-        plates=LicensePlates.objects.all()
-        if cameras!="":
-            cameras=cameras.split(',')
-            
-
-        print("Vehicle NO: ", vehicle_no, "Cameras", cameras)
-        if vehicle_no!="":
-            plates = LicensePlates.objects.filter(plate_number__contains=vehicle_no)
-        if len(cameras)>0:
-            plates =plates.filter(camera_name__in=cameras)
-        if start_date_time!="":
-            plates=plates.filter(date__gte=start_date_time)
-        if end_date_time!="":
-            plates=plates.filter(date__lte=end_date_time)
-
-        d=[]
-        for e in plates:
-            temp=[]
-            temp.append(e.entry_id)
-            temp.append(e.plate_number)
-            temp.append(e.camera_name)
-            temp.append(e.date.strftime('%d/%m/%Y %H:%M:%S'))
-            temp.append(HOST_STATIC_FOLDER_URL + e.anpr_full_image)
-            temp.append(HOST_STATIC_FOLDER_URL + e.anpr_cropped_image)
-            d.append(temp)
-
-        # print("CSV Data", d)
-        data = download_csv( request, d)
-        return HttpResponse (data, content_type='text/csv')
     except Exception as e:
+        print("error--> ",str(e))
+        return HttpResponse(json.dumps({"error":str(e)})
+            ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
-        print("Exxception --> ",e)
-        return HttpResponse("error")
 
 
-
-def createExcel(entries):
+def createExcel(platesQuerySet):
     path = "/app/rlvd/static/"
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
-    # workbook = xlsxwriter.Workbook(name)
     worksheet = workbook.add_worksheet()
-    # worksheet.row_dimensions[1].height = 70
+    headers = ['Entry ID','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image', 'Vehicle Type', 'Vehicle Make', 'Vehicle Model', 'Vehicle Color']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
+    center = workbook.add_format({"align": "center", "font_size": 15})
     worksheet.set_row(0,30)
-    headers = ['Entry ID','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image']
+    worksheet.set_default_row(100)
+    worksheet.set_column(0, len(headers), 30)
     row = 0
     for idx, head in enumerate(headers):
         worksheet.write(row, idx, head, bold)
     row += 1
-    worksheet.set_default_row(100)
-    worksheet.set_column(0, len(entries), 30)
-    center = workbook.add_format({"align": "center", "font_size": 15})
-    for entry in entries:
+    
+    for entry in platesQuerySet:
         worksheet.write(row, 0, entry.entry_id, center)
         worksheet.write(row, 1, entry.plate_number, center)
         worksheet.write(row, 2, entry.camera_name, center)
@@ -415,6 +289,11 @@ def createExcel(entries):
                                     {"x_scale": x_scale*7.2,
                                         "y_scale": y_scale*1.5,
                                         "positioning": 1}))
+        worksheet.write(row, 6, entry.vehicle_type.name, center)
+        worksheet.write(row, 7, entry.vehicle_make.name, center)
+        worksheet.write(row, 8, entry.vehicle_model.name, center)
+        worksheet.write(row, 9, entry.vehicle_color.name, center)
+
         row += 1
     workbook.close()
     return output.getvalue()
@@ -429,31 +308,8 @@ def exportExcel(request):
     form_data=request.POST
     print("Form Data", form_data)
     try:
-        vehicle_no= form_data["vehicle_number"] #can be empty 
-        cameras = form_data["camera_names"] #can be empty
-        start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
-        end_date_time=form_data["end_date_time"]
-        # vehicle_no = ""
-        # cameras = ""
-        # start_date_time = ""
-        # end_date_time = ""
-
-        plates=LicensePlates.objects.all()
-        if cameras!="":
-            cameras=cameras.split(',')
-            
-
-        print("Vehicle NO: ", vehicle_no, "Cameras", cameras)
-        if vehicle_no!="":
-            plates = LicensePlates.objects.filter(plate_number__contains=vehicle_no)
-        if len(cameras)>0:
-            plates =plates.filter(camera_name__in=cameras)
-        if start_date_time!="":
-            plates=plates.filter(date__gte=start_date_time)
-        if end_date_time!="":
-            plates=plates.filter(date__lte=end_date_time)
-
-        xlsx_data = createExcel(plates)
+        platesQuerySet = getQueryFromFormData(form_data)
+        xlsx_data = createExcel(platesQuerySet)
         response.write(xlsx_data)
         return response
 
@@ -516,3 +372,73 @@ def debug(request):
         # d.append(temp)
     print(d)
     return render(request, 'index.html')
+
+
+
+
+    # def download_csv( request, array):
+#     response = HttpResponse(content_type='text/csv')
+#     response['Content-Disposition'] = 'attachment;filename=export.csv'
+#     writer = csv.writer(response)
+#     head=['entry_id','plate_number','camera_name','date','anpr_full_image','anpr_cropped_image']
+
+#     # writer.writerow(field_names)
+#     writer.writerow(head)
+#     # writer.writerow(body)
+#     # Write data rows
+#     # array= [['a','b'],['c','d']]
+#     for row in array:
+#         writer.writerow(row)
+#     return response
+
+# # @csrf_exempt
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
+# def export_csv(request):
+#     form_data=request.POST
+#     print("Form Data", form_data)
+#     try:
+#         vehicle_no= form_data["vehicle_number"] #can be empty 
+#         cameras = form_data["camera_names"] #can be empty
+#         start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
+#         end_date_time=form_data["end_date_time"]
+#         # vehicle_no = ""
+#         # cameras = ""
+#         # start_date_time = ""
+#         # end_date_time = ""
+
+#         plates=LicensePlates.objects.all()
+#         if cameras!="":
+#             cameras=cameras.split(',')
+            
+
+#         print("Vehicle NO: ", vehicle_no, "Cameras", cameras)
+#         if vehicle_no!="":
+#             plates = LicensePlates.objects.filter(plate_number__contains=vehicle_no)
+#         if len(cameras)>0:
+#             plates =plates.filter(camera_name__in=cameras)
+#         if start_date_time!="":
+#             plates=plates.filter(date__gte=start_date_time)
+#         if end_date_time!="":
+#             plates=plates.filter(date__lte=end_date_time)
+
+#         d=[]
+#         for e in plates:
+#             temp=[]
+#             temp.append(e.entry_id)
+#             temp.append(e.plate_number)
+#             temp.append(e.camera_name)
+#             temp.append(e.date.strftime('%d/%m/%Y %H:%M:%S'))
+#             temp.append(HOST_STATIC_FOLDER_URL + e.anpr_full_image)
+#             temp.append(HOST_STATIC_FOLDER_URL + e.anpr_cropped_image)
+#             d.append(temp)
+
+#         # print("CSV Data", d)
+#         data = download_csv( request, d)
+#         return HttpResponse (data, content_type='text/csv')
+#     except Exception as e:
+
+#         print("Exxception --> ",e)
+#         return HttpResponse("error")

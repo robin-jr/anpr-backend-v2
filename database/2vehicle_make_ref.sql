@@ -8,8 +8,8 @@ CREATE TABLE `vehicle_make_ref` (
 
 INSERT INTO `vehicle_make_ref` (`name`, `type_id`) VALUES ('Honda', '1,2');
 INSERT INTO `vehicle_make_ref` (`name`, `type_id`) VALUES ('Yamaha', '1');
-INSERT INTO `vehicle_make_ref` (`name`, `type_id`) VALUES ('Toyato', '3');
-INSERT INTO `vehicle_make_ref` (`name`, `type_id`) VALUES ('Innova', '2');
+INSERT INTO `vehicle_make_ref` (`name`, `type_id`) VALUES ('Toyato', '2');
+INSERT INTO `vehicle_make_ref` (`name`, `type_id`) VALUES ('Mahendra', '3');
 
 
 

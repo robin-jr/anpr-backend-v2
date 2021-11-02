@@ -5,9 +5,9 @@ CREATE TABLE `vehicle_color_ref` (
 ) ENGINE=InnoDB;
 
 
-INSERT INTO `vehicle_color_ref` (`name`) VALUES ('red');
-INSERT INTO `vehicle_color_ref` (`name`) VALUES ('green');
-INSERT INTO `vehicle_color_ref` (`name`) VALUES ('black');
-INSERT INTO `vehicle_color_ref` (`name`) VALUES ('blue');
-INSERT INTO `vehicle_color_ref` (`name`) VALUES ('grey');
-INSERT INTO `vehicle_color_ref` (`name`) VALUES ('white');
+INSERT INTO `vehicle_color_ref` (`name`) VALUES ('Red');
+INSERT INTO `vehicle_color_ref` (`name`) VALUES ('Green');
+INSERT INTO `vehicle_color_ref` (`name`) VALUES ('Black');
+INSERT INTO `vehicle_color_ref` (`name`) VALUES ('Blue');
+INSERT INTO `vehicle_color_ref` (`name`) VALUES ('Grey');
+INSERT INTO `vehicle_color_ref` (`name`) VALUES ('White');

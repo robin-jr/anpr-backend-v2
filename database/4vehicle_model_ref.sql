@@ -13,6 +13,12 @@ CREATE TABLE `vehicle_model_ref` (
 
 
 INSERT INTO `vehicle_model_ref` (`name`, `type_id`, `make_id`) VALUES ('Dio', '1', '1');
-INSERT INTO `vehicle_model_ref` (`name`, `type_id`, `make_id`) VALUES ('V2', '1', '2');
-INSERT INTO `vehicle_model_ref` (`name`, `type_id`, `make_id`) VALUES ('Civic', '2', '3');
-INSERT INTO `vehicle_model_ref` (`name`, `type_id`, `make_id`) VALUES ('XL lorry', '3', '4');
+INSERT INTO `vehicle_model_ref` (`name`, `type_id`, `make_id`) VALUES ('Activa', '1', '1');
+INSERT INTO `vehicle_model_ref` (`name`, `type_id`, `make_id`) VALUES ('Ray', '1', '2');
+INSERT INTO `vehicle_model_ref` (`name`, `type_id`, `make_id`) VALUES ('RX100', '1', '2');
+INSERT INTO `vehicle_model_ref` (`name`, `type_id`, `make_id`) VALUES ('Civic', '2', '1');
+INSERT INTO `vehicle_model_ref` (`name`, `type_id`, `make_id`) VALUES ('Innova', '2', '3');
+INSERT INTO `vehicle_model_ref` (`name`, `type_id`, `make_id`) VALUES ('Fortuner', '2', '3');
+INSERT INTO `vehicle_model_ref` (`name`, `type_id`, `make_id`) VALUES ('XL Lorry', '3', '4');
+INSERT INTO `vehicle_model_ref` (`name`, `type_id`, `make_id`) VALUES ('XXL Lorry', '3', '4');
+

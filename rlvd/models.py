@@ -4,19 +4,19 @@ from django.utils import timezone
 
 class LicensePlatesRlvd(models.Model):
     entry_id = models.AutoField(primary_key=True)
-    object_id=models.CharField(max_length=100)
+    # object_id=models.CharField(max_length=100)
     camera_name = models.CharField(max_length=100)
     junction_name = models.CharField(max_length=100)
     evidence_camera_name = models.CharField(max_length=100)
     number_plate_number = models.CharField(max_length=50)
     date = models.DateTimeField()
-    anpr_image = models.CharField(max_length=100)
-    cropped_image = models.CharField(max_length=100)
+    anpr_image = models.CharField(max_length=200)
+    cropped_image = models.CharField(max_length=200)
     evidence_images=models.CharField(max_length=1000)
-    violations=models.CharField(max_length=1000)
+    violations=models.CharField(max_length=100)
     speed=models.DecimalField(max_digits=5,decimal_places=2)
     speed_limit=models.DecimalField(max_digits=5,decimal_places=2)
-    reviewed=models.IntegerField()
+    reviewed=models.BooleanField()
 
     class Meta:
         #managed = True

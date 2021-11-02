@@ -7,4 +7,4 @@ CREATE TABLE `vehicle_type_ref` (
 
 INSERT INTO `vehicle_type_ref` (`name`) VALUES ('Bike');
 INSERT INTO `vehicle_type_ref` (`name`) VALUES ('Car');
-INSERT INTO `vehicle_type_ref` (`name`) VALUES ('Heavy Vehicle');
+INSERT INTO `vehicle_type_ref` (`name`) VALUES ('Heavy');

@@ -9,7 +9,7 @@ urlpatterns = [
     path("debug/", views.debug),
     # path("plate/", views.plate_search1),
     path("feed/", views.camerafeed),
-    path("export/", views.export_csv),
+    # path("export/", views.export_csv),
     path("exportExcel/", views.exportExcel),
 ]
 
