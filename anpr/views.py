@@ -198,7 +198,7 @@ def getDictFromQuery(platesQuerySet):
         temp["vehicle_model"] = data.vehicle_model.name
         temp["vehicle_color"] = data.vehicle_color.name
         d.append(temp)
-    print(d)
+    # print(d)
     return d
 
 @api_view(['POST' ])
@@ -206,7 +206,7 @@ def getDictFromQuery(platesQuerySet):
 @authentication_classes([TokenAuthentication])
 def plate_search(request):
     form_data = request.POST
-    print(form_data)
+    # print(form_data)
     try:
         platesQuerySet = getQueryFromFormData(form_data)
         d = getDictFromQuery(platesQuerySet)
@@ -260,12 +260,12 @@ def createExcel(platesQuerySet):
                 #print("path",path,"img_width", img_width, "img_height", img_height)
                 x_scale = 30/img_width
                 y_scale = 100/img_height
-                print(worksheet.insert_image(row,
+                worksheet.insert_image(row,
                                     4,
                                     imagePath,
                                     {"x_scale": x_scale*7.2,
                                         "y_scale": y_scale*1.5,
-                                        "positioning": 1}))
+                                        "positioning": 1})
 
         imagePath = path+entry.anpr_cropped_image
         try:
@@ -283,12 +283,12 @@ def createExcel(platesQuerySet):
                 #print("path",path,"img_width", img_width, "img_height", img_height)
                 x_scale = 30/img_width
                 y_scale = 100/img_height
-                print(worksheet.insert_image(row,
+                worksheet.insert_image(row,
                                     5,
                                     imagePath,
                                     {"x_scale": x_scale*7.2,
                                         "y_scale": y_scale*1.5,
-                                        "positioning": 1}))
+                                        "positioning": 1})
         worksheet.write(row, 6, entry.vehicle_type.name, center)
         worksheet.write(row, 7, entry.vehicle_make.name, center)
         worksheet.write(row, 8, entry.vehicle_model.name, center)
@@ -306,7 +306,7 @@ def exportExcel(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format("ANPR entries.xlsx")
     form_data=request.POST
-    print("Form Data", form_data)
+    # print("Form Data", form_data)
     try:
         platesQuerySet = getQueryFromFormData(form_data)
         xlsx_data = createExcel(platesQuerySet)
@@ -345,7 +345,7 @@ def camerafeed(request):
         #should get rtsp url from request
     camid = request.GET.get("camid")
     rtsp = AnprCamera.objects.filter(id=camid).first().rtsp_url
-    print("Rtsp  ---->  ", rtsp)
+    # print("Rtsp  ---->  ", rtsp)
     return StreamingHttpResponse(gen(rtsp),content_type="multipart/x-mixed-replace;boundary=frame")
 
 
