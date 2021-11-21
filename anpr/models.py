@@ -30,6 +30,7 @@ class VehicleModelRef(models.Model):
 class VehicleColorRef(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=45)
+    code = models.CharField(max_length=45)
 
     class Meta:
         db_table = "vehicle_color_ref"
