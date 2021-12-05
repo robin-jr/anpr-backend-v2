@@ -11,6 +11,12 @@ services:
             - type: bind
               source: ./
               target: /app
+            - type: bind
+            #   source: /run/media/${user} #for arch 
+              source: /media/${user} #for debian
+              target: /media/root
+              bind:
+                propagation: shared
         depends_on: 
             - mysql
         environment:
