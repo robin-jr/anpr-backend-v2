@@ -138,16 +138,11 @@ def getCameraLatestEntriesAndRecognitions(request):
         logging.info("Latest Entries - End")
         return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
 
-def getQueryFromFormDatav1():
-    # vehicle_no= form_data["vehicle_number"] #can be empty 
-    # cameras = form_data["camera_names"] #can be empty
-    # start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
-    # end_date_time=form_data["end_date_time"] #can be empty 
-
-    vehicle_no = ""
-    cameras = ""
-    start_date_time = ""
-    end_date_time = ""
+def getQueryFromFormDatav1(form_data):
+    vehicle_no= form_data["vehicle_number"] #can be empty 
+    cameras = form_data["camera_names"] #can be empty
+    start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
+    end_date_time=form_data["end_date_time"] #can be empty 
 
     if cameras!="":
         cameras=cameras.split(',')
@@ -404,19 +399,16 @@ def createExcelv2(platesQuerySet):
     workbook.close()
     return output.getvalue()
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# @authentication_classes([TokenAuthentication])
-@api_view(['POST', 'GET'])
-@permission_classes([])
-@authentication_classes([])
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def exportExcelv1(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format("ANPR entries.xlsx")
-    # form_data=request.POST
-    # print("Form Data", form_data)
+    form_data=request.POST
+    print("Form Data", form_data)
     try:
-        platesQuerySet = getQueryFromFormDatav1()
+        platesQuerySet = getQueryFromFormDatav1(form_data)
         xlsx_data = createExcelv1(platesQuerySet)
         response.write(xlsx_data)
         return response

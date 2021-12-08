@@ -418,25 +418,22 @@ def createExcelv2(query):
     return output.getvalue()
 
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# @authentication_classes([TokenAuthentication])
-@api_view(['POST', 'GET'])
-@permission_classes([])
-@authentication_classes([])
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def exportExcelv1(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format("RLVD entries.xlsx")
+    # response['Content-Disposition'] = 'attachment; filename="{}"'.format("RLVD entries.xlsx") 
     form_data=request.POST
     print("Form Data", form_data)
     try:
         query = getQueryFromFormData(form_data)
-        # status_reviewed=form_data["status_reviewed"] # yes | no
-        # status_not_reviewed=form_data["status_not_reviewed"] # yes | no
-        # if status_reviewed =="yes" and status_not_reviewed =="no":
-        #     query=query.filter(reviewed=1)
-        # if status_reviewed =="no" and status_not_reviewed =="yes":
-        # query=query.filter(reviewed=0)
+        status_reviewed=form_data["status_reviewed"] # yes | no
+        status_not_reviewed=form_data["status_not_reviewed"] # yes | no
+        if status_reviewed =="yes" and status_not_reviewed =="no":
+            query=query.filter(reviewed=1)
+        if status_reviewed =="no" and status_not_reviewed =="yes":
+            query=query.filter(reviewed=0)
         xlsx_data = createExcelv1(query)
         response.write(xlsx_data)
         return response
@@ -462,7 +459,7 @@ def exportExcelv2(request):
             query=query.filter(reviewed=1)
         if status_reviewed =="no" and status_not_reviewed =="yes":
             query=query.filter(reviewed=0)
-        xlsx_data = createExcel(query)
+        xlsx_data = createExcelv2(query)
         response.write(xlsx_data)
         return response
     except Exception as e:
