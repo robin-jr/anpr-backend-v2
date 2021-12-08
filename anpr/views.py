@@ -1,5 +1,5 @@
 from arima_backend_v2.settings import STATIC_ROOT, STATIC_URL
-from rlvd.views import HOST_STATIC_FOLDER_URL, getQueryFromFormData
+from rlvd.views import HOST_STATIC_FOLDER_URL
 from .models import LicensePlatesAnpr as LicensePlates, VehicleColorRef, VehicleModelRef, VehicleMakeRef, VehicleTypeRef
 from rlvd.models import AnprCamera
 import csv
@@ -138,9 +138,39 @@ def getCameraLatestEntriesAndRecognitions(request):
         logging.info("Latest Entries - End")
         return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
 
+def getQueryFromFormDatav1():
+    # vehicle_no= form_data["vehicle_number"] #can be empty 
+    # cameras = form_data["camera_names"] #can be empty
+    # start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
+    # end_date_time=form_data["end_date_time"] #can be empty 
+
+    vehicle_no = ""
+    cameras = ""
+    start_date_time = ""
+    end_date_time = ""
+
+    if cameras!="":
+        cameras=cameras.split(',')
 
 
-def getQueryFromFormData(form_data):
+
+    platesQuerySet=LicensePlates.objects.all()
+
+    if vehicle_no!="":
+        platesQuerySet = platesQuerySet.filter(plate_number__contains=vehicle_no)
+    if len(cameras)>0:
+        platesQuerySet =platesQuerySet.filter(camera_name__in=cameras)
+    if start_date_time!="":
+        platesQuerySet=platesQuerySet.filter(date__gte=start_date_time)
+    if end_date_time!="":
+        platesQuerySet=platesQuerySet.filter(date__lte=end_date_time)
+    
+    
+
+    platesQuerySet = platesQuerySet.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color')
+    return platesQuerySet
+
+def getQueryFromFormDatav2(form_data):
     vehicle_no= form_data["vehicle_number"] #can be empty 
     cameras = form_data["camera_names"] #can be empty
     start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
@@ -213,7 +243,7 @@ def plate_search(request):
     form_data = request.POST
     # print(form_data)
     try:
-        platesQuerySet = getQueryFromFormData(form_data)
+        platesQuerySet = getQueryFromFormDatav2(form_data)
         d = getDictFromQuery(platesQuerySet)
         return HttpResponse(json.dumps({
             "count":platesQuerySet.count(),
@@ -227,8 +257,79 @@ def plate_search(request):
             ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
+def createExcelv1(platesQuerySet):
+    path = "/app/rlvd/static/"
+    output      = io.BytesIO()
+    workbook    = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    headers = ['Entry ID','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image']
+    bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
+    center = workbook.add_format({"align": "center", "font_size": 15})
+    worksheet.set_row(0,30)
+    worksheet.set_default_row(100)
+    worksheet.set_column(0, len(headers), 30)
+    row = 0
+    for idx, head in enumerate(headers):
+        worksheet.write(row, idx, head, bold)
+    row += 1
+    
+    for entry in platesQuerySet:
+        worksheet.write(row, 0, entry.entry_id, center)
+        worksheet.write(row, 1, entry.plate_number, center)
+        worksheet.write(row, 2, entry.camera_name, center)
+        worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
+        imagePath =path+entry.anpr_full_image
+        try:
+            with Image.open(imagePath) as img:
+                width, height = img.size
+                x_scale = 30/width
+                y_scale = 100/height
+                worksheet.insert_image(row, 4,(imagePath), {"x_scale": x_scale*7.2,
+                                                    "y_scale": y_scale*1.5,
+                                                    "positioning": 1})
+        except Exception as e:
+            imagePath = path+"images/results/noImage.png"
+            with Image.open(imagePath) as img:
+                img_width, img_height = img.size
+                #print("path",path,"img_width", img_width, "img_height", img_height)
+                x_scale = 30/img_width
+                y_scale = 100/img_height
+                worksheet.insert_image(row,
+                                    4,
+                                    imagePath,
+                                    {"x_scale": x_scale*7.2,
+                                        "y_scale": y_scale*1.5,
+                                        "positioning": 1})
 
-def createExcel(platesQuerySet):
+        imagePath = path+entry.anpr_cropped_image
+        try:
+            with Image.open(imagePath) as img:
+                width, height = img.size
+                x_scale = 30/width
+                y_scale = 100/height
+                worksheet.insert_image(row, 5,imagePath, {"x_scale": x_scale*7.2,
+                                                    "y_scale": y_scale*1.5,
+                                                    "positioning": 1})
+        except Exception as e:
+            imagePath = path+"images/results/noImage.png"
+            with Image.open(imagePath) as img:
+                img_width, img_height = img.size
+                #print("path",path,"img_width", img_width, "img_height", img_height)
+                x_scale = 30/img_width
+                y_scale = 100/img_height
+                worksheet.insert_image(row,
+                                    5,
+                                    imagePath,
+                                    {"x_scale": x_scale*7.2,
+                                        "y_scale": y_scale*1.5,
+                                        "positioning": 1})
+
+        row += 1
+    workbook.close()
+    return output.getvalue()
+
+
+def createExcelv2(platesQuerySet):
     path = "/app/rlvd/static/"
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
@@ -303,18 +404,40 @@ def createExcel(platesQuerySet):
     workbook.close()
     return output.getvalue()
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
+@api_view(['POST', 'GET'])
+@permission_classes([])
+@authentication_classes([])
+def exportExcelv1(request):
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format("ANPR entries.xlsx")
+    # form_data=request.POST
+    # print("Form Data", form_data)
+    try:
+        platesQuerySet = getQueryFromFormDatav1()
+        xlsx_data = createExcelv1(platesQuerySet)
+        response.write(xlsx_data)
+        return response
+
+    except Exception as e:
+        print("error--> here",e)
+        return HttpResponse(json.dumps({"error":str(e)})
+                ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
-def exportExcel(request):
+def exportExcelv2(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format("ANPR entries.xlsx")
     form_data=request.POST
     # print("Form Data", form_data)
     try:
-        platesQuerySet = getQueryFromFormData(form_data)
-        xlsx_data = createExcel(platesQuerySet)
+        platesQuerySet = getQueryFromFormDatav2(form_data)
+        xlsx_data = createExcelv2(platesQuerySet)
         response.write(xlsx_data)
         return response
 
@@ -325,6 +448,7 @@ def exportExcel(request):
         
     
     
+
 
 
 def gen(camera):

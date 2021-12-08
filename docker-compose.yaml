@@ -1,41 +1,41 @@
 version: "3.8"
 
 services:
-    app:
-        build: .
-        command: /bin/sh -c "python3 manage.py runserver 0.0.0.0:8000"
-        ports:
-            - 8001:8000
-        working_dir: /app
-        volumes:
-            - type: bind
-              source: ./
-              target: /app
-            - type: bind
-            #   source: /run/media/${user} #for arch 
-              source: /media/${user} #for debian
-              target: /media/root
-              bind:
-                propagation: shared
-        depends_on: 
-            - mysql
-        environment:
-            MYSQL_HOST: mysql
-            MYSQL_USER: root
-            MYSQL_PASSWORD: root
-            MYSQL_DB: anprdb
+  app:
+    build: .
+    command: /bin/sh -c "python3 manage.py runserver 0.0.0.0:8000"
+    ports:
+      - 8001:8000
+    working_dir: /app
+    volumes:
+      - type: bind
+        source: ./
+        target: /app
+      # - type: bind
+      #   source: /run/media/${user} #for arch
+      #   source: /media/${user} #for debian
+      #   target: /media/root
+      #   bind:
+      # propagation: shared
+    depends_on:
+      - mysql
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DB: anprdb
 
-    mysql:
-        image: mysql:5.7
-        environment:
-                MYSQL_ROOT_PASSWORD: root
-                MYSQL_DATABASE: anprdb
-        volumes:
-            - type: volume
-              source: db-data
-              target: /var/lib/mysql
-            - type: bind
-              source: ./database/  #The initial database files
-              target: /docker-entrypoint-initdb.d 
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: anprdb
+    volumes:
+      - type: volume
+        source: db-data
+        target: /var/lib/mysql
+      - type: bind
+        source: ./database/ #The initial database files
+        target: /docker-entrypoint-initdb.d
 volumes:
-    db-data:
+  db-data:

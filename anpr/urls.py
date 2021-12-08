@@ -1,7 +1,5 @@
 from django.urls import path
 from . import views
-
-
 urlpatterns = [
     path("", views.initialData ),
     path("platesearch/", views.plate_search),
@@ -9,8 +7,8 @@ urlpatterns = [
     path("debug/", views.debug),
     # path("plate/", views.plate_search1),
     path("feed/", views.camerafeed),
-    # path("export/", views.export_csv),
-    path("exportExcel/", views.exportExcel),
+    path("exportExcelv1/", views.exportExcelv1),
+    path("exportExcelv2/", views.exportExcelv2),
 ]
 
 

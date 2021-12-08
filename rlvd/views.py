@@ -127,6 +127,7 @@ def update_violations(request):
             return HttpResponse(json.dumps({"error":"error"})
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
+
 def getQueryFromFormData(form_data):
     print(form_data)
     vehicle_no= form_data["vehicle_number"] #can be empty 
@@ -146,13 +147,13 @@ def getQueryFromFormData(form_data):
     
     
     # Sample data
-    # vehicle_no = 'TN4'
+    # vehicle_no = ''
     # cameras = []
     # junction_names = []
     # start_date_time = ""
     # end_date_time = ""
-    # violations = [1, 4]
-    # print(violations)
+    # violations = []
+    print(violations)
 
     query = LicensePlates.objects.all()
     if len(vehicle_no)>0:
@@ -218,9 +219,105 @@ def getViolationsFromIds(ids, speed, speed_limit):
     print("hello violations",violations)
     return violations
 
+def createExcelv1(query):
+    path = "/app/rlvd/static/"
+    output = io.BytesIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    headers = ['Entry ID','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image', 'Violations', 'Reviewed', 'Evidence Image 1', 'Evidence Image 2', 'Evidence Image 3', 'Evidence Image 4', 'Evidence Image 5', 'Evidence Image 6']
+    bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
+    center = workbook.add_format({"align": "center", "font_size": 15})
+    worksheet.set_row(0,30)
+    worksheet.set_default_row(100)
+    worksheet.set_column(0, len(headers) + 5, 30)
+    row = 0
+    for idx, head in enumerate(headers):
+        worksheet.write(row, idx, head, bold)
+    row += 1
+    for data in query:
+        worksheet.write(row, 0, data.entry_id, center)
+        worksheet.write(row, 1, data.number_plate_number, center)        
+        worksheet.write(row, 2, data.junction_name, center)
+        worksheet.write(row, 3, data.camera_name, center)
+        worksheet.write(row, 4, data.evidence_camera_name, center)       
+        worksheet.write(row, 5, str(data.date.strftime('%d/%m/%Y %H:%M:%S')), center)
+        imagePath =path+data.anpr_image
+        try:
+            with Image.open(imagePath) as img:
+                width, height = img.size
+                x_scale = 30/width
+                y_scale = 100/height
+                worksheet.insert_image(row, 6,imagePath, {"x_scale": x_scale*7.2,
+                                                    "y_scale": y_scale*1.5,
+                                                    "positioning": 1})
+        except Exception as e:
+            imagePath = path+"images/results/noImage.png"
+            with Image.open(imagePath) as img:
+                img_width, img_height = img.size
+                #print("path",path,"img_width", img_width, "img_height", img_height)
+                x_scale = 30/img_width
+                y_scale = 100/img_height
+                worksheet.insert_image(row,
+                                    6,
+                                    imagePath,
+                                    {"x_scale": x_scale*7.2,
+                                        "y_scale": y_scale*1.5,
+                                        "positioning": 1})
 
+        imagePath = path+data.cropped_image
+        try:
+            with Image.open(imagePath) as img:
+                width, height = img.size
+                x_scale = 30/width
+                y_scale = 100/height
+                worksheet.insert_image(row, 7,imagePath, {"x_scale": x_scale*7.2,
+                                                    "y_scale": y_scale*1.5,
+                                                    "positioning": 1})
+        except Exception as e:
+            imagePath = path+"images/results/noImage.png"
+            with Image.open(imagePath) as img:
+                img_width, img_height = img.size
+                #print("path",path,"img_width", img_width, "img_height", img_height)
+                x_scale = 30/img_width
+                y_scale = 100/img_height
+                worksheet.insert_image(row,
+                                    7,
+                                    imagePath,
+                                    {"x_scale": x_scale*7.2,
+                                        "y_scale": y_scale*1.5,
+                                        "positioning": 1})
+        violations = getViolationsFromIds(data.violations, 0, 0)
+        worksheet.write(row, 8, str(violations), center) 
+        worksheet.write(row, 9, "Yes" if data.reviewed else "No", center)
+        evidenceImages = list(map(lambda x: x.strip(), data.evidence_images.split(','))) if len(data.evidence_images)>0 else []
+        for i in range(6):
+            try:
+                imagePath = path+evidenceImages[i]
+                with Image.open(imagePath) as img:
+                    width, height = img.size
+                    x_scale = 30/width
+                    y_scale = 100/height
+                    worksheet.insert_image(row, 10 + i,imagePath, {"x_scale": x_scale*7.2,
+                                                        "y_scale": y_scale*1.5,
+                                                        "positioning": 1})
+            except Exception as e:
+                imagePath = path+"images/results/noImage.png"
+                with Image.open(imagePath) as img:
+                    img_width, img_height = img.size
+                    #print("path",path,"img_width", img_width, "img_height", img_height)
+                    x_scale = 30/img_width
+                    y_scale = 100/img_height
+                    worksheet.insert_image(row,
+                                        10 + i,
+                                        imagePath,
+                                        {"x_scale": x_scale*7.2,
+                                            "y_scale": y_scale*1.5,
+                                            "positioning": 1})
+        row += 1
+    workbook.close()
+    return output.getvalue()
 
-def createExcel(query):
+def createExcelv2(query):
     path = "/app/rlvd/static/"
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
@@ -321,10 +418,38 @@ def createExcel(query):
     return output.getvalue()
 
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
+@api_view(['POST', 'GET'])
+@permission_classes([])
+@authentication_classes([])
+def exportExcelv1(request):
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format("RLVD entries.xlsx")
+    form_data=request.POST
+    print("Form Data", form_data)
+    try:
+        query = getQueryFromFormData(form_data)
+        # status_reviewed=form_data["status_reviewed"] # yes | no
+        # status_not_reviewed=form_data["status_not_reviewed"] # yes | no
+        # if status_reviewed =="yes" and status_not_reviewed =="no":
+        #     query=query.filter(reviewed=1)
+        # if status_reviewed =="no" and status_not_reviewed =="yes":
+        # query=query.filter(reviewed=0)
+        xlsx_data = createExcelv1(query)
+        response.write(xlsx_data)
+        return response
+    except Exception as e:
+        print("error--> ",e)
+        return HttpResponse(json.dumps({"error":str(e)})
+            ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
-def exportExcel(request):
+def exportExcelv2(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format("RLVD entries.xlsx")
     form_data=request.POST
