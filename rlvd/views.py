@@ -440,12 +440,6 @@ def getExportDataLength(request):
         print("error--> ",e)
         return HttpResponse(json.dumps({"error":str(e)})
             ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
-        response.write(xlsx_data)
-        return response
-    except Exception as e:
-        print("error--> ",e)
-        return HttpResponse(json.dumps({"error":str(e)})
-            ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
 

@@ -252,7 +252,7 @@ def plate_search(request):
             ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
-def createExcelv1(platesQuerySet):
+def createExcelv1(platesQuerySet, start, end):
     path = "/app/rlvd/static/"
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
@@ -268,7 +268,7 @@ def createExcelv1(platesQuerySet):
         worksheet.write(row, idx, head, bold)
     row += 1
     
-    for entry in platesQuerySet:
+    for entry in platesQuerySet[start: end]:
         worksheet.write(row, 0, entry.entry_id, center)
         worksheet.write(row, 1, entry.plate_number, center)
         worksheet.write(row, 2, entry.camera_name, center)
@@ -324,7 +324,7 @@ def createExcelv1(platesQuerySet):
     return output.getvalue()
 
 
-def createExcelv2(platesQuerySet):
+def createExcelv2(platesQuerySet, start, end):
     path = "/app/rlvd/static/"
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
@@ -340,7 +340,7 @@ def createExcelv2(platesQuerySet):
         worksheet.write(row, idx, head, bold)
     row += 1
     
-    for entry in platesQuerySet:
+    for entry in platesQuerySet[start: end]:
         worksheet.write(row, 0, entry.entry_id, center)
         worksheet.write(row, 1, entry.plate_number, center)
         worksheet.write(row, 2, entry.camera_name, center)
@@ -399,6 +399,46 @@ def createExcelv2(platesQuerySet):
     workbook.close()
     return output.getvalue()
 
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def getExportDataLengthv1(request):
+    form_data = request.POST
+    print("form_data", form_data)
+    try:
+        query = getQueryFromFormDatav1(form_data)
+        return HttpResponse(json.dumps({
+            "count":query.count(),
+            "filter_conditions": form_data,
+        }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+    except Exception as e:
+        print("error--> ",e)
+        return HttpResponse(json.dumps({"error":str(e)})
+            ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def getExportDataLengthv2(request):
+    form_data = request.POST
+    print("form_data", form_data)
+    try:
+        query = getQueryFromFormDatav2(form_data)
+        return HttpResponse(json.dumps({
+            "count":query.count(),
+            "filter_conditions": form_data,
+        }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+    except Exception as e:
+        print("error--> ",e)
+        return HttpResponse(json.dumps({"error":str(e)})
+            ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -409,7 +449,9 @@ def exportExcelv1(request):
     print("Form Data", form_data)
     try:
         platesQuerySet = getQueryFromFormDatav1(form_data)
-        xlsx_data = createExcelv1(platesQuerySet)
+        start = int(form_data["start"])  # USED TO SEGMENT THE EXPORT DATA(START OF THE ENTRY - INDEX)
+        end = int(form_data["end"])        #USED TO SEGMENT THE EXPORT DATA(END OF THE ENTRY - INDEX)
+        xlsx_data = createExcelv1(platesQuerySet, start, end)
         response.write(xlsx_data)
         return response
 
@@ -429,7 +471,9 @@ def exportExcelv2(request):
     # print("Form Data", form_data)
     try:
         platesQuerySet = getQueryFromFormDatav2(form_data)
-        xlsx_data = createExcelv2(platesQuerySet)
+        start = int(form_data["start"])  # USED TO SEGMENT THE EXPORT DATA(START OF THE ENTRY - INDEX)
+        end = int(form_data["end"])      # USED TO SEGMENT THE EXPORT DATA(END OF THE ENTRY - INDEX)
+        xlsx_data = createExcelv2(platesQuerySet, start, end)
         response.write(xlsx_data)
         return response
 
