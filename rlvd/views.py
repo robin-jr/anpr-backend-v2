@@ -129,7 +129,6 @@ def update_violations(request):
 
 
 def getQueryFromFormData(form_data):
-    print(form_data)
     vehicle_no= form_data["vehicle_number"] #can be empty 
     cameras = form_data["camera_names"] #can be empty
     junction_names =form_data["junction_names"] #can be empty
@@ -143,7 +142,7 @@ def getQueryFromFormData(form_data):
         junction_names=junction_names.split(',')
     if violations!="":
         violations = list(map(lambda x: int(x), violations.split(',')))
-    print("violations", violations)
+    # print("violations", violations)
     
     
     # Sample data
@@ -219,7 +218,7 @@ def getViolationsFromIds(ids, speed, speed_limit):
     print("hello violations",violations)
     return violations
 
-def createExcelv1(query):
+def createExcelv1(query, start, end):
     path = "/app/rlvd/static/"
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
@@ -234,7 +233,8 @@ def createExcelv1(query):
     for idx, head in enumerate(headers):
         worksheet.write(row, idx, head, bold)
     row += 1
-    for data in query:
+    print("Start", start, "End", end)
+    for data in query[start: end]:
         worksheet.write(row, 0, data.entry_id, center)
         worksheet.write(row, 1, data.number_plate_number, center)        
         worksheet.write(row, 2, data.junction_name, center)
@@ -421,6 +421,37 @@ def createExcelv2(query):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
+def getExportDataLength(request):
+    form_data = request.POST
+    print("form_data", form_data)
+    try:
+        query = getQueryFromFormData(form_data)
+        status_reviewed=form_data["status_reviewed"] # yes | no
+        status_not_reviewed=form_data["status_not_reviewed"] # yes | no
+        if status_reviewed =="yes" and status_not_reviewed =="no":
+            query=query.filter(reviewed=1)
+        if status_reviewed =="no" and status_not_reviewed =="yes":
+            query=query.filter(reviewed=0)
+        return HttpResponse(json.dumps({
+            "count":query.count(),
+            "filter_conditions": form_data,
+        }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+    except Exception as e:
+        print("error--> ",e)
+        return HttpResponse(json.dumps({"error":str(e)})
+            ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+        response.write(xlsx_data)
+        return response
+    except Exception as e:
+        print("error--> ",e)
+        return HttpResponse(json.dumps({"error":str(e)})
+            ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def exportExcelv1(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
     # response['Content-Disposition'] = 'attachment; filename="{}"'.format("RLVD entries.xlsx") 
@@ -430,11 +461,13 @@ def exportExcelv1(request):
         query = getQueryFromFormData(form_data)
         status_reviewed=form_data["status_reviewed"] # yes | no
         status_not_reviewed=form_data["status_not_reviewed"] # yes | no
+        start = int(form_data["start"])
+        end = int(form_data["end"])
         if status_reviewed =="yes" and status_not_reviewed =="no":
             query=query.filter(reviewed=1)
         if status_reviewed =="no" and status_not_reviewed =="yes":
             query=query.filter(reviewed=0)
-        xlsx_data = createExcelv1(query)
+        xlsx_data = createExcelv1(query, start, end)
         response.write(xlsx_data)
         return response
     except Exception as e:

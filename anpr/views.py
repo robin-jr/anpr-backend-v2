@@ -437,12 +437,9 @@ def exportExcelv2(request):
         print("error--> here",e)
         return HttpResponse(json.dumps({"error":str(e)})
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
-        
-    
-    
 
 
-
+                
 def gen(camera):
     video = cv2.VideoCapture()
     video.open(camera)
