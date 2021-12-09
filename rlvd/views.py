@@ -317,7 +317,7 @@ def createExcelv1(query, start, end):
     workbook.close()
     return output.getvalue()
 
-def createExcelv2(query):
+def createExcelv2(query, start, end):
     path = "/app/rlvd/static/"
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
@@ -332,7 +332,7 @@ def createExcelv2(query):
     for idx, head in enumerate(headers):
         worksheet.write(row, idx, head, bold)
     row += 1
-    for data in query:
+    for data in query[start: end]:
         worksheet.write(row, 0, data.entry_id, center)
         worksheet.write(row, 1, data.number_plate_number, center)        
         worksheet.write(row, 2, data.junction_name, center)
@@ -461,8 +461,8 @@ def exportExcelv1(request):
         query = getQueryFromFormData(form_data)
         status_reviewed=form_data["status_reviewed"] # yes | no
         status_not_reviewed=form_data["status_not_reviewed"] # yes | no
-        start = int(form_data["start"])
-        end = int(form_data["end"])
+        start = int(form_data["start"])  # USED TO SEGMENT THE EXPORT DATA(START OF THE ENTRY - INDEX)
+        end = int(form_data["end"])        #USED TO SEGMENT THE EXPORT DATA(END OF THE ENTRY - INDEX)
         if status_reviewed =="yes" and status_not_reviewed =="no":
             query=query.filter(reviewed=1)
         if status_reviewed =="no" and status_not_reviewed =="yes":
@@ -488,11 +488,13 @@ def exportExcelv2(request):
         query = getQueryFromFormData(form_data)
         status_reviewed=form_data["status_reviewed"] # yes | no
         status_not_reviewed=form_data["status_not_reviewed"] # yes | no
+        start = int(form_data["start"])  # USED TO SEGMENT THE EXPORT DATA(START OF THE ENTRY - INDEX)
+        end = int(form_data["end"])        #USED TO SEGMENT THE EXPORT DATA(END OF THE ENTRY - INDEX)
         if status_reviewed =="yes" and status_not_reviewed =="no":
             query=query.filter(reviewed=1)
         if status_reviewed =="no" and status_not_reviewed =="yes":
             query=query.filter(reviewed=0)
-        xlsx_data = createExcelv2(query)
+        xlsx_data = createExcelv2(query, start, end)
         response.write(xlsx_data)
         return response
     except Exception as e:
