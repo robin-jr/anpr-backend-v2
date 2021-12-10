@@ -79,7 +79,7 @@ def getVehicleColors():
         temp['code'] = color.code
         colors.append(temp)
 
-    print("Colors: ", colors)
+    # print("Colors: ", colors)
     return colors
 
 @api_view(['GET'])

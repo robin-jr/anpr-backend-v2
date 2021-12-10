@@ -8,6 +8,9 @@ class VehicleTypeRef(models.Model):
     class Meta:
         db_table = "vehicle_type_ref"
 
+    def str(self):
+        return self.name
+
 class VehicleMakeRef(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=45)
@@ -15,6 +18,10 @@ class VehicleMakeRef(models.Model):
 
     class Meta:
         db_table = "vehicle_make_ref"
+
+
+    def str(self):
+        return self.name
 
 
 class VehicleModelRef(models.Model):
@@ -26,6 +33,9 @@ class VehicleModelRef(models.Model):
     class Meta:
         db_table = "vehicle_model_ref"
 
+    def str(self):
+        return self.name
+
 
 class VehicleColorRef(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -34,6 +44,9 @@ class VehicleColorRef(models.Model):
 
     class Meta:
         db_table = "vehicle_color_ref"
+
+    def str(self):
+        return self.name
 
 class LicensePlatesAnpr(models.Model):
     entry_id = models.AutoField(primary_key=True)
@@ -50,6 +63,9 @@ class LicensePlatesAnpr(models.Model):
     class Meta:
         #managed = True
         db_table = "license_plates_anpr"
+
+    def str(self):
+        return self.plate_number
 
 
 
