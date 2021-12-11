@@ -10,5 +10,7 @@ RUN pip install djangorestframework
 RUN pip install django-cors-headers 
 RUN pip install XlsxWriter
 RUN pip install Pillow
+RUN pip install pyudev
+RUN pip install pyutil
 RUN pip install django-debug-toolbar
 EXPOSE 8000
