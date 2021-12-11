@@ -11,8 +11,8 @@ urlpatterns = [
     path("exportDataLengthv2/", views.getExportDataLengthv2),
     path("exportExcelv1/", views.exportExcelv1),
     path("exportExcelv2/", views.exportExcelv2),
-    path("exportToUsb/", views.exportToUsb),
-    
+    path("exportToUsbv1/", views.exportToUsbv1),
+    path("exportToUsbv2/", views.exportToUsbv2),
     ]
 
 

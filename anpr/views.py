@@ -141,17 +141,17 @@ def getCameraLatestEntriesAndRecognitions(request):
         return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
 
 def getQueryFromFormDatav1(form_data):
-    # vehicle_no= form_data["vehicle_number"] #can be empty 
-    # cameras = form_data["camera_names"] #can be empty
-    # start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
-    # end_date_time=form_data["end_date_time"] #can be empty 
+    vehicle_no= form_data["vehicle_number"] #can be empty 
+    cameras = form_data["camera_names"] #can be empty
+    start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
+    end_date_time=form_data["end_date_time"] #can be empty 
 
 
-    #dummy Data
-    vehicle_no = ""
-    cameras = ""
-    start_date_time = ""
-    end_date_time = ""
+    # # dummy Data
+    # vehicle_no = ""
+    # cameras = ""
+    # start_date_time = ""
+    # end_date_time = ""
 
 
     if cameras!="":
@@ -479,6 +479,79 @@ def exportExcelToUsbv1(workbook, platesQuerySet):
     workbook.close()
 
 
+def exportExcelToUsbv2(workbook, platesQuerySet):
+    path = "/app/rlvd/static/"
+    worksheet = workbook.add_worksheet()
+    headers = ['Entry ID','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image', 'Vehicle Type', 'Vehicle Make', 'Vehicle Model', 'Vehicle Color']
+    bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
+    center = workbook.add_format({"align": "center", "font_size": 15})
+    worksheet.set_row(0,30)
+    worksheet.set_default_row(100)
+    worksheet.set_column(0, len(headers), 30)
+    row = 0
+    for idx, head in enumerate(headers):
+        worksheet.write(row, idx, head, bold)
+    row += 1
+    
+    for entry in platesQuerySet:
+        worksheet.write(row, 0, entry.entry_id, center)
+        worksheet.write(row, 1, entry.plate_number, center)
+        worksheet.write(row, 2, entry.camera_name, center)
+        worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
+        imagePath =path+entry.anpr_full_image
+        try:
+            with Image.open(imagePath) as img:
+                width, height = img.size
+                x_scale = 30/width
+                y_scale = 100/height
+                worksheet.insert_image(row, 4,(imagePath), {"x_scale": x_scale*7.2,
+                                                    "y_scale": y_scale*1.5,
+                                                    "positioning": 1})
+        except Exception as e:
+            imagePath = path+"images/results/noImage.png"
+            with Image.open(imagePath) as img:
+                img_width, img_height = img.size
+                #print("path",path,"img_width", img_width, "img_height", img_height)
+                x_scale = 30/img_width
+                y_scale = 100/img_height
+                worksheet.insert_image(row,
+                                    4,
+                                    imagePath,
+                                    {"x_scale": x_scale*7.2,
+                                        "y_scale": y_scale*1.5,
+                                        "positioning": 1})
+
+        imagePath = path+entry.anpr_cropped_image
+        try:
+            with Image.open(imagePath) as img:
+                width, height = img.size
+                x_scale = 30/width
+                y_scale = 100/height
+                worksheet.insert_image(row, 5,imagePath, {"x_scale": x_scale*7.2,
+                                                    "y_scale": y_scale*1.5,
+                                                    "positioning": 1})
+        except Exception as e:
+            imagePath = path+"images/results/noImage.png"
+            with Image.open(imagePath) as img:
+                img_width, img_height = img.size
+                #print("path",path,"img_width", img_width, "img_height", img_height)
+                x_scale = 30/img_width
+                y_scale = 100/img_height
+                worksheet.insert_image(row,
+                                    5,
+                                    imagePath,
+                                    {"x_scale": x_scale*7.2,
+                                        "y_scale": y_scale*1.5,
+                                        "positioning": 1})
+        worksheet.write(row, 6, entry.vehicle_type.name, center)
+        worksheet.write(row, 7, entry.vehicle_make.name, center)
+        worksheet.write(row, 8, entry.vehicle_model.name, center)
+        worksheet.write(row, 9, entry.vehicle_color.name, center)
+
+        row += 1
+    workbook.close()
+
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -579,43 +652,83 @@ def gen(camera):
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-@api_view(["GET"])
-@permission_classes([])
-@authentication_classes([])
-def exportToUsb(request):
-    print("Hello")
-    context = pyudev.Context()
-    #removable = [device for device in context.list_devices(subsystem='block', DEVTYPE='disk') if device.attributes.asstring('removable') == "1"]
-    removable = []
-    form_data=request.POST
-    platesQuerySet = getQueryFromFormDatav1(form_data)
+
+def getRemovables(context):
+    removables = []
     for device in context.list_devices(subsystem='block', DEVTYPE='disk'):# if device.attributes.asstring('removable') == "1"]
         try:
             device_parent = device.parent.device_path
             if("usb" in device_parent):
                 # print(device.sys_name,device.device_type,device.time_since_initialized,device.parent.device_path)#.attributes.asstring('time_since_initialized'))#)
-                removable.append(device)
+                removables.append(device)
         except Exception as e:
             print("Exception : ",str(e))
             continue   
-    print("Removables : ", removable) 
-    if(removable):
-        for device in removable:
+    print("Removables : ", removables) 
+    return removables
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def exportToUsbv1(request):
+    context = pyudev.Context()
+    form_data=request.POST
+    platesQuerySet = getQueryFromFormDatav1(form_data)
+    filename = "hello.xlsx"
+    removables = getRemovables(context)
+    if(removables):
+        for device in removables:
             partitions = [device.device_node for device in context.list_devices(subsystem='block', DEVTYPE='partition', parent=device)]
             print("All removable partitions: {}".format(", ".join(partitions)))
             print("Mounted removable partitions:")
             for p in psutil.disk_partitions():
                 if p.device in partitions:
-                    print("  {}: {}".format(p.device, p.mountpoint))
-                    print("Excel file saved to",str(p.mountpoint).split('/')[3])
+                    # print("  {}: {}".format(p.device, p.mountpoint))
+                    # print("Excel file saved to",str(p.mountpoint).split('/')[3])
                     # create a new excel and add a worksheet
-                    workbook = xlsxwriter.Workbook(str(p.mountpoint)+"/"+"hello.xlsx", {'remove_timezone': True})
+                    workbook = xlsxwriter.Workbook(str(p.mountpoint)+"/"+ filename, {'remove_timezone': True})
                     exportExcelToUsbv1(workbook, platesQuerySet)
+    
+        return HttpResponse(json.dumps({"msg": "Data exported successfully"})
+                ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"}) 
     else:
-        print("Insert USB or Try again") 
+        print("Insert USB or Try again")
+        return HttpResponseBadRequest(json.dumps({"error": "Insert USB or Try again"})
+                ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"}) 
 
-    return HttpResponse(json.dumps({"error": "hello"})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def exportToUsbv2(request):
+    context = pyudev.Context()
+    form_data=request.POST
+    platesQuerySet = getQueryFromFormDatav2(form_data)
+    filename = "hellov2.xlsx"
+    removables = getRemovables(context)
+    if(removables):
+        for device in removables:
+            partitions = [device.device_node for device in context.list_devices(subsystem='block', DEVTYPE='partition', parent=device)]
+            print("All removable partitions: {}".format(", ".join(partitions)))
+            print("Mounted removable partitions:")
+            for p in psutil.disk_partitions():
+                if p.device in partitions:
+                    # print("  {}: {}".format(p.device, p.mountpoint))
+                    # print("Excel file saved to",str(p.mountpoint).split('/')[3])
+                    # create a new excel and add a worksheet
+                    workbook = xlsxwriter.Workbook(str(p.mountpoint)+"/"+ filename, {'remove_timezone': True})
+                    exportExcelToUsbv2(workbook, platesQuerySet)
+    
+        return HttpResponse(json.dumps({"msg": "Data exported successfully"})
+                ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"}) 
+    else:
+        print("Insert USB or Try again")
+        return HttpResponseBadRequest(json.dumps({"error": "Insert USB or Try again"})
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
+
+    
 
 @api_view(['GET'])
 @permission_classes([])
