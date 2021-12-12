@@ -235,7 +235,8 @@ def createExcelv1(query, start, end):
     row += 1
     print("Start", start, "End", end)
     for data in query[start: end]:
-        worksheet.write(row, 0, data.entry_id, center)
+        # worksheet.write(row, 0, data.entry_id, center)
+        worksheet.write(row, 0, row+start, center)
         worksheet.write(row, 1, data.number_plate_number, center)        
         worksheet.write(row, 2, data.junction_name, center)
         worksheet.write(row, 3, data.camera_name, center)
@@ -333,7 +334,8 @@ def createExcelv2(query, start, end):
         worksheet.write(row, idx, head, bold)
     row += 1
     for data in query[start: end]:
-        worksheet.write(row, 0, data.entry_id, center)
+        # worksheet.write(row, 0, data.entry_id, center)
+        worksheet.write(row, 0, row+start, center)
         worksheet.write(row, 1, data.number_plate_number, center)        
         worksheet.write(row, 2, data.junction_name, center)
         worksheet.write(row, 3, data.camera_name, center)

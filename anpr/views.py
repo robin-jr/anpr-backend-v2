@@ -426,7 +426,8 @@ def exportExcelToUsbv1(workbook, platesQuerySet):
     row += 1
     
     for entry in platesQuerySet:
-        worksheet.write(row, 0, entry.entry_id, center)
+        # worksheet.write(row, 0, entry.entry_id, center)
+        worksheet.write(row, 0, row, center)
         worksheet.write(row, 1, entry.plate_number, center)
         worksheet.write(row, 2, entry.camera_name, center)
         worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
@@ -495,7 +496,7 @@ def exportExcelToUsbv2(workbook, platesQuerySet):
     row += 1
     
     for entry in platesQuerySet:
-        worksheet.write(row, 0, entry.entry_id, center)
+        worksheet.write(row, 0, row, center)
         worksheet.write(row, 1, entry.plate_number, center)
         worksheet.write(row, 2, entry.camera_name, center)
         worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
