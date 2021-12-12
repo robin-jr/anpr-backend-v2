@@ -223,7 +223,7 @@ def createExcelv1(query, start, end):
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
-    headers = ['Entry ID','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image', 'Violations', 'Reviewed', 'Evidence Image 1', 'Evidence Image 2', 'Evidence Image 3', 'Evidence Image 4', 'Evidence Image 5', 'Evidence Image 6']
+    headers = ['S.No','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image', 'Violations', 'Reviewed', 'Evidence Image 1', 'Evidence Image 2', 'Evidence Image 3', 'Evidence Image 4', 'Evidence Image 5', 'Evidence Image 6']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
     center = workbook.add_format({"align": "center", "font_size": 15})
     worksheet.set_row(0,30)
@@ -323,7 +323,7 @@ def createExcelv2(query, start, end):
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
-    headers = ['Entry ID','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image','Speed', 'Speed Limit', 'Violations', 'Reviewed', 'Evidence Image 1', 'Evidence Image 2', 'Evidence Image 3', 'Evidence Image 4', 'Evidence Image 5', 'Evidence Image 6']
+    headers = ['S.No','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image','Speed', 'Speed Limit', 'Violations', 'Reviewed', 'Evidence Image 1', 'Evidence Image 2', 'Evidence Image 3', 'Evidence Image 4', 'Evidence Image 5', 'Evidence Image 6']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
     center = workbook.add_format({"align": "center", "font_size": 15})
     worksheet.set_row(0,30)

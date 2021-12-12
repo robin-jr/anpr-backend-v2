@@ -268,7 +268,7 @@ def createExcelv1(platesQuerySet, start, end):
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
-    headers = ['Entry ID','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image']
+    headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
     center = workbook.add_format({"align": "center", "font_size": 15})
     worksheet.set_row(0,30)
@@ -280,7 +280,7 @@ def createExcelv1(platesQuerySet, start, end):
     row += 1
     
     for entry in platesQuerySet[start: end]:
-        worksheet.write(row, 0, entry.entry_id, center)
+        worksheet.write(row, 0, row+start, center)
         worksheet.write(row, 1, entry.plate_number, center)
         worksheet.write(row, 2, entry.camera_name, center)
         worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
@@ -340,7 +340,7 @@ def createExcelv2(platesQuerySet, start, end):
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
-    headers = ['Entry ID','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image', 'Vehicle Type', 'Vehicle Make', 'Vehicle Model', 'Vehicle Color']
+    headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image', 'Vehicle Type', 'Vehicle Make', 'Vehicle Model', 'Vehicle Color']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
     center = workbook.add_format({"align": "center", "font_size": 15})
     worksheet.set_row(0,30)
@@ -352,7 +352,7 @@ def createExcelv2(platesQuerySet, start, end):
     row += 1
     
     for entry in platesQuerySet[start: end]:
-        worksheet.write(row, 0, entry.entry_id, center)
+        worksheet.write(row, 0, row+start, center)
         worksheet.write(row, 1, entry.plate_number, center)
         worksheet.write(row, 2, entry.camera_name, center)
         worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
@@ -414,7 +414,7 @@ def createExcelv2(platesQuerySet, start, end):
 def exportExcelToUsbv1(workbook, platesQuerySet):
     path = "/app/rlvd/static/"
     worksheet = workbook.add_worksheet()
-    headers = ['Entry ID','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image']
+    headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
     center = workbook.add_format({"align": "center", "font_size": 15})
     worksheet.set_row(0,30)
@@ -484,7 +484,7 @@ def exportExcelToUsbv1(workbook, platesQuerySet):
 def exportExcelToUsbv2(workbook, platesQuerySet):
     path = "/app/rlvd/static/"
     worksheet = workbook.add_worksheet()
-    headers = ['Entry ID','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image', 'Vehicle Type', 'Vehicle Make', 'Vehicle Model', 'Vehicle Color']
+    headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image', 'Vehicle Type', 'Vehicle Make', 'Vehicle Model', 'Vehicle Color']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
     center = workbook.add_format({"align": "center", "font_size": 15})
     worksheet.set_row(0,30)
