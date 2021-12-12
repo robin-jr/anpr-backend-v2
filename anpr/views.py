@@ -597,13 +597,13 @@ def getFilenameForExport(form_data):
     if(start_date_time != '' or end_date_time != ''):
         if(start_date_time != ""):
             start_date_time = datetime.strptime(start_date_time, '%Y-%m-%dT%H:%M')
-            start_date_time = start_date_time.strftime('%d/%m/%Y-%H:%M')
+            start_date_time = start_date_time.strftime('%d.%m.%Y-%H.%M')
             filename += "_" + start_date_time
         else:
             filename += "_-"
         if(end_date_time != ""):
             end_date_time = datetime.strptime(end_date_time, '%Y-%m-%dT%H:%M')
-            end_date_time = end_date_time.strftime('%d/%m/%Y-%H:%M')
+            end_date_time = end_date_time.strftime('%d.%m.%Y-%H.%M')
             filename += "_" + end_date_time
         else:
             filename +="_-"
