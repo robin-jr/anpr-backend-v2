@@ -13,6 +13,7 @@ from rest_framework.decorators import api_view,authentication_classes, permissio
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
+from datetime import datetime
 import cv2
 import xlsxwriter
 import pyudev
@@ -589,7 +590,25 @@ def getExportDataLengthv2(request):
         return HttpResponse(json.dumps({"error":str(e)})
             ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
-
+def getFilenameForExport(form_data):
+    filename = "ANPR"
+    start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
+    end_date_time=form_data["end_date_time"] #can be empty 
+    if(start_date_time != '' or end_date_time != ''):
+        if(start_date_time != ""):
+            start_date_time = datetime.strptime(start_date_time, '%Y-%m-%dT%H:%M')
+            start_date_time = start_date_time.strftime('%d/%m/%Y-%H:%M')
+            filename += "_" + start_date_time
+        else:
+            filename += "_-"
+        if(end_date_time != ""):
+            end_date_time = datetime.strptime(end_date_time, '%Y-%m-%dT%H:%M')
+            end_date_time = end_date_time.strftime('%d/%m/%Y-%H:%M')
+            filename += "_" + end_date_time
+        else:
+            filename +="_-"
+    filename += ".xlsx"
+    return filename
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -667,6 +686,7 @@ def getRemovables(context):
     print("Removables : ", removables) 
     return removables
 
+    
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -675,7 +695,7 @@ def exportToUsbv1(request):
     context = pyudev.Context()
     form_data=request.POST
     platesQuerySet = getQueryFromFormDatav1(form_data)
-    filename = "hello.xlsx"
+    filename = getFilenameForExport(form_data)
     removables = getRemovables(context)
     if(removables):
         for device in removables:
@@ -706,7 +726,7 @@ def exportToUsbv2(request):
     context = pyudev.Context()
     form_data=request.POST
     platesQuerySet = getQueryFromFormDatav2(form_data)
-    filename = "hellov2.xlsx"
+    filename = getFilenameForExport(form_data)
     removables = getRemovables(context)
     if(removables):
         for device in removables:
