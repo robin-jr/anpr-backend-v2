@@ -219,7 +219,7 @@ def getViolationsFromIds(ids, speed, speed_limit):
     return violations
 
 def createExcelv1(query, start, end):
-    path = "/app/rlvd/static/"
+    path = "/app/anpr/static/"
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
@@ -319,7 +319,7 @@ def createExcelv1(query, start, end):
     return output.getvalue()
 
 def createExcelv2(query, start, end):
-    path = "/app/rlvd/static/"
+    path = "/app/anpr/static/"
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()

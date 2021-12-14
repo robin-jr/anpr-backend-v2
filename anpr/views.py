@@ -264,7 +264,7 @@ def plate_search(request):
 
 
 def createExcelv1(platesQuerySet, start, end):
-    path = "/app/rlvd/static/"
+    path = "/app/anpr/static/"
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
@@ -336,7 +336,7 @@ def createExcelv1(platesQuerySet, start, end):
 
 
 def createExcelv2(platesQuerySet, start, end):
-    path = "/app/rlvd/static/"
+    path = "/app/anpr/static/"
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
@@ -412,7 +412,7 @@ def createExcelv2(platesQuerySet, start, end):
 
 
 def exportExcelToUsbv1(workbook, platesQuerySet):
-    path = "/app/rlvd/static/"
+    path = "/app/anpr/static/"
     worksheet = workbook.add_worksheet()
     headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
@@ -482,7 +482,7 @@ def exportExcelToUsbv1(workbook, platesQuerySet):
 
 
 def exportExcelToUsbv2(workbook, platesQuerySet):
-    path = "/app/rlvd/static/"
+    path = "/app/anpr/static/"
     worksheet = workbook.add_worksheet()
     headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image', 'Vehicle Type', 'Vehicle Make', 'Vehicle Model', 'Vehicle Color']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
