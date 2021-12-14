@@ -560,7 +560,7 @@ def exportExcelToUsbv2(workbook, platesQuerySet):
 @authentication_classes([TokenAuthentication])
 def getExportDataLengthv1(request):
     form_data = request.POST
-    print("form_data", form_data)
+    # print("form_data", form_data)
     try:
         query = getQueryFromFormDatav1(form_data)
         return HttpResponse(json.dumps({
@@ -579,7 +579,7 @@ def getExportDataLengthv1(request):
 @authentication_classes([TokenAuthentication])
 def getExportDataLengthv2(request):
     form_data = request.POST
-    print("form_data", form_data)
+    # print("form_data", form_data)
     try:
         query = getQueryFromFormDatav2(form_data)
         return HttpResponse(json.dumps({
@@ -618,7 +618,7 @@ def exportExcelv1(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format("ANPR entries.xlsx")
     form_data=request.POST
-    print("Form Data", form_data)
+    # print("Form Data", form_data)
     try:
         platesQuerySet = getQueryFromFormDatav1(form_data)
         start = int(form_data["start"])  # USED TO SEGMENT THE EXPORT DATA(START OF THE ENTRY - INDEX)
@@ -684,7 +684,7 @@ def getRemovables(context):
         except Exception as e:
             print("Exception : ",str(e))
             continue   
-    print("Removables : ", removables) 
+    # print("Removables : ", removables) 
     return removables
 
     
@@ -701,8 +701,8 @@ def exportToUsbv1(request):
     if(removables):
         for device in removables:
             partitions = [device.device_node for device in context.list_devices(subsystem='block', DEVTYPE='partition', parent=device)]
-            print("All removable partitions: {}".format(", ".join(partitions)))
-            print("Mounted removable partitions:")
+            # print("All removable partitions: {}".format(", ".join(partitions)))
+            # print("Mounted removable partitions:")
             for p in psutil.disk_partitions():
                 if p.device in partitions:
                     # print("  {}: {}".format(p.device, p.mountpoint))
@@ -732,8 +732,8 @@ def exportToUsbv2(request):
     if(removables):
         for device in removables:
             partitions = [device.device_node for device in context.list_devices(subsystem='block', DEVTYPE='partition', parent=device)]
-            print("All removable partitions: {}".format(", ".join(partitions)))
-            print("Mounted removable partitions:")
+            # print("All removable partitions: {}".format(", ".join(partitions)))
+            # print("Mounted removable partitions:")
             for p in psutil.disk_partitions():
                 if p.device in partitions:
                     # print("  {}: {}".format(p.device, p.mountpoint))
@@ -783,7 +783,7 @@ def debug(request):
         # temp["vehicle_model"] = data.vehicle_model.name
         # temp["vehicle_color"] = data.vehicle_color.name
         # d.append(temp)
-    print(d)
+    # print(d)
     return render(request, 'index.html')
 
 

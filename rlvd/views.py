@@ -101,15 +101,15 @@ def getDictValue(e):
 def update_violations(request):
     if request.method=="POST":
         form_data = request.POST
-        print("form_data", form_data)
+        # print("form_data", form_data)
 
         try:
             id=form_data["id"] # id of the particular entry 
             violations=form_data["violations"] #[1,2,3]
             new_plate=form_data["new_plate"] 
             old_plate=form_data["old_plate"] 
-            print("decrypted form data--> ",id,old_plate,new_plate,violations)
-            print("new violations--> ",violations)
+            # print("decrypted form data--> ",id,old_plate,new_plate,violations)
+            # print("new violations--> ",violations)
             if new_plate != old_plate:
                 LicensePlates.objects.filter(pk=id).update(number_plate_number=new_plate)
 
@@ -117,7 +117,7 @@ def update_violations(request):
 
             e=LicensePlates.objects.filter(pk=id).first()
             temp=getDictValue(e)
-            print("updated ----> ", temp)
+            # print("updated ----> ", temp)
             return HttpResponse(json.dumps({
             "entry":temp,
             }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
@@ -152,7 +152,7 @@ def getQueryFromFormData(form_data):
     # start_date_time = ""
     # end_date_time = ""
     # violations = []
-    print(violations)
+    # print(violations)
 
     query = LicensePlates.objects.all()
     if len(vehicle_no)>0:
@@ -189,7 +189,7 @@ def getQueryFromFormData(form_data):
 @authentication_classes([TokenAuthentication])
 def plate_search(request):
     form_data = request.POST
-    print("form_data", form_data)
+    # print("form_data", form_data)
     try:
         query = getQueryFromFormData(form_data)
         d=[]
@@ -215,7 +215,6 @@ def getViolationsFromIds(ids, speed, speed_limit):
     violations = []
     for id in ids:
         violations.append(ViolationRef.objects.get(id = id).violation_name)
-    print("hello violations",violations)
     return violations
 
 def createExcelv1(query, start, end):
@@ -233,7 +232,6 @@ def createExcelv1(query, start, end):
     for idx, head in enumerate(headers):
         worksheet.write(row, idx, head, bold)
     row += 1
-    print("Start", start, "End", end)
     for data in query[start: end]:
         # worksheet.write(row, 0, data.entry_id, center)
         worksheet.write(row, 0, row+start, center)
@@ -425,7 +423,7 @@ def createExcelv2(query, start, end):
 @authentication_classes([TokenAuthentication])
 def getExportDataLength(request):
     form_data = request.POST
-    print("form_data", form_data)
+    # print("form_data", form_data)
     try:
         query = getQueryFromFormData(form_data)
         status_reviewed=form_data["status_reviewed"] # yes | no
@@ -452,7 +450,7 @@ def exportExcelv1(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
     # response['Content-Disposition'] = 'attachment; filename="{}"'.format("RLVD entries.xlsx") 
     form_data=request.POST
-    print("Form Data", form_data)
+    # print("Form Data", form_data)
     try:
         query = getQueryFromFormData(form_data)
         status_reviewed=form_data["status_reviewed"] # yes | no
@@ -479,7 +477,7 @@ def exportExcelv2(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format("RLVD entries.xlsx")
     form_data=request.POST
-    print("Form Data", form_data)
+    # print("Form Data", form_data)
     try:
         query = getQueryFromFormData(form_data)
         status_reviewed=form_data["status_reviewed"] # yes | no
