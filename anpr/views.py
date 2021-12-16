@@ -2,6 +2,7 @@ from arima_backend_v2.settings import STATIC_ROOT, STATIC_URL
 from rlvd.views import HOST_STATIC_FOLDER_URL
 from .models import LicensePlatesAnpr as LicensePlates, VehicleColorRef, VehicleModelRef, VehicleMakeRef, VehicleTypeRef
 from rlvd.models import AnprCamera
+import math
 import csv
 import logging
 import io
@@ -411,147 +412,162 @@ def createExcelv2(platesQuerySet, start, end):
     return output.getvalue()
 
 
-def exportExcelToUsbv1(workbook, platesQuerySet):
+def exportExcelToUsbv1(platesQuerySet, filename):
     path = "/app/anpr/static/"
-    worksheet = workbook.add_worksheet()
-    headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image']
-    bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
-    center = workbook.add_format({"align": "center", "font_size": 15})
-    worksheet.set_row(0,30)
-    worksheet.set_default_row(100)
-    worksheet.set_column(0, len(headers), 30)
-    row = 0
-    for idx, head in enumerate(headers):
-        worksheet.write(row, idx, head, bold)
-    row += 1
     
-    for entry in platesQuerySet:
-        # worksheet.write(row, 0, entry.entry_id, center)
-        worksheet.write(row, 0, row, center)
-        worksheet.write(row, 1, entry.plate_number, center)
-        worksheet.write(row, 2, entry.camera_name, center)
-        worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
-        imagePath =path+entry.anpr_full_image
-        try:
-            with Image.open(imagePath) as img:
-                width, height = img.size
-                x_scale = 30/width
-                y_scale = 100/height
-                worksheet.insert_image(row, 4,(imagePath), {"x_scale": x_scale*7.2,
-                                                    "y_scale": y_scale*1.5,
-                                                    "positioning": 1})
-        except Exception as e:
-            imagePath = path+"images/results/noImage.png"
-            with Image.open(imagePath) as img:
-                img_width, img_height = img.size
-                #print("path",path,"img_width", img_width, "img_height", img_height)
-                x_scale = 30/img_width
-                y_scale = 100/img_height
-                worksheet.insert_image(row,
-                                    4,
-                                    imagePath,
-                                    {"x_scale": x_scale*7.2,
-                                        "y_scale": y_scale*1.5,
-                                        "positioning": 1})
-
-        imagePath = path+entry.anpr_cropped_image
-        try:
-            with Image.open(imagePath) as img:
-                width, height = img.size
-                x_scale = 30/width
-                y_scale = 100/height
-                worksheet.insert_image(row, 5,imagePath, {"x_scale": x_scale*7.2,
-                                                    "y_scale": y_scale*1.5,
-                                                    "positioning": 1})
-        except Exception as e:
-            imagePath = path+"images/results/noImage.png"
-            with Image.open(imagePath) as img:
-                img_width, img_height = img.size
-                #print("path",path,"img_width", img_width, "img_height", img_height)
-                x_scale = 30/img_width
-                y_scale = 100/img_height
-                worksheet.insert_image(row,
-                                    5,
-                                    imagePath,
-                                    {"x_scale": x_scale*7.2,
-                                        "y_scale": y_scale*1.5,
-                                        "positioning": 1})
-
+    entriesPerFile = 1000
+    totalEntries = platesQuerySet.count()
+    exportSegments = math.ceil(totalEntries/entriesPerFile)
+    
+    for segement in range(exportSegments):
+        workbook = xlsxwriter.Workbook(filename, {'remove_timezone': True})
+        worksheet = workbook.add_worksheet()
+        headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image']
+        bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
+        center = workbook.add_format({"align": "center", "font_size": 15})
+        worksheet.set_row(0,30)
+        worksheet.set_default_row(100)
+        worksheet.set_column(0, len(headers), 30)
+        row = 0
+        for idx, head in enumerate(headers):
+            worksheet.write(row, idx, head, bold)
         row += 1
-    workbook.close()
+        start = segement * entriesPerFile
+        end = segement * entriesPerFile + entriesPerFile
+        for entry in platesQuerySet[start: end]:
+            # worksheet.write(row, 0, entry.entry_id, center)
+            worksheet.write(row, 0, start + row, center)
+            worksheet.write(row, 1, entry.plate_number, center)
+            worksheet.write(row, 2, entry.camera_name, center)
+            worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
+            imagePath =path+entry.anpr_full_image
+            try:
+                with Image.open(imagePath) as img:
+                    width, height = img.size
+                    x_scale = 30/width
+                    y_scale = 100/height
+                    worksheet.insert_image(row, 4,(imagePath), {"x_scale": x_scale*7.2,
+                                                        "y_scale": y_scale*1.5,
+                                                        "positioning": 1})
+            except Exception as e:
+                imagePath = path+"images/results/noImage.png"
+                with Image.open(imagePath) as img:
+                    img_width, img_height = img.size
+                    #print("path",path,"img_width", img_width, "img_height", img_height)
+                    x_scale = 30/img_width
+                    y_scale = 100/img_height
+                    worksheet.insert_image(row,
+                                        4,
+                                        imagePath,
+                                        {"x_scale": x_scale*7.2,
+                                            "y_scale": y_scale*1.5,
+                                            "positioning": 1})
+
+            imagePath = path+entry.anpr_cropped_image
+            try:
+                with Image.open(imagePath) as img:
+                    width, height = img.size
+                    x_scale = 30/width
+                    y_scale = 100/height
+                    worksheet.insert_image(row, 5,imagePath, {"x_scale": x_scale*7.2,
+                                                        "y_scale": y_scale*1.5,
+                                                        "positioning": 1})
+            except Exception as e:
+                imagePath = path+"images/results/noImage.png"
+                with Image.open(imagePath) as img:
+                    img_width, img_height = img.size
+                    #print("path",path,"img_width", img_width, "img_height", img_height)
+                    x_scale = 30/img_width
+                    y_scale = 100/img_height
+                    worksheet.insert_image(row,
+                                        5,
+                                        imagePath,
+                                        {"x_scale": x_scale*7.2,
+                                            "y_scale": y_scale*1.5,
+                                            "positioning": 1})
+
+            row += 1
+        workbook.close()
 
 
-def exportExcelToUsbv2(workbook, platesQuerySet):
+def exportExcelToUsbv2(platesQuerySet, filename):
     path = "/app/anpr/static/"
-    worksheet = workbook.add_worksheet()
-    headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image', 'Vehicle Type', 'Vehicle Make', 'Vehicle Model', 'Vehicle Color']
-    bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
-    center = workbook.add_format({"align": "center", "font_size": 15})
-    worksheet.set_row(0,30)
-    worksheet.set_default_row(100)
-    worksheet.set_column(0, len(headers), 30)
-    row = 0
-    for idx, head in enumerate(headers):
-        worksheet.write(row, idx, head, bold)
-    row += 1
-    
-    for entry in platesQuerySet:
-        worksheet.write(row, 0, row, center)
-        worksheet.write(row, 1, entry.plate_number, center)
-        worksheet.write(row, 2, entry.camera_name, center)
-        worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
-        imagePath =path+entry.anpr_full_image
-        try:
-            with Image.open(imagePath) as img:
-                width, height = img.size
-                x_scale = 30/width
-                y_scale = 100/height
-                worksheet.insert_image(row, 4,(imagePath), {"x_scale": x_scale*7.2,
-                                                    "y_scale": y_scale*1.5,
-                                                    "positioning": 1})
-        except Exception as e:
-            imagePath = path+"images/results/noImage.png"
-            with Image.open(imagePath) as img:
-                img_width, img_height = img.size
-                #print("path",path,"img_width", img_width, "img_height", img_height)
-                x_scale = 30/img_width
-                y_scale = 100/img_height
-                worksheet.insert_image(row,
-                                    4,
-                                    imagePath,
-                                    {"x_scale": x_scale*7.2,
-                                        "y_scale": y_scale*1.5,
-                                        "positioning": 1})
-
-        imagePath = path+entry.anpr_cropped_image
-        try:
-            with Image.open(imagePath) as img:
-                width, height = img.size
-                x_scale = 30/width
-                y_scale = 100/height
-                worksheet.insert_image(row, 5,imagePath, {"x_scale": x_scale*7.2,
-                                                    "y_scale": y_scale*1.5,
-                                                    "positioning": 1})
-        except Exception as e:
-            imagePath = path+"images/results/noImage.png"
-            with Image.open(imagePath) as img:
-                img_width, img_height = img.size
-                #print("path",path,"img_width", img_width, "img_height", img_height)
-                x_scale = 30/img_width
-                y_scale = 100/img_height
-                worksheet.insert_image(row,
-                                    5,
-                                    imagePath,
-                                    {"x_scale": x_scale*7.2,
-                                        "y_scale": y_scale*1.5,
-                                        "positioning": 1})
-        worksheet.write(row, 6, entry.vehicle_type.name, center)
-        worksheet.write(row, 7, entry.vehicle_make.name, center)
-        worksheet.write(row, 8, entry.vehicle_model.name, center)
-        worksheet.write(row, 9, entry.vehicle_color.name, center)
-
+    entriesPerFile = 1000
+    totalEntries = platesQuerySet.count()
+    exportSegments = math.ceil(totalEntries/entriesPerFile)
+    for segement in range(exportSegments):
+        workbook = xlsxwriter.Workbook(filename, {'remove_timezone': True})
+        worksheet = workbook.add_worksheet()
+        headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image', 'Vehicle Type', 'Vehicle Make', 'Vehicle Model', 'Vehicle Color']
+        bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
+        center = workbook.add_format({"align": "center", "font_size": 15})
+        worksheet.set_row(0,30)
+        worksheet.set_default_row(100)
+        worksheet.set_column(0, len(headers), 30)
+        row = 0
+        for idx, head in enumerate(headers):
+            worksheet.write(row, idx, head, bold)
         row += 1
-    workbook.close()
+
+        start = segement * entriesPerFile
+        end = segement * entriesPerFile + entriesPerFile
+        
+        for entry in platesQuerySet[start: end]:
+            worksheet.write(row, 0, start + row, center)
+            worksheet.write(row, 1, entry.plate_number, center)
+            worksheet.write(row, 2, entry.camera_name, center)
+            worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
+            imagePath =path+entry.anpr_full_image
+            try:
+                with Image.open(imagePath) as img:
+                    width, height = img.size
+                    x_scale = 30/width
+                    y_scale = 100/height
+                    worksheet.insert_image(row, 4,(imagePath), {"x_scale": x_scale*7.2,
+                                                        "y_scale": y_scale*1.5,
+                                                        "positioning": 1})
+            except Exception as e:
+                imagePath = path+"images/results/noImage.png"
+                with Image.open(imagePath) as img:
+                    img_width, img_height = img.size
+                    #print("path",path,"img_width", img_width, "img_height", img_height)
+                    x_scale = 30/img_width
+                    y_scale = 100/img_height
+                    worksheet.insert_image(row,
+                                        4,
+                                        imagePath,
+                                        {"x_scale": x_scale*7.2,
+                                            "y_scale": y_scale*1.5,
+                                            "positioning": 1})
+
+            imagePath = path+entry.anpr_cropped_image
+            try:
+                with Image.open(imagePath) as img:
+                    width, height = img.size
+                    x_scale = 30/width
+                    y_scale = 100/height
+                    worksheet.insert_image(row, 5,imagePath, {"x_scale": x_scale*7.2,
+                                                        "y_scale": y_scale*1.5,
+                                                        "positioning": 1})
+            except Exception as e:
+                imagePath = path+"images/results/noImage.png"
+                with Image.open(imagePath) as img:
+                    img_width, img_height = img.size
+                    #print("path",path,"img_width", img_width, "img_height", img_height)
+                    x_scale = 30/img_width
+                    y_scale = 100/img_height
+                    worksheet.insert_image(row,
+                                        5,
+                                        imagePath,
+                                        {"x_scale": x_scale*7.2,
+                                            "y_scale": y_scale*1.5,
+                                            "positioning": 1})
+            worksheet.write(row, 6, entry.vehicle_type.name, center)
+            worksheet.write(row, 7, entry.vehicle_make.name, center)
+            worksheet.write(row, 8, entry.vehicle_model.name, center)
+            worksheet.write(row, 9, entry.vehicle_color.name, center)
+            row += 1
+        workbook.close()
 
 
 
@@ -708,8 +724,7 @@ def exportToUsbv1(request):
                     # print("  {}: {}".format(p.device, p.mountpoint))
                     # print("Excel file saved to",str(p.mountpoint).split('/')[3])
                     # create a new excel and add a worksheet
-                    workbook = xlsxwriter.Workbook(str(p.mountpoint)+"/"+ filename, {'remove_timezone': True})
-                    exportExcelToUsbv1(workbook, platesQuerySet)
+                    exportExcelToUsbv1(platesQuerySet, str(p.mountpoint)+"/"+ filename)
     
         return HttpResponse(json.dumps({"msg": "Data exported successfully"})
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"}) 
@@ -739,8 +754,7 @@ def exportToUsbv2(request):
                     # print("  {}: {}".format(p.device, p.mountpoint))
                     # print("Excel file saved to",str(p.mountpoint).split('/')[3])
                     # create a new excel and add a worksheet
-                    workbook = xlsxwriter.Workbook(str(p.mountpoint)+"/"+ filename, {'remove_timezone': True})
-                    exportExcelToUsbv2(workbook, platesQuerySet)
+                    exportExcelToUsbv2(platesQuerySet,str(p.mountpoint)+"/"+ filename)
     
         return HttpResponse(json.dumps({"msg": "Data exported successfully"})
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"}) 
