@@ -13,6 +13,8 @@ pyudev==0.22.0
 sqlparse==0.4.1
 testresources==2.0.1
 XlsxWriter==1.4.5
-opencv-python
 six==1.16.0
 opencv-python==4.5.3.56
+pyutil==3.3.0
+djangorestframework==3.13.1
+django-debug-toolbar==3.2.4

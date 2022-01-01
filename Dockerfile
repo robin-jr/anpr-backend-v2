@@ -6,11 +6,4 @@ RUN apt-get update -y && apt-get upgrade -y
 RUN apt-get install python3-dev default-libmysqlclient-dev gcc ffmpeg libsm6 libxext6 -y 
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-RUN pip install djangorestframework
-RUN pip install django-cors-headers 
-RUN pip install XlsxWriter
-RUN pip install Pillow
-RUN pip install pyudev
-RUN pip install pyutil
-RUN pip install django-debug-toolbar
 EXPOSE 8000

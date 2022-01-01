@@ -406,7 +406,7 @@ def createExcelv2(platesQuerySet, start, end):
         worksheet.write(row, 7, entry.vehicle_make.name, center)
         worksheet.write(row, 8, entry.vehicle_model.name, center)
         worksheet.write(row, 9, entry.vehicle_color.name, center)
-
+        print(row)
         row += 1
     workbook.close()
     return output.getvalue()
@@ -778,12 +778,15 @@ def camerafeed(request):
 
 
 def debug(request):
-    entriesQuerySet = LicensePlates.objects.filter(camera_name = "cam1").select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')[:5]
-    recognitionCount = LicensePlates.objects.filter(camera_name = "cam1").count()
+    platesQuerySet=LicensePlates.objects.filter(plate_number__contains = "TN")
 
-    d=[]
-    for data in entriesQuerySet:
-        print(data.camera_name)
+    # entriesQuerySet = LicensePlates.objects.filter.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')
+    # recognitionCount = LicensePlates.objects.count()
+    platesQuerySet = platesQuerySet.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color')
+    platesQuerySet[::-1]
+    
+        # pass 
+        # print(data.camera_name)
         # temp={}
         # temp["id"]= data.pk
         # temp["camera_name"]= data.camera_name

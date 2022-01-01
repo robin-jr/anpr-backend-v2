@@ -451,6 +451,7 @@ def exportExcelv1(request):
     # response['Content-Disposition'] = 'attachment; filename="{}"'.format("RLVD entries.xlsx") 
     form_data=request.POST
     # print("Form Data", form_data)
+    print("hello")
     try:
         query = getQueryFromFormData(form_data)
         status_reviewed=form_data["status_reviewed"] # yes | no
