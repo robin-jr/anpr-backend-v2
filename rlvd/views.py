@@ -66,18 +66,24 @@ def getJuctionsAndCameras():
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
 def getInitialData(request):
-    junctions_and_cameras=getJuctionsAndCameras()
-    violationRefs=getViolationRefs()
+    try:
+        junctions_and_cameras=getJuctionsAndCameras()
+        violationRefs=getViolationRefs()
 
-    response = HttpResponse(
-        json.dumps( {
-            "junctions_and_cameras": junctions_and_cameras, 
-            "violationRefs":violationRefs,
-        },),content_type="application/json"
-        ,headers={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"*"}
-    )
-    return response
+        response = HttpResponse(
+            json.dumps( {
+                "junctions_and_cameras": junctions_and_cameras, 
+                "violationRefs":violationRefs,
+            },),content_type="application/json"
+            ,headers={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"*"}
+        )
+        return response
+    except Exception as e:
+        print("error--> ",str(e))
+        return HttpResponse(json.dumps({"error":str(e)})
+            ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
+            
 def getDictValue(e):
     temp={}
     temp['id']=e.entry_id
