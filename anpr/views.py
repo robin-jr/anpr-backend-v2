@@ -773,7 +773,12 @@ def camerafeed(request):
     camid = request.GET.get("camid")
     rtsp = AnprCamera.objects.filter(id=camid).first().rtsp_url
     # print("Rtsp  ---->  ", rtsp)
-    return StreamingHttpResponse(gen(rtsp),content_type="multipart/x-mixed-replace;boundary=frame")
+    try:
+        return StreamingHttpResponse(gen(rtsp),content_type="multipart/x-mixed-replace;boundary=frame")
+    except Exception as e:
+        print("Exception: ", str(e))
+        return
+    
 
 
 
@@ -782,8 +787,23 @@ def debug(request):
 
     # entriesQuerySet = LicensePlates.objects.filter.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')
     # recognitionCount = LicensePlates.objects.count()
-    platesQuerySet = platesQuerySet.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color')
-    platesQuerySet[::-1]
+    plateQuerySet = LicensePlates.objects.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')
+    entries = []
+    for data in plateQuerySet:
+        temp={}
+        temp["id"]= data.pk
+        temp["camera_name"]= data.camera_name
+        # temp["junction_name"]= e.junction_name
+        temp["plate"]= data.plate_number
+        temp["date"]= data.date.strftime('%d/%m/%Y %H:%M:%S')
+        temp["anpr_full_image"]= data.anpr_full_image
+        temp["anpr_cropped_image"]= data.anpr_cropped_image
+        temp["vehicle_type"] = data.vehicle_type.name
+        temp["vehicle_make"] = data.vehicle_make.name
+        temp["vehicle_model"] = data.vehicle_model.name
+        temp["vehicle_color_name"] = data.vehicle_color.name
+        temp["vehicle_color_code"] = data.vehicle_color.code
+        entries.append(temp)
     
         # pass 
         # print(data.camera_name)
