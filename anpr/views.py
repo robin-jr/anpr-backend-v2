@@ -16,6 +16,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from datetime import datetime
 import cv2
+import os
+from subprocess import Popen
 import xlsxwriter
 import pyudev
 import psutil
@@ -23,6 +25,7 @@ from django.http import StreamingHttpResponse
 
 import json
 
+django_dir = "/app/" # Directory containing Django manage.py
 
 def getCameras():
     camQuerySet = AnprCamera.objects.only('id', 'camera_name', 'latitude', 'longitude', 'rtsp_url')
@@ -780,16 +783,37 @@ def exportToUsbv2(request):
 
     
 
+# @api_view(['GET'])
+# @permission_classes([])
+# @authentication_classes([])
+# def camerafeed(request): 
+#         #should get rtsp url from request
+#     camid = request.GET.get("camid")
+#     rtsp = AnprCamera.objects.filter(id=camid).first().rtsp_url
+#     # print("Rtsp  ---->  ", rtsp)
+#     try:
+#         return StreamingHttpResponse(gen(rtsp),content_type="multipart/x-mixed-replace;boundary=frame")
+#     except Exception as e:
+#         print("Exception: ", str(e))
+#         return
+
+
 @api_view(['GET'])
 @permission_classes([])
 @authentication_classes([])
 def camerafeed(request): 
         #should get rtsp url from request
-    camid = request.GET.get("camid")
+    # camid = request.GET.get("camid")
+    camid = 1
     rtsp = AnprCamera.objects.filter(id=camid).first().rtsp_url
-    # print("Rtsp  ---->  ", rtsp)
+    print("Rtsp  ---->  ", rtsp)
     try:
-        return StreamingHttpResponse(gen(rtsp),content_type="multipart/x-mixed-replace;boundary=frame")
+        print("python /app/anpr/mjpg_serve.py "+rtsp)
+        pid = Popen(['python',django_dir+'anpr/mjpg_serve.py',rtsp])#watch', 'ls'])
+        print("Process id",pid)
+        # os.system("python /app/anpr/mjpg_serve.py "+rtsp)
+        print("success")
+        return HttpResponse("Success")
     except Exception as e:
         print("Exception: ", str(e))
         return
