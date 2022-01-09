@@ -283,7 +283,7 @@ def plate_search(request):
 
 
 def createExcelv1(platesQuerySet, start, end):
-    path = "/app/anpr/static/"
+    path = "/home/user/.webapp/anpr-backend-v2/anpr/static/"
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
@@ -355,7 +355,7 @@ def createExcelv1(platesQuerySet, start, end):
 
 
 def createExcelv2(platesQuerySet, start, end):
-    path = "/app/anpr/static/"
+    path = "/home/user/.webapp/anpr-backend-v2/anpr/static/"
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
@@ -431,7 +431,7 @@ def createExcelv2(platesQuerySet, start, end):
 
 
 def exportExcelToUsbv1(platesQuerySet, filename):
-    path = "/app/anpr/static/"
+    path = "/home/user/.webapp/anpr-backend-v2/anpr/static/"
     
     entriesPerFile = 1000
     totalEntries = platesQuerySet.count()
@@ -509,7 +509,7 @@ def exportExcelToUsbv1(platesQuerySet, filename):
 
 
 def exportExcelToUsbv2(platesQuerySet, filename):
-    path = "/app/anpr/static/"
+    path = "/home/user/.webapp/anpr-backend-v2/anpr/static/"
     entriesPerFile = 1000
     totalEntries = platesQuerySet.count()
     exportSegments = math.ceil(totalEntries/entriesPerFile)
@@ -802,21 +802,22 @@ def exportToUsbv2(request):
 @permission_classes([])
 @authentication_classes([])
 def camerafeed(request): 
-        #should get rtsp url from request
-    # camid = request.GET.get("camid")
-    camid = 1
+    # should get rtsp url from request
+    camid = request.GET.get("camid")
+    #camid = 1
     rtsp = AnprCamera.objects.filter(id=camid).first().rtsp_url
-    print("Rtsp  ---->  ", rtsp)
+    print("Rtsp  ---->  ",camid,  rtsp)
     try:
         print("python /app/anpr/mjpg_serve.py "+rtsp)
-        pid = Popen(['python',django_dir+'anpr/mjpg_serve.py',rtsp])#watch', 'ls'])
+        pid = Popen(['python','/home/user/.webapp/anpr-backend-v2/anpr/mjpg_serve.py',rtsp])#watch', 'ls'])
         print("Process id",pid)
-        # os.system("python /app/anpr/mjpg_serve.py "+rtsp)
+        # os.system("python /home/user/.webapp/anpr-backend-v2/anpr/mjpg_serve.py "+rtsp)
         print("success")
         return HttpResponse("Success")
     except Exception as e:
         print("Exception: ", str(e))
-        return
+
+        return HttpResponse("Error")
     
 
 

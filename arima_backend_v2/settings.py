@@ -110,11 +110,11 @@ AUTH_USER_MODEL = 'account.Account'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "anprdb",
+        "NAME": "rlvd",
         # "HOST": "localhost",
-        "HOST": "mysql", #Mentioned in docker-compose.yaml
+        "HOST": "192.168.1.102", #Mentioned in docker-compose.yaml
         # "HOST": "192.168.43.171",
-        "USER": "root",
+        "USER": "admin",
         "PASSWORD": "root",
         "PORT": "3306",
         "OPTIONS": {"init_command": "SET default_storage_engine=INNODB",},
