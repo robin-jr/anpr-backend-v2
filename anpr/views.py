@@ -156,8 +156,8 @@ def getCameraLatestEntriesAndRecognitions(request):
             form_data = request.POST
             # print("form_data", form_data)
             camera_name = form_data["camera_name"]
-            recognitionCount = LicensePlates.objects.count()
-            plateQuerySet = LicensePlates.objects.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')[:5]
+            recognitionCount = LicensePlates.objects.filter(camera_name = camera_name).count()
+            plateQuerySet = LicensePlates.objects.filter(camera_name = camera_name).select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')[:5]
             entries = []
             for data in plateQuerySet:
                 temp={}
