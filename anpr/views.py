@@ -28,7 +28,7 @@ import json
 django_dir = "/app/" # Directory containing Django manage.py
 
 def getCameras():
-    camQuerySet = AnprCamera.objects.only('id', 'camera_name', 'latitude', 'longitude', 'rtsp_url')
+    camQuerySet = AnprCamera.objects.only('id', 'camera_name', 'latitude', 'longitude', 'rtsp_url', 'http_port')
     cams = []
     for cam in camQuerySet:
         temp = {}
@@ -37,6 +37,7 @@ def getCameras():
         temp["latitude"] = str(cam.latitude)
         temp["longitude"] = str(cam.longitude)
         temp["rtsp_url"] = cam.rtsp_url
+        temp["http_port"] = cam.http_port
         cams.append(temp)
 
     return cams
@@ -100,13 +101,17 @@ def initialData(request):
         vehicleMakes = getVehicleMakes()
         vehicleModels = getVehicleModels()
         vehicleColors = getVehicleColors()
+        recognitionCount = getRecognitionCountOfCamera(cameras[0]["name"])
+        entries = getLatestEntriesOfCamera(cameras[0]['name'])
         
         return HttpResponse(json.dumps({
                     "cameras":json.dumps(cameras),
                     "vehicle_types": json.dumps(vehicleTypes),
                     "vehicle_makes": json.dumps(vehicleMakes),
                     "vehicle_models": json.dumps(vehicleModels),
-                    "vehicle_colors": json.dumps(vehicleColors)
+                    "vehicle_colors": json.dumps(vehicleColors),
+                    "count":recognitionCount,
+                    "entries":json.dumps(entries), 
                     # "filter_conditions": form_data,
                 }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
     
@@ -116,6 +121,30 @@ def initialData(request):
             ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
+
+def getRecognitionCountOfCamera(camera_name):
+    count = LicensePlates.objects.filter(camera_name = camera_name).count()
+    return count
+
+def getLatestEntriesOfCamera(camera_name):
+    plateQuerySet = LicensePlates.objects.filter(camera_name = camera_name).select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')[:5]
+    entries = []
+    for data in plateQuerySet:
+        temp={}
+        temp["id"]= data.pk
+        temp["camera_name"]= data.camera_name
+        # temp["junction_name"]= e.junction_name
+        temp["plate"]= data.plate_number
+        temp["date"]= data.date.strftime('%d/%m/%Y %H:%M:%S')
+        temp["anpr_full_image"]= data.anpr_full_image
+        temp["anpr_cropped_image"]= data.anpr_cropped_image
+        temp["vehicle_type"] = data.vehicle_type.name
+        temp["vehicle_make"] = data.vehicle_make.name
+        temp["vehicle_model"] = data.vehicle_model.name
+        temp["vehicle_color_name"] = data.vehicle_color.name
+        temp["vehicle_color_code"] = data.vehicle_color.code
+        entries.append(temp)
+    return entries
 
 
 @api_view(['POST'])
@@ -127,8 +156,8 @@ def getCameraLatestEntriesAndRecognitions(request):
             form_data = request.POST
             # print("form_data", form_data)
             camera_name = form_data["camera_name"]
-            recognitionCount = LicensePlates.objects.filter(camera_name = camera_name).count()
-            plateQuerySet = LicensePlates.objects.filter(camera_name = camera_name).select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')[:5]
+            recognitionCount = LicensePlates.objects.count()
+            plateQuerySet = LicensePlates.objects.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')[:5]
             entries = []
             for data in plateQuerySet:
                 temp={}

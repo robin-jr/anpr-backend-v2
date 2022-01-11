@@ -1,5 +1,6 @@
 env/
 __pycache__/
 public/
-/database/
+database/
 anpr/static
+anpr/sk

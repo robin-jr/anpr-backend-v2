@@ -67,6 +67,7 @@ class AnprCamera(models.Model):
     latitude = models.DecimalField(max_digits=10, decimal_places=7, help_text="Latitude of the Camera Location.")
     longitude = models.DecimalField(max_digits=10, decimal_places=7, help_text="Longitude of the Camera Location.")
     rtsp_url = models.CharField(max_length=400, help_text="Functioning RTSP link(rtsp://localhost:8554/ds-test) or Path to Local Video(/home/user/vid.mp4). AVOID SPACES IN THE NAME.")
+    http_port = models.IntegerField()
     junction_name = models.CharField(max_length=400)
     evidence_camera_name = models.CharField(max_length=400)
     plate_model = models.CharField(max_length=100, default = "T20-FP16",help_text="Name of the Plate Model. Refer to Accuracy Benchmarking Sheet if needed.")

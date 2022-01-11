@@ -1,0 +1,10 @@
+CREATE INDEX anpr_cam_name_index ON license_plates_anpr (camera_name);
+CREATE INDEX anpr_plate_number_index ON license_plates_anpr (plate_number);
+CREATE INDEX anpr_date_index ON license_plates_anpr (date);
+
+
+CREATE INDEX rlvd_date_index ON license_plates_rlvd (date);
+CREATE INDEX rlvd_camera_name_index ON license_plates_rlvd (camera_name);
+CREATE INDEX rlvd_junction_name_index ON license_plates_rlvd (junction_name);
+CREATE INDEX rlvd_number_plate_index ON license_plates_rlvd (number_plate_number);
+
