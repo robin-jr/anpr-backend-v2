@@ -21,7 +21,9 @@ from rest_framework.authentication import TokenAuthentication
 
 # import csv
 
-HOST_STATIC_FOLDER_URL = "http://localhost:8001/static/"
+# HOST_STATIC_FOLDER_URL = "http://localhost:8001/static/"
+imageLocation = "/app/anpr/static/"
+
 
 
 def getViolationRefs():
@@ -224,7 +226,6 @@ def getViolationsFromIds(ids, speed, speed_limit):
     return violations
 
 def createExcelv1(query, start, end):
-    path = "/app/anpr/static/"
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
@@ -246,7 +247,7 @@ def createExcelv1(query, start, end):
         worksheet.write(row, 3, data.camera_name, center)
         worksheet.write(row, 4, data.evidence_camera_name, center)       
         worksheet.write(row, 5, str(data.date.strftime('%d/%m/%Y %H:%M:%S')), center)
-        imagePath =path+data.anpr_image
+        imagePath =imageLocation+data.anpr_image
         try:
             with Image.open(imagePath) as img:
                 width, height = img.size
@@ -256,7 +257,7 @@ def createExcelv1(query, start, end):
                                                     "y_scale": y_scale*1.5,
                                                     "positioning": 1})
         except Exception as e:
-            imagePath = path+"images/results/noImage.png"
+            imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
                 #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -269,7 +270,7 @@ def createExcelv1(query, start, end):
                                         "y_scale": y_scale*1.5,
                                         "positioning": 1})
 
-        imagePath = path+data.cropped_image
+        imagePath = imageLocation+data.cropped_image
         try:
             with Image.open(imagePath) as img:
                 width, height = img.size
@@ -279,7 +280,7 @@ def createExcelv1(query, start, end):
                                                     "y_scale": y_scale*1.5,
                                                     "positioning": 1})
         except Exception as e:
-            imagePath = path+"images/results/noImage.png"
+            imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
                 #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -297,7 +298,7 @@ def createExcelv1(query, start, end):
         evidenceImages = list(map(lambda x: x.strip(), data.evidence_images.split(','))) if len(data.evidence_images)>0 else []
         for i in range(6):
             try:
-                imagePath = path+evidenceImages[i]
+                imagePath = imageLocation+evidenceImages[i]
                 with Image.open(imagePath) as img:
                     width, height = img.size
                     x_scale = 30/width
@@ -306,7 +307,7 @@ def createExcelv1(query, start, end):
                                                         "y_scale": y_scale*1.5,
                                                         "positioning": 1})
             except Exception as e:
-                imagePath = path+"images/results/noImage.png"
+                imagePath = imageLocation+"noImage.jpg"
                 with Image.open(imagePath) as img:
                     img_width, img_height = img.size
                     #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -323,7 +324,6 @@ def createExcelv1(query, start, end):
     return output.getvalue()
 
 def createExcelv2(query, start, end):
-    path = "/app/anpr/static/"
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
@@ -345,7 +345,7 @@ def createExcelv2(query, start, end):
         worksheet.write(row, 3, data.camera_name, center)
         worksheet.write(row, 4, data.evidence_camera_name, center)       
         worksheet.write(row, 5, str(data.date.strftime('%d/%m/%Y %H:%M:%S')), center)
-        imagePath =path+data.anpr_image
+        imagePath =imageLocation+data.anpr_image
         try:
             with Image.open(imagePath) as img:
                 width, height = img.size
@@ -355,7 +355,7 @@ def createExcelv2(query, start, end):
                                                     "y_scale": y_scale*1.5,
                                                     "positioning": 1})
         except Exception as e:
-            imagePath = path+"images/results/noImage.png"
+            imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
                 #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -368,7 +368,7 @@ def createExcelv2(query, start, end):
                                         "y_scale": y_scale*1.5,
                                         "positioning": 1})
 
-        imagePath = path+data.cropped_image
+        imagePath = imageLocation+data.cropped_image
         try:
             with Image.open(imagePath) as img:
                 width, height = img.size
@@ -378,7 +378,7 @@ def createExcelv2(query, start, end):
                                                     "y_scale": y_scale*1.5,
                                                     "positioning": 1})
         except Exception as e:
-            imagePath = path+"images/results/noImage.png"
+            imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
                 #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -398,7 +398,7 @@ def createExcelv2(query, start, end):
         evidenceImages = list(map(lambda x: x.strip(), data.evidence_images.split(','))) if len(data.evidence_images)>0 else []
         for i in range(6):
             try:
-                imagePath = path+evidenceImages[i]
+                imagePath = imageLocation+evidenceImages[i]
                 with Image.open(imagePath) as img:
                     width, height = img.size
                     x_scale = 30/width
@@ -407,7 +407,7 @@ def createExcelv2(query, start, end):
                                                         "y_scale": y_scale*1.5,
                                                         "positioning": 1})
             except Exception as e:
-                imagePath = path+"images/results/noImage.png"
+                imagePath = imageLocation+"noImage.jpg"
                 with Image.open(imagePath) as img:
                     img_width, img_height = img.size
                     #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -457,7 +457,6 @@ def exportExcelv1(request):
     # response['Content-Disposition'] = 'attachment; filename="{}"'.format("RLVD entries.xlsx") 
     form_data=request.POST
     # print("Form Data", form_data)
-    print("hello")
     try:
         query = getQueryFromFormData(form_data)
         status_reviewed=form_data["status_reviewed"] # yes | no

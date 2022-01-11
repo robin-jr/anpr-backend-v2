@@ -26,6 +26,9 @@ from django.http import StreamingHttpResponse
 import json
 
 django_dir = "/app/" # Directory containing Django manage.py
+imageLocation = "/home/user/.webapp/anpr-backend-v2/anpr/static/"   # Directory containing the images
+
+
 
 def getCameras():
     camQuerySet = AnprCamera.objects.only('id', 'camera_name', 'latitude', 'longitude', 'rtsp_url', 'http_port')
@@ -312,7 +315,6 @@ def plate_search(request):
 
 
 def createExcelv1(platesQuerySet, start, end):
-    path = "/home/user/.webapp/anpr-backend-v2/anpr/static/"
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
@@ -332,7 +334,7 @@ def createExcelv1(platesQuerySet, start, end):
         worksheet.write(row, 1, entry.plate_number, center)
         worksheet.write(row, 2, entry.camera_name, center)
         worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
-        imagePath =path+entry.anpr_full_image
+        imagePath =imageLocation+entry.anpr_full_image
         try:
             with Image.open(imagePath) as img:
                 width, height = img.size
@@ -342,7 +344,7 @@ def createExcelv1(platesQuerySet, start, end):
                                                     "y_scale": y_scale*1.5,
                                                     "positioning": 1})
         except Exception as e:
-            imagePath = path+"images/results/noImage.png"
+            imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
                 #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -355,7 +357,7 @@ def createExcelv1(platesQuerySet, start, end):
                                         "y_scale": y_scale*1.5,
                                         "positioning": 1})
 
-        imagePath = path+entry.anpr_cropped_image
+        imagePath = imageLocation+entry.anpr_cropped_image
         try:
             with Image.open(imagePath) as img:
                 width, height = img.size
@@ -365,7 +367,7 @@ def createExcelv1(platesQuerySet, start, end):
                                                     "y_scale": y_scale*1.5,
                                                     "positioning": 1})
         except Exception as e:
-            imagePath = path+"images/results/noImage.png"
+            imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
                 #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -384,7 +386,6 @@ def createExcelv1(platesQuerySet, start, end):
 
 
 def createExcelv2(platesQuerySet, start, end):
-    path = "/home/user/.webapp/anpr-backend-v2/anpr/static/"
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
@@ -404,7 +405,7 @@ def createExcelv2(platesQuerySet, start, end):
         worksheet.write(row, 1, entry.plate_number, center)
         worksheet.write(row, 2, entry.camera_name, center)
         worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
-        imagePath =path+entry.anpr_full_image
+        imagePath =imageLocation+entry.anpr_full_image
         try:
             with Image.open(imagePath) as img:
                 width, height = img.size
@@ -414,7 +415,7 @@ def createExcelv2(platesQuerySet, start, end):
                                                     "y_scale": y_scale*1.5,
                                                     "positioning": 1})
         except Exception as e:
-            imagePath = path+"images/results/noImage.png"
+            imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
                 #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -427,7 +428,7 @@ def createExcelv2(platesQuerySet, start, end):
                                         "y_scale": y_scale*1.5,
                                         "positioning": 1})
 
-        imagePath = path+entry.anpr_cropped_image
+        imagePath = imageLocation+entry.anpr_cropped_image
         try:
             with Image.open(imagePath) as img:
                 width, height = img.size
@@ -437,7 +438,7 @@ def createExcelv2(platesQuerySet, start, end):
                                                     "y_scale": y_scale*1.5,
                                                     "positioning": 1})
         except Exception as e:
-            imagePath = path+"images/results/noImage.png"
+            imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
                 #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -460,8 +461,6 @@ def createExcelv2(platesQuerySet, start, end):
 
 
 def exportExcelToUsbv1(platesQuerySet, filename):
-    path = "/home/user/.webapp/anpr-backend-v2/anpr/static/"
-    
     entriesPerFile = 1000
     totalEntries = platesQuerySet.count()
     exportSegments = math.ceil(totalEntries/entriesPerFile)
@@ -487,7 +486,7 @@ def exportExcelToUsbv1(platesQuerySet, filename):
             worksheet.write(row, 1, entry.plate_number, center)
             worksheet.write(row, 2, entry.camera_name, center)
             worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
-            imagePath =path+entry.anpr_full_image
+            imagePath =imageLocation+entry.anpr_full_image
             try:
                 with Image.open(imagePath) as img:
                     width, height = img.size
@@ -497,7 +496,7 @@ def exportExcelToUsbv1(platesQuerySet, filename):
                                                         "y_scale": y_scale*1.5,
                                                         "positioning": 1})
             except Exception as e:
-                imagePath = path+"images/results/noImage.png"
+                imagePath = imageLocation+"noImage.jpg"
                 with Image.open(imagePath) as img:
                     img_width, img_height = img.size
                     #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -510,7 +509,7 @@ def exportExcelToUsbv1(platesQuerySet, filename):
                                             "y_scale": y_scale*1.5,
                                             "positioning": 1})
 
-            imagePath = path+entry.anpr_cropped_image
+            imagePath = imageLocation+entry.anpr_cropped_image
             try:
                 with Image.open(imagePath) as img:
                     width, height = img.size
@@ -520,7 +519,7 @@ def exportExcelToUsbv1(platesQuerySet, filename):
                                                         "y_scale": y_scale*1.5,
                                                         "positioning": 1})
             except Exception as e:
-                imagePath = path+"images/results/noImage.png"
+                imagePath = imageLocation+"noImage.jpg"
                 with Image.open(imagePath) as img:
                     img_width, img_height = img.size
                     #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -538,7 +537,6 @@ def exportExcelToUsbv1(platesQuerySet, filename):
 
 
 def exportExcelToUsbv2(platesQuerySet, filename):
-    path = "/home/user/.webapp/anpr-backend-v2/anpr/static/"
     entriesPerFile = 1000
     totalEntries = platesQuerySet.count()
     exportSegments = math.ceil(totalEntries/entriesPerFile)
@@ -564,7 +562,7 @@ def exportExcelToUsbv2(platesQuerySet, filename):
             worksheet.write(row, 1, entry.plate_number, center)
             worksheet.write(row, 2, entry.camera_name, center)
             worksheet.write(row, 3, entry.date.strftime('%d/%m/%Y %H:%M:%S'), center)
-            imagePath =path+entry.anpr_full_image
+            imagePath =imageLocation+entry.anpr_full_image
             try:
                 with Image.open(imagePath) as img:
                     width, height = img.size
@@ -574,7 +572,7 @@ def exportExcelToUsbv2(platesQuerySet, filename):
                                                         "y_scale": y_scale*1.5,
                                                         "positioning": 1})
             except Exception as e:
-                imagePath = path+"images/results/noImage.png"
+                imagePath = imageLocation+"noImage.jpg"
                 with Image.open(imagePath) as img:
                     img_width, img_height = img.size
                     #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -587,7 +585,7 @@ def exportExcelToUsbv2(platesQuerySet, filename):
                                             "y_scale": y_scale*1.5,
                                             "positioning": 1})
 
-            imagePath = path+entry.anpr_cropped_image
+            imagePath = imageLocation+entry.anpr_cropped_image
             try:
                 with Image.open(imagePath) as img:
                     width, height = img.size
@@ -597,7 +595,7 @@ def exportExcelToUsbv2(platesQuerySet, filename):
                                                         "y_scale": y_scale*1.5,
                                                         "positioning": 1})
             except Exception as e:
-                imagePath = path+"images/results/noImage.png"
+                imagePath = imageLocation+"noImage.jpg"
                 with Image.open(imagePath) as img:
                     img_width, img_height = img.size
                     #print("path",path,"img_width", img_width, "img_height", img_height)
@@ -719,21 +717,21 @@ def exportExcelv2(request):
 
 
                 
-def gen(camera):
-    video = cv2.VideoCapture()
-    video.open(camera)
-    # video.release()
-    # print("streaming live feed of ",camera)
-    while True:
-        success, frame = video.read()  # read the video frame
-        if not success:
-            break
-        else:
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            # print("frame: ", frame)
-            yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+# def gen(camera):
+#     video = cv2.VideoCapture()
+#     video.open(camera)
+#     # video.release()
+#     # print("streaming live feed of ",camera)
+#     while True:
+#         success, frame = video.read()  # read the video frame
+#         if not success:
+#             break
+#         else:
+#             ret, buffer = cv2.imencode('.jpg', frame)
+#             frame = buffer.tobytes()
+#             # print("frame: ", frame)
+#             yield (b'--frame\r\n'
+#                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
 def getRemovables(context):
