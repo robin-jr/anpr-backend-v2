@@ -53,8 +53,8 @@ class CamHandler(BaseHTTPRequestHandler):
 
 def killProcess(port):
 	try:
-		# command = "netstat -ltnp | grep "+ str(port)   #linux
-		command = "netstat -aon | findstr " + str(port)
+		command = "netstat -ltnp | grep "+ str(port)   #linux
+		# command = "netstat -aon | findstr " + str(port)
 		print("Command : ",command)
 		c = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr = subprocess.PIPE)
 		stdout, stderr = c.communicate()

@@ -22,7 +22,7 @@ from rest_framework.authentication import TokenAuthentication
 # import csv
 
 # HOST_STATIC_FOLDER_URL = "http://localhost:8001/static/"
-imageLocation = "/app/anpr/static/"
+imageLocation = "/home/user/.webapp/ARIMA-Image-Server/images/"
 
 
 

@@ -26,7 +26,7 @@ from django.http import StreamingHttpResponse
 import json
 
 django_dir = "/app/" # Directory containing Django manage.py
-imageLocation = "/home/user/.webapp/anpr-backend-v2/anpr/static/"   # Directory containing the images
+imageLocation = "/home/user/.webapp/ARIMA-Image-Server/images/"   # Directory containing the images
 liveFeedServer = "/home/user/.webapp/anpr-backend-v2/anpr/mjpg_serve.py"  # Directory containing the python server for live
 
 
@@ -836,8 +836,8 @@ def camerafeed(request):
     print("Rtsp  ---->  ",camid,  rtsp)
     try:
         
-        # pid = Popen(['python', liveFeedServer, rtsp])#watch', 'ls'])
-        # print("Process id",pid)
+        pid = Popen(['python', liveFeedServer, rtsp])#watch', 'ls'])
+        print("Process id",pid)
         # os.system("python /home/user/.webapp/anpr-backend-v2/anpr/mjpg_serve.py "+rtsp)
         print("success")
         return HttpResponse("Success")
@@ -852,6 +852,7 @@ def camerafeed(request):
 def debug(request):
 
     imagePath = imageLocation + "noImage.jpg"
+    print(imagePath)
 
     try:
         with Image.open(imagePath) as img:
