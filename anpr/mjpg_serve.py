@@ -16,7 +16,7 @@ global server
 # Class that sets up HTTP Server and Converts - We need not modify this
 class CamHandler(BaseHTTPRequestHandler):
 	def do_GET(self):
-		rtsplink = self.path[1:]
+		# rtsplink = self.path[1:]
 		print(rtsplink)
 		try:
 			self.send_response(200)
@@ -68,32 +68,34 @@ def killProcess(port):
 	#Sleep for 2 seconds is necessary for HTTP Servers to restart again    
 	time.sleep(2)
 
-def main(port):
-	# global rtsplink
+def main(rtsp):
+	global rtsplink
 	global capture
+	rtsplink = rtsp
 	# While loop just in case rtsp link returns error
 	while(1):
 		# print("MJPG_Serve rtsp_url", rtsp)
 		# rtsplink = rtsp	  
-		killProcess(port) #Killing existing HTTP servers to start a new one
+		killProcess(9090) #Killing existing HTTP servers to start a new one
 		#Starting new HTTP Server for our stream  
 		try:
-			server = HTTPServer(('localhost',int(port)),CamHandler)
+			server = HTTPServer(('localhost',int(9090)),CamHandler)
 			print ("Server Started") 
 			server.serve_forever()
 		except Exception as e:
 			#capture.release()
 			#server.socket.close()
 			print("Exception in Main",e)
-		killProcess(port)
+		killProcess(9090)
 
 if __name__ == '__main__':
 	try:
-		rtsp1 = "	"
-		rtsp2 = "rtsp://admin:v1ps%40123@202.61.120.78:5544/Streaming/Channels/101"
+		# rtsp1 = "	"
+		# rtsp2 = "rtsp://admin:v1ps%40123@202.61.120.78:5544/Streaming/Channels/101"
 		# main( rtsp2, 9090)
 		# main(sys.argv[1], sys.argv[2])
-		main(9090)
+		# main(9090)
+		main(sys.argv[1])
 	except Exception as e:
 		print("Exception in calling main..", e)
 

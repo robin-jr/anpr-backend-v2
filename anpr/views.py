@@ -1,5 +1,5 @@
 from arima_backend_v2.settings import STATIC_ROOT, STATIC_URL
-from rlvd.views import HOST_STATIC_FOLDER_URL
+# from rlvd.views import HOST_STATIC_FOLDER_URL
 from .models import LicensePlatesAnpr as LicensePlates, VehicleColorRef, VehicleModelRef, VehicleMakeRef, VehicleTypeRef
 from rlvd.models import AnprCamera
 import math
@@ -27,7 +27,7 @@ import json
 
 django_dir = "/app/" # Directory containing Django manage.py
 imageLocation = "/home/user/.webapp/anpr-backend-v2/anpr/static/"   # Directory containing the images
-
+liveFeedServer = "/home/user/.webapp/anpr-backend-v2/anpr/mjpg_serve.py"  # Directory containing the python server for live
 
 
 def getCameras():
@@ -825,26 +825,26 @@ def exportToUsbv2(request):
 #         return
 
 
-# @api_view(['GET'])
-# @permission_classes([])
-# @authentication_classes([])
-# def camerafeed(request): 
-#     # should get rtsp url from request
-#     camid = request.GET.get("camid")
-#     #camid = 1
-#     rtsp = AnprCamera.objects.filter(id=camid).first().rtsp_url
-#     print("Rtsp  ---->  ",camid,  rtsp)
-#     try:
-#         print("python /app/anpr/mjpg_serve.py "+rtsp)
-#         pid = Popen(['python','/home/user/.webapp/anpr-backend-v2/anpr/mjpg_serve.py',rtsp])#watch', 'ls'])
-#         print("Process id",pid)
-#         # os.system("python /home/user/.webapp/anpr-backend-v2/anpr/mjpg_serve.py "+rtsp)
-#         print("success")
-#         return HttpResponse("Success")
-#     except Exception as e:
-#         print("Exception: ", str(e))
+@api_view(['GET'])
+@permission_classes([])
+@authentication_classes([])
+def camerafeed(request): 
+    # should get rtsp url from request
+    camid = request.GET.get("camid")
+    #camid = 1
+    rtsp = AnprCamera.objects.filter(id=camid).first().rtsp_url
+    print("Rtsp  ---->  ",camid,  rtsp)
+    try:
+        
+        # pid = Popen(['python', liveFeedServer, rtsp])#watch', 'ls'])
+        # print("Process id",pid)
+        # os.system("python /home/user/.webapp/anpr-backend-v2/anpr/mjpg_serve.py "+rtsp)
+        print("success")
+        return HttpResponse("Success")
+    except Exception as e:
+        print("Exception: ", str(e))
 
-#         return HttpResponse("Error")
+        return HttpResponse("Error")
     
 
 
