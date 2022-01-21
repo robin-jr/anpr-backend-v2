@@ -837,7 +837,7 @@ def camerafeed(request):
     try:
         
         pid = Popen(['python', liveFeedServer, rtsp])#watch', 'ls'])
-        print("Process id",pid)
+        # print("Process id",pid)
         # os.system("python /home/user/.webapp/anpr-backend-v2/anpr/mjpg_serve.py "+rtsp)
         print("success")
         return HttpResponse("Success")

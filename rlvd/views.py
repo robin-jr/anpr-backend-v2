@@ -200,14 +200,17 @@ def plate_search(request):
     # print("form_data", form_data)
     try:
         query = getQueryFromFormData(form_data)
+        page = int(form_data["page"])
+        count = int(form_data["count"])
+        # print(count)
         d=[]
-        for e in query:
+        for e in query[(page) * count : (page+1)* count]:
             temp=getDictValue(e)
             d.append(temp)
             # print(temp)
         # return render(request, 'index.html')
         return HttpResponse(json.dumps({
-            "count":len(d),
+            "count": query.count(),
             "entries":d,
             "filter_conditions": form_data,
         }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
