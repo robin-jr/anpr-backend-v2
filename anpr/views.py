@@ -433,7 +433,8 @@ def exportExcelToUsbv1(platesQuerySet, filename):
     exportSegments = math.ceil(totalEntries/entriesPerFile)
     
     for segement in range(exportSegments):
-        workbook = xlsxwriter.Workbook(filename + " - " + (segement+1), {'remove_timezone': True})
+        filename += + "-" + (segement+1)+".xlsx"
+        workbook = xlsxwriter.Workbook(filename, {'remove_timezone': True})
         worksheet = workbook.add_worksheet()
         headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image']
         bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
@@ -504,6 +505,7 @@ def exportExcelToUsbv2(platesQuerySet, filename):
     totalEntries = platesQuerySet.count()
     exportSegments = math.ceil(totalEntries/entriesPerFile)
     for segement in range(exportSegments):
+        filename += + "-" + (segement+1)+".xlsx"
         workbook = xlsxwriter.Workbook(filename, {'remove_timezone': True})
         worksheet = workbook.add_worksheet()
         headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image', 'Vehicle Type', 'Vehicle Make', 'Vehicle Model', 'Vehicle Color']
@@ -576,7 +578,6 @@ def exportExcelToUsbv2(platesQuerySet, filename):
         workbook.close()
 
 
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -628,7 +629,7 @@ def getFilenameForExport(form_data):
             filename += "_" + end_date_time
         else:
             filename +="_-"
-    filename += ".xlsx"
+    
     return filename
 
 @api_view(['POST'])
