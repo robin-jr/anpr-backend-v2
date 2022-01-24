@@ -3,7 +3,6 @@ from arima_backend_v2.settings import STATIC_ROOT, STATIC_URL
 from .models import LicensePlatesAnpr as LicensePlates, VehicleColorRef, VehicleModelRef, VehicleMakeRef, VehicleTypeRef
 from rlvd.models import AnprCamera
 import math
-import csv
 import logging
 import io
 from PIL import Image
@@ -11,17 +10,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseBadRequest, response
 from django.shortcuts import render
 from rest_framework.decorators import api_view,authentication_classes, permission_classes
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from datetime import datetime
-import cv2
-import os
 from subprocess import Popen
 import xlsxwriter
 import pyudev
 import psutil
-from django.http import StreamingHttpResponse
 
 import json
 
@@ -76,7 +71,6 @@ def getVehicleModels():
         temp['name'] = model.name
         temp['make'] = model.make.id
         temp['type'] = model.type.id
-        # print(model.type.name)
         models.append(temp)
     return models
 
@@ -89,15 +83,12 @@ def getVehicleColors():
         temp['name'] = color.name
         temp['code'] = color.code
         colors.append(temp)
-
-    # print("Colors: ", colors)
     return colors
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
 def initialData(request):
-
     try:
         cameras = getCameras()
         vehicleTypes = getVehicleTypes()
@@ -115,7 +106,6 @@ def initialData(request):
                     "vehicle_colors": json.dumps(vehicleColors),
                     "count":recognitionCount,
                     "entries":json.dumps(entries), 
-                    # "filter_conditions": form_data,
                 }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
     
     except Exception as e:
@@ -136,7 +126,6 @@ def getLatestEntriesOfCamera(camera_name):
         temp={}
         temp["id"]= data.pk
         temp["camera_name"]= data.camera_name
-        # temp["junction_name"]= e.junction_name
         temp["plate"]= data.plate_number
         temp["date"]= data.date.strftime('%d/%m/%Y %H:%M:%S')
         temp["anpr_full_image"]= data.anpr_full_image
@@ -157,7 +146,6 @@ def getCameraLatestEntriesAndRecognitions(request):
     if request.method == "POST":
         try:
             form_data = request.POST
-            # print("form_data", form_data)
             camera_name = form_data["camera_name"]
             recognitionCount = LicensePlates.objects.filter(camera_name = camera_name).count()
             plateQuerySet = LicensePlates.objects.filter(camera_name = camera_name).select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')[:5]
@@ -166,7 +154,6 @@ def getCameraLatestEntriesAndRecognitions(request):
                 temp={}
                 temp["id"]= data.pk
                 temp["camera_name"]= data.camera_name
-                # temp["junction_name"]= e.junction_name
                 temp["plate"]= data.plate_number
                 temp["date"]= data.date.strftime('%d/%m/%Y %H:%M:%S')
                 temp["anpr_full_image"]= data.anpr_full_image
@@ -191,18 +178,15 @@ def getCameraLatestEntriesAndRecognitions(request):
         return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
 
 def getQueryFromFormDatav1(form_data):
-
-    
     vehicle_no= form_data["vehicle_number"] #can be empty 
     cameras = form_data["camera_names"] #can be empty
     start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
     end_date_time=form_data["end_date_time"] #can be empty 
-
     if cameras!="":
         cameras=cameras.split(',')
 
-    platesQuerySet=LicensePlates.objects.all()
 
+    platesQuerySet=LicensePlates.objects.all()
     if vehicle_no!="":
         platesQuerySet = platesQuerySet.filter(plate_number__contains=vehicle_no)
     if len(cameras)>0:
@@ -211,9 +195,6 @@ def getQueryFromFormDatav1(form_data):
         platesQuerySet=platesQuerySet.filter(date__gte=start_date_time)
     if end_date_time!="":
         platesQuerySet=platesQuerySet.filter(date__lte=end_date_time)
-    
-    
-
     platesQuerySet = platesQuerySet.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color')
     return platesQuerySet
 
@@ -280,7 +261,6 @@ def getDictFromQuery(platesQuerySet):
         temp["vehicle_color_name"] = data.vehicle_color.name
         temp["vehicle_color_code"] = data.vehicle_color.code
         d.append(temp)
-    # print(d)
     return d
 
 @api_view(['POST' ])
@@ -288,7 +268,6 @@ def getDictFromQuery(platesQuerySet):
 @authentication_classes([TokenAuthentication])
 def plate_search(request):
     form_data = request.POST
-    # print(form_data)
     try:
         platesQuerySet = getQueryFromFormDatav2(form_data)
         page = int(form_data["page"])
@@ -339,7 +318,6 @@ def createExcelv1(platesQuerySet, start, end):
             imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
-                #print("path",path,"img_width", img_width, "img_height", img_height)
                 x_scale = 30/img_width
                 y_scale = 100/img_height
                 worksheet.insert_image(row,
@@ -362,7 +340,6 @@ def createExcelv1(platesQuerySet, start, end):
             imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
-                #print("path",path,"img_width", img_width, "img_height", img_height)
                 x_scale = 30/img_width
                 y_scale = 100/img_height
                 worksheet.insert_image(row,
@@ -410,7 +387,6 @@ def createExcelv2(platesQuerySet, start, end):
             imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
-                #print("path",path,"img_width", img_width, "img_height", img_height)
                 x_scale = 30/img_width
                 y_scale = 100/img_height
                 worksheet.insert_image(row,
@@ -433,7 +409,6 @@ def createExcelv2(platesQuerySet, start, end):
             imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
-                #print("path",path,"img_width", img_width, "img_height", img_height)
                 x_scale = 30/img_width
                 y_scale = 100/img_height
                 worksheet.insert_image(row,
@@ -458,7 +433,7 @@ def exportExcelToUsbv1(platesQuerySet, filename):
     exportSegments = math.ceil(totalEntries/entriesPerFile)
     
     for segement in range(exportSegments):
-        workbook = xlsxwriter.Workbook(filename, {'remove_timezone': True})
+        workbook = xlsxwriter.Workbook(filename + " - " + (segement+1), {'remove_timezone': True})
         worksheet = workbook.add_worksheet()
         headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image']
         bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
@@ -473,7 +448,6 @@ def exportExcelToUsbv1(platesQuerySet, filename):
         start = segement * entriesPerFile
         end = segement * entriesPerFile + entriesPerFile
         for entry in platesQuerySet[start: end]:
-            # worksheet.write(row, 0, entry.entry_id, center)
             worksheet.write(row, 0, start + row, center)
             worksheet.write(row, 1, entry.plate_number, center)
             worksheet.write(row, 2, entry.camera_name, center)
@@ -491,7 +465,6 @@ def exportExcelToUsbv1(platesQuerySet, filename):
                 imagePath = imageLocation+"noImage.jpg"
                 with Image.open(imagePath) as img:
                     img_width, img_height = img.size
-                    #print("path",path,"img_width", img_width, "img_height", img_height)
                     x_scale = 30/img_width
                     y_scale = 100/img_height
                     worksheet.insert_image(row,
@@ -514,7 +487,6 @@ def exportExcelToUsbv1(platesQuerySet, filename):
                 imagePath = imageLocation+"noImage.jpg"
                 with Image.open(imagePath) as img:
                     img_width, img_height = img.size
-                    #print("path",path,"img_width", img_width, "img_height", img_height)
                     x_scale = 30/img_width
                     y_scale = 100/img_height
                     worksheet.insert_image(row,
@@ -523,7 +495,6 @@ def exportExcelToUsbv1(platesQuerySet, filename):
                                         {"x_scale": x_scale*7.2,
                                             "y_scale": y_scale*1.5,
                                             "positioning": 1})
-
             row += 1
         workbook.close()
 
@@ -567,7 +538,6 @@ def exportExcelToUsbv2(platesQuerySet, filename):
                 imagePath = imageLocation+"noImage.jpg"
                 with Image.open(imagePath) as img:
                     img_width, img_height = img.size
-                    #print("path",path,"img_width", img_width, "img_height", img_height)
                     x_scale = 30/img_width
                     y_scale = 100/img_height
                     worksheet.insert_image(row,
@@ -590,7 +560,6 @@ def exportExcelToUsbv2(platesQuerySet, filename):
                 imagePath = imageLocation+"noImage.jpg"
                 with Image.open(imagePath) as img:
                     img_width, img_height = img.size
-                    #print("path",path,"img_width", img_width, "img_height", img_height)
                     x_scale = 30/img_width
                     y_scale = 100/img_height
                     worksheet.insert_image(row,
@@ -613,7 +582,6 @@ def exportExcelToUsbv2(platesQuerySet, filename):
 @authentication_classes([TokenAuthentication])
 def getExportDataLengthv1(request):
     form_data = request.POST
-    # print("form_data", form_data)
     try:
         query = getQueryFromFormDatav1(form_data)
         return HttpResponse(json.dumps({
@@ -632,7 +600,6 @@ def getExportDataLengthv1(request):
 @authentication_classes([TokenAuthentication])
 def getExportDataLengthv2(request):
     form_data = request.POST
-    # print("form_data", form_data)
     try:
         query = getQueryFromFormDatav2(form_data)
         return HttpResponse(json.dumps({
@@ -671,7 +638,6 @@ def exportExcelv1(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format("ANPR entries.xlsx")
     form_data=request.POST
-    # print("Form Data", form_data)
     try:
         platesQuerySet = getQueryFromFormDatav1(form_data)
         start = int(form_data["start"])  # USED TO SEGMENT THE EXPORT DATA(START OF THE ENTRY - INDEX)
@@ -693,7 +659,6 @@ def exportExcelv2(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format("ANPR entries.xlsx")
     form_data=request.POST
-    # print("Form Data", form_data)
     try:
         platesQuerySet = getQueryFromFormDatav2(form_data)
         start = int(form_data["start"])  # USED TO SEGMENT THE EXPORT DATA(START OF THE ENTRY - INDEX)
@@ -788,36 +753,30 @@ def exportToUsbv2(request):
 @permission_classes([])
 @authentication_classes([])
 def camerafeed(request): 
-    # should get rtsp url from request
     camid = request.GET.get("camid")
     #camid = 1
     rtsp = AnprCamera.objects.filter(id=camid).first().rtsp_url
-    print("Rtsp  ---->  ",camid,  rtsp)
     try:
-        
-        pid = Popen(['python', liveFeedServer, rtsp])#watch', 'ls'])
-        # print("Process id",pid)
-        # os.system("python /home/user/.webapp/anpr-backend-v2/anpr/mjpg_serve.py "+rtsp)
+        pid = Popen(['python', liveFeedServer, rtsp])
         print("success")
         return HttpResponse("Success")
     except Exception as e:
         print("Exception: ", str(e))
-
         return HttpResponse("Error")
     
 
 
 
-def debug(request):
+# def debug(request):
 
-    imagePath = imageLocation + "noImage.jpg"
-    print(imagePath)
+#     imagePath = imageLocation + "noImage.jpg"
+#     print(imagePath)
 
-    try:
-        with Image.open(imagePath) as img:
-            print("Success")        
-    except Exception as e:
-        print("Failed")
+#     try:
+#         with Image.open(imagePath) as img:
+#             print("Success")        
+#     except Exception as e:
+#         print("Failed")
 
             
 
