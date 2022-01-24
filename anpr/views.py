@@ -198,18 +198,8 @@ def getQueryFromFormDatav1(form_data):
     start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
     end_date_time=form_data["end_date_time"] #can be empty 
 
-
-    # # dummy Data
-    # vehicle_no = ""
-    # cameras = ""
-    # start_date_time = ""
-    # end_date_time = ""
-
-
     if cameras!="":
         cameras=cameras.split(',')
-
-
 
     platesQuerySet=LicensePlates.objects.all()
 
@@ -301,7 +291,9 @@ def plate_search(request):
     # print(form_data)
     try:
         platesQuerySet = getQueryFromFormDatav2(form_data)
-        d = getDictFromQuery(platesQuerySet)
+        page = int(form_data["page"])
+        count = int(form_data["count"])
+        d = getDictFromQuery(platesQuerySet[(page) * count : (page+1)* count])
         return HttpResponse(json.dumps({
             "count":platesQuerySet.count(),
             "entries":d,
@@ -716,24 +708,6 @@ def exportExcelv2(request):
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
-                
-# def gen(camera):
-#     video = cv2.VideoCapture()
-#     video.open(camera)
-#     # video.release()
-#     # print("streaming live feed of ",camera)
-#     while True:
-#         success, frame = video.read()  # read the video frame
-#         if not success:
-#             break
-#         else:
-#             ret, buffer = cv2.imencode('.jpg', frame)
-#             frame = buffer.tobytes()
-#             # print("frame: ", frame)
-#             yield (b'--frame\r\n'
-#                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-
 def getRemovables(context):
     removables = []
     for device in context.list_devices(subsystem='block', DEVTYPE='disk'):# if device.attributes.asstring('removable') == "1"]
@@ -808,21 +782,6 @@ def exportToUsbv2(request):
         return HttpResponseBadRequest(json.dumps({"error": "Insert USB or Try again"})
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
-    
-
-# @api_view(['GET'])
-# @permission_classes([])
-# @authentication_classes([])
-# def camerafeed(request): 
-#         #should get rtsp url from request
-#     camid = request.GET.get("camid")
-#     rtsp = AnprCamera.objects.filter(id=camid).first().rtsp_url
-#     # print("Rtsp  ---->  ", rtsp)
-#     try:
-#         return StreamingHttpResponse(gen(rtsp),content_type="multipart/x-mixed-replace;boundary=frame")
-#     except Exception as e:
-#         print("Exception: ", str(e))
-#         return
 
 
 @api_view(['GET'])
