@@ -109,23 +109,17 @@ def getDictValue(e):
 def update_violations(request):
     if request.method=="POST":
         form_data = request.POST
-        # print("form_data", form_data)
-
         try:
             id=form_data["id"] # id of the particular entry 
             violations=form_data["violations"] #[1,2,3]
             new_plate=form_data["new_plate"] 
             old_plate=form_data["old_plate"] 
-            # print("decrypted form data--> ",id,old_plate,new_plate,violations)
-            # print("new violations--> ",violations)
             if new_plate != old_plate:
                 LicensePlates.objects.filter(pk=id).update(number_plate_number=new_plate)
 
             LicensePlates.objects.filter(pk=id).update(violations=violations,reviewed=1)
-
             e=LicensePlates.objects.filter(pk=id).first()
             temp=getDictValue(e)
-            # print("updated ----> ", temp)
             return HttpResponse(json.dumps({
             "entry":temp,
             }),content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
@@ -150,17 +144,6 @@ def getQueryFromFormData(form_data):
         junction_names=junction_names.split(',')
     if violations!="":
         violations = list(map(lambda x: int(x), violations.split(',')))
-    # print("violations", violations)
-    
-    
-    # Sample data
-    # vehicle_no = ''
-    # cameras = []
-    # junction_names = []
-    # start_date_time = ""
-    # end_date_time = ""
-    # violations = []
-    # print(violations)
 
     query = LicensePlates.objects.all()
     if len(vehicle_no)>0:
@@ -174,13 +157,11 @@ def getQueryFromFormData(form_data):
     if end_date_time != "":
         query = query.filter(date__lte=end_date_time)
     if len(violations)>0 :
-        # query = query.filter(Q(violations__contains = '1') if (1 in violations) else '' | Q(violations__contains = '2' if (2 in violations) else '') | Q(violations__contains = '3' if (3 in violations) else '') | Q(speed__gt = F('speed_limit') if (4 in violations)else -1) )
         if violations[0] == 4:
             q = Q(speed__gt = F('speed_limit'))
         else:
             q = Q(violations__contains = violations[0])
         violations.remove(violations[0])
-        # print(violations)
         if 1 in violations:
             q.add(Q(violations__contains = 1), Q.OR)
         if 2 in violations:
@@ -197,18 +178,14 @@ def getQueryFromFormData(form_data):
 @authentication_classes([TokenAuthentication])
 def plate_search(request):
     form_data = request.POST
-    # print("form_data", form_data)
     try:
         query = getQueryFromFormData(form_data)
         page = int(form_data["page"])
         count = int(form_data["count"])
-        # print(count)
         d=[]
         for e in query[(page) * count : (page+1)* count]:
             temp=getDictValue(e)
             d.append(temp)
-            # print(temp)
-        # return render(request, 'index.html')
         return HttpResponse(json.dumps({
             "count": query.count(),
             "entries":d,
@@ -232,7 +209,7 @@ def createExcelv1(query, start, end):
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
-    headers = ['S.No','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image', 'Violations', 'Reviewed', 'Evidence Image 1', 'Evidence Image 2', 'Evidence Image 3', 'Evidence Image 4', 'Evidence Image 5', 'Evidence Image 6']
+    headers = ['S.No','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image', 'Violations', 'Reviewed', 'Evidence Image 1', 'Evidence Image 2', 'Evidence Image 3']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
     center = workbook.add_format({"align": "center", "font_size": 15})
     worksheet.set_row(0,30)
@@ -243,7 +220,7 @@ def createExcelv1(query, start, end):
         worksheet.write(row, idx, head, bold)
     row += 1
     for data in query[start: end]:
-        # worksheet.write(row, 0, data.entry_id, center)
+        
         worksheet.write(row, 0, row+start, center)
         worksheet.write(row, 1, data.number_plate_number, center)        
         worksheet.write(row, 2, data.junction_name, center)
@@ -299,7 +276,7 @@ def createExcelv1(query, start, end):
         worksheet.write(row, 8, str(violations), center) 
         worksheet.write(row, 9, "Yes" if data.reviewed else "No", center)
         evidenceImages = list(map(lambda x: x.strip(), data.evidence_images.split(','))) if len(data.evidence_images)>0 else []
-        for i in range(6):
+        for i in range(3):
             try:
                 imagePath = imageLocation+evidenceImages[i]
                 with Image.open(imagePath) as img:
@@ -330,7 +307,7 @@ def createExcelv2(query, start, end):
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
-    headers = ['S.No','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image','Speed', 'Speed Limit', 'Violations', 'Reviewed', 'Evidence Image 1', 'Evidence Image 2', 'Evidence Image 3', 'Evidence Image 4', 'Evidence Image 5', 'Evidence Image 6']
+    headers = ['S.No','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image','Speed', 'Speed Limit', 'Violations', 'Reviewed', 'Evidence Image 1', 'Evidence Image 2', 'Evidence Image 3']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
     center = workbook.add_format({"align": "center", "font_size": 15})
     worksheet.set_row(0,30)
@@ -341,7 +318,6 @@ def createExcelv2(query, start, end):
         worksheet.write(row, idx, head, bold)
     row += 1
     for data in query[start: end]:
-        # worksheet.write(row, 0, data.entry_id, center)
         worksheet.write(row, 0, row+start, center)
         worksheet.write(row, 1, data.number_plate_number, center)        
         worksheet.write(row, 2, data.junction_name, center)
@@ -361,7 +337,6 @@ def createExcelv2(query, start, end):
             imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
-                #print("path",path,"img_width", img_width, "img_height", img_height)
                 x_scale = 30/img_width
                 y_scale = 100/img_height
                 worksheet.insert_image(row,
@@ -399,7 +374,7 @@ def createExcelv2(query, start, end):
         worksheet.write(row, 10, str(violations), center) 
         worksheet.write(row, 11, "Yes" if data.reviewed else "No", center)
         evidenceImages = list(map(lambda x: x.strip(), data.evidence_images.split(','))) if len(data.evidence_images)>0 else []
-        for i in range(6):
+        for i in range(3):
             try:
                 imagePath = imageLocation+evidenceImages[i]
                 with Image.open(imagePath) as img:
@@ -432,7 +407,6 @@ def createExcelv2(query, start, end):
 @authentication_classes([TokenAuthentication])
 def getExportDataLength(request):
     form_data = request.POST
-    # print("form_data", form_data)
     try:
         query = getQueryFromFormData(form_data)
         status_reviewed=form_data["status_reviewed"] # yes | no
@@ -457,9 +431,7 @@ def getExportDataLength(request):
 @authentication_classes([TokenAuthentication])
 def exportExcelv1(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
-    # response['Content-Disposition'] = 'attachment; filename="{}"'.format("RLVD entries.xlsx") 
     form_data=request.POST
-    # print("Form Data", form_data)
     try:
         query = getQueryFromFormData(form_data)
         status_reviewed=form_data["status_reviewed"] # yes | no
@@ -486,7 +458,6 @@ def exportExcelv2(request):
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format("RLVD entries.xlsx")
     form_data=request.POST
-    # print("Form Data", form_data)
     try:
         query = getQueryFromFormData(form_data)
         status_reviewed=form_data["status_reviewed"] # yes | no
