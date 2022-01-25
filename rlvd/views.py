@@ -209,7 +209,7 @@ def createExcelv1(query, start, end):
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
-    headers = ['S.No','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image', 'Violations', 'Reviewed', 'Evidence Image 1', 'Evidence Image 2', 'Evidence Image 3']
+    headers = ['S.No','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image', 'Violations', 'Reviewed']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
     center = workbook.add_format({"align": "center", "font_size": 15})
     worksheet.set_row(0,30)
@@ -275,30 +275,30 @@ def createExcelv1(query, start, end):
         violations = getViolationsFromIds(data.violations, 0, 0)
         worksheet.write(row, 8, str(violations), center) 
         worksheet.write(row, 9, "Yes" if data.reviewed else "No", center)
-        evidenceImages = list(map(lambda x: x.strip(), data.evidence_images.split(','))) if len(data.evidence_images)>0 else []
-        for i in range(3):
-            try:
-                imagePath = imageLocation+evidenceImages[i]
-                with Image.open(imagePath) as img:
-                    width, height = img.size
-                    x_scale = 30/width
-                    y_scale = 100/height
-                    worksheet.insert_image(row, 10 + i,imagePath, {"x_scale": x_scale*7.2,
-                                                        "y_scale": y_scale*1.5,
-                                                        "positioning": 1})
-            except Exception as e:
-                imagePath = imageLocation+"noImage.jpg"
-                with Image.open(imagePath) as img:
-                    img_width, img_height = img.size
-                    #print("path",path,"img_width", img_width, "img_height", img_height)
-                    x_scale = 30/img_width
-                    y_scale = 100/img_height
-                    worksheet.insert_image(row,
-                                        10 + i,
-                                        imagePath,
-                                        {"x_scale": x_scale*7.2,
-                                            "y_scale": y_scale*1.5,
-                                            "positioning": 1})
+        # evidenceImages = list(map(lambda x: x.strip(), data.evidence_images.split(','))) if len(data.evidence_images)>0 else []
+        # for i in range(3):
+        #     try:
+        #         imagePath = imageLocation+evidenceImages[i]
+        #         with Image.open(imagePath) as img:
+        #             width, height = img.size
+        #             x_scale = 30/width
+        #             y_scale = 100/height
+        #             worksheet.insert_image(row, 10 + i,imagePath, {"x_scale": x_scale*7.2,
+        #                                                 "y_scale": y_scale*1.5,
+        #                                                 "positioning": 1})
+        #     except Exception as e:
+        #         imagePath = imageLocation+"noImage.jpg"
+        #         with Image.open(imagePath) as img:
+        #             img_width, img_height = img.size
+        #             #print("path",path,"img_width", img_width, "img_height", img_height)
+        #             x_scale = 30/img_width
+        #             y_scale = 100/img_height
+        #             worksheet.insert_image(row,
+        #                                 10 + i,
+        #                                 imagePath,
+        #                                 {"x_scale": x_scale*7.2,
+        #                                     "y_scale": y_scale*1.5,
+        #                                     "positioning": 1})
         row += 1
     workbook.close()
     return output.getvalue()
@@ -307,7 +307,7 @@ def createExcelv2(query, start, end):
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
-    headers = ['S.No','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image','Speed', 'Speed Limit', 'Violations', 'Reviewed', 'Evidence Image 1', 'Evidence Image 2', 'Evidence Image 3']
+    headers = ['S.No','Plate Number','Junction Name','Camera Name', 'Evidence Camera Name','Date','Full Image','Cropped Image','Speed', 'Speed Limit', 'Violations', 'Reviewed']
     bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
     center = workbook.add_format({"align": "center", "font_size": 15})
     worksheet.set_row(0,30)
@@ -359,7 +359,6 @@ def createExcelv2(query, start, end):
             imagePath = imageLocation+"noImage.jpg"
             with Image.open(imagePath) as img:
                 img_width, img_height = img.size
-                #print("path",path,"img_width", img_width, "img_height", img_height)
                 x_scale = 30/img_width
                 y_scale = 100/img_height
                 worksheet.insert_image(row,
@@ -373,30 +372,30 @@ def createExcelv2(query, start, end):
         violations = getViolationsFromIds(data.violations, data.speed, data.speed_limit)
         worksheet.write(row, 10, str(violations), center) 
         worksheet.write(row, 11, "Yes" if data.reviewed else "No", center)
-        evidenceImages = list(map(lambda x: x.strip(), data.evidence_images.split(','))) if len(data.evidence_images)>0 else []
-        for i in range(3):
-            try:
-                imagePath = imageLocation+evidenceImages[i]
-                with Image.open(imagePath) as img:
-                    width, height = img.size
-                    x_scale = 30/width
-                    y_scale = 100/height
-                    worksheet.insert_image(row, 12 + i,imagePath, {"x_scale": x_scale*7.2,
-                                                        "y_scale": y_scale*1.5,
-                                                        "positioning": 1})
-            except Exception as e:
-                imagePath = imageLocation+"noImage.jpg"
-                with Image.open(imagePath) as img:
-                    img_width, img_height = img.size
-                    #print("path",path,"img_width", img_width, "img_height", img_height)
-                    x_scale = 30/img_width
-                    y_scale = 100/img_height
-                    worksheet.insert_image(row,
-                                        12 + i,
-                                        imagePath,
-                                        {"x_scale": x_scale*7.2,
-                                            "y_scale": y_scale*1.5,
-                                            "positioning": 1})
+        # evidenceImages = list(map(lambda x: x.strip(), data.evidence_images.split(','))) if len(data.evidence_images)>0 else []
+        # for i in range(3):
+        #     try:
+        #         imagePath = imageLocation+evidenceImages[i]
+        #         with Image.open(imagePath) as img:
+        #             width, height = img.size
+        #             x_scale = 30/width
+        #             y_scale = 100/height
+        #             worksheet.insert_image(row, 12 + i,imagePath, {"x_scale": x_scale*7.2,
+        #                                                 "y_scale": y_scale*1.5,
+        #                                                 "positioning": 1})
+        #     except Exception as e:
+        #         imagePath = imageLocation+"noImage.jpg"
+        #         with Image.open(imagePath) as img:
+        #             img_width, img_height = img.size
+        #             #print("path",path,"img_width", img_width, "img_height", img_height)
+        #             x_scale = 30/img_width
+        #             y_scale = 100/img_height
+        #             worksheet.insert_image(row,
+        #                                 12 + i,
+        #                                 imagePath,
+        #                                 {"x_scale": x_scale*7.2,
+        #                                     "y_scale": y_scale*1.5,
+        #                                     "positioning": 1})
         row += 1
     workbook.close()
     return output.getvalue()
