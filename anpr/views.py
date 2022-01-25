@@ -433,8 +433,8 @@ def exportExcelToUsbv1(platesQuerySet, filename):
     exportSegments = math.ceil(totalEntries/entriesPerFile)
     
     for segement in range(exportSegments):
-        filename += + "-" + (segement+1)+".xlsx"
-        workbook = xlsxwriter.Workbook(filename, {'remove_timezone': True})
+        tempFilename = filename + "-" + str(segement+1)+".xlsx"
+        workbook = xlsxwriter.Workbook(tempFilename, {'remove_timezone': True})
         worksheet = workbook.add_worksheet()
         headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image']
         bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
@@ -505,8 +505,8 @@ def exportExcelToUsbv2(platesQuerySet, filename):
     totalEntries = platesQuerySet.count()
     exportSegments = math.ceil(totalEntries/entriesPerFile)
     for segement in range(exportSegments):
-        filename += + "-" + (segement+1)+".xlsx"
-        workbook = xlsxwriter.Workbook(filename, {'remove_timezone': True})
+        tempFilename = filename + "-" + str(segement+1)+".xlsx"
+        workbook = xlsxwriter.Workbook(tempFilename, {'remove_timezone': True})
         worksheet = workbook.add_worksheet()
         headers = ['S.No','Plate Number','Camera Name','Date','ANPR Full Image','ANPR Cropped Image', 'Vehicle Type', 'Vehicle Make', 'Vehicle Model', 'Vehicle Color']
         bold = workbook.add_format({'bold': True, "font_size": 18, 'align': 'center'})
