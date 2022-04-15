@@ -1,6 +1,7 @@
 from os import name
 from django.db import models
 
+# model for vehicle tye like bike, car etc.
 class VehicleTypeRef(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=45)
@@ -11,6 +12,7 @@ class VehicleTypeRef(models.Model):
     def str(self):
         return self.name
 
+#model for vechile make like honda, yamaha ect.
 class VehicleMakeRef(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=45)
@@ -23,7 +25,7 @@ class VehicleMakeRef(models.Model):
     def str(self):
         return self.name
 
-
+#model for vehicle model like honda activa, yamaha v2 etc.
 class VehicleModelRef(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=45)
@@ -36,7 +38,7 @@ class VehicleModelRef(models.Model):
     def str(self):
         return self.name
 
-
+#model for vehicle color like red, green, blue etc.
 class VehicleColorRef(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=45)
@@ -48,6 +50,8 @@ class VehicleColorRef(models.Model):
     def str(self):
         return self.name
 
+# model for license_plates_anpr table
+# contains information about the vechile
 class LicensePlatesAnpr(models.Model):
     entry_id = models.AutoField(primary_key=True)
     camera_name = models.CharField(max_length=100)
@@ -61,7 +65,6 @@ class LicensePlatesAnpr(models.Model):
     vehicle_color = models.ForeignKey(VehicleColorRef, to_field='id', on_delete=models.DO_NOTHING, default=1)
 
     class Meta:
-        #managed = True
         db_table = "license_plates_anpr"
 
     def str(self):

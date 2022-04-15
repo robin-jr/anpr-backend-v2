@@ -1,10 +1,9 @@
 from django.db import models
 from django.utils import timezone
 
-
+# model for entries in license_plate_rlvd table.
 class LicensePlatesRlvd(models.Model):
     entry_id = models.AutoField(primary_key=True)
-    # object_id=models.CharField(max_length=100)
     camera_name = models.CharField(max_length=100)
     junction_name = models.CharField(max_length=100)
     evidence_camera_name = models.CharField(max_length=100)
@@ -19,24 +18,12 @@ class LicensePlatesRlvd(models.Model):
     reviewed=models.BooleanField()
 
     class Meta:
-        #managed = True
         db_table = "license_plates_rlvd"
 
     def str(self):
         return self.number_plate_number
 
-# class EvidenceCamImg(models.Model):
-    # id = models.AutoField(primary_key=True)
-    # # entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
-    # object_id = models.CharField(max_length=100)
-    # evidence_image = models.CharField(max_length=100)
-
-    # class Meta:
-    #     db_table = 'evidence_cam_img'
-    # def str(self):
-    #     return self.evidence_image
-
-
+# model for violations.
 class ViolationRef(models.Model):
     id = models.AutoField(primary_key=True)
     violation_name = models.CharField(max_length=100)
@@ -47,20 +34,7 @@ class ViolationRef(models.Model):
         return self.violation_name
 
 
-# class Violation(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     # entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
-#     violation = models.ForeignKey(ViolationRef,on_delete=models.CASCADE)
-#     # entry = models.ForeignKey(LicensePlatesRlvd, on_delete=models.CASCADE)
-#     object_id = models.CharField(max_length=100)
-
-#     class Meta:
-#         db_table = 'violations'
-#     def str(self):
-#         return self.violation
-
-
-
+# model for the cameras.
 class AnprCamera(models.Model):
     id = models.AutoField(primary_key=True)
     camera_name = models.CharField(max_length=100, help_text="Name of the Camera. AVOID SPACES IN THE NAME.")
@@ -102,7 +76,6 @@ class AnprCamera(models.Model):
     
 
     class Meta:
-        #managed = True
         db_table = "anpr_cameras"
 
     def __str__(self):

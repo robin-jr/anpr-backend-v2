@@ -4,8 +4,6 @@ urlpatterns = [
     path("", views.initialData ),
     path("platesearch/", views.plate_search),
     path("getLatestEntries/", views.getCameraLatestEntriesAndRecognitions),
-    # path("debug/", views.debug),
-    # path("plate/", views.plate_search1),
     path("feed/", views.camerafeed),
     path("exportDataLengthv1/", views.getExportDataLengthv1),
     path("exportDataLengthv2/", views.getExportDataLengthv2),

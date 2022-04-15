@@ -24,7 +24,7 @@ django_dir = "/app/" # Directory containing Django manage.py
 imageLocation = "/home/user/.webapp/ARIMA-Image-Server/images/"   # Directory containing the images
 liveFeedServer = "/home/user/.webapp/anpr-backend-v2/anpr/mjpg_serve.py"  # Directory containing the python server for live
 
-
+# returns the list of cameras available in the database 
 def getCameras():
     camQuerySet = AnprCamera.objects.only('id', 'camera_name', 'latitude', 'longitude', 'rtsp_url', 'http_port')
     cams = []
@@ -40,6 +40,7 @@ def getCameras():
 
     return cams
 
+# returns the list of vechile types from the database
 def getVehicleTypes():
     typesQuerySet = VehicleTypeRef.objects.all()
     types = []
@@ -51,6 +52,8 @@ def getVehicleTypes():
 
     return types
 
+
+# returns the list of vechile types from the database
 def getVehicleMakes():
     makesQuerySet = VehicleMakeRef.objects.all()
     makes = []
@@ -62,6 +65,7 @@ def getVehicleMakes():
         makes.append(temp)
     return makes
 
+# returns the list of vechile models from the database
 def getVehicleModels():
     modelsQuerySet = VehicleModelRef.objects.select_related('type').select_related('make').all()
     models = []
@@ -74,6 +78,7 @@ def getVehicleModels():
         models.append(temp)
     return models
 
+# returns the list of vechile colors from the database
 def getVehicleColors():
     colorsQuerySet = VehicleColorRef.objects.all()
     colors = []
@@ -84,7 +89,36 @@ def getVehicleColors():
         temp['code'] = color.code
         colors.append(temp)
     return colors
+    
+# get the recognition count of a cameara.
+def getRecognitionCountOfCamera(camera_name):
+    count = LicensePlates.objects.filter(camera_name = camera_name).count()
+    return count
 
+# get the latest 5 entries of a camera
+def getLatestEntriesOfCamera(camera_name):
+    plateQuerySet = LicensePlates.objects.filter(camera_name = camera_name).select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')[:5]
+    entries = []
+    for data in plateQuerySet:
+        temp={}
+        temp["id"]= data.pk
+        temp["camera_name"]= data.camera_name
+        temp["plate"]= data.plate_number
+        temp["date"]= data.date.strftime('%d/%m/%Y %H:%M:%S')
+        temp["anpr_full_image"]= data.anpr_full_image
+        temp["anpr_cropped_image"]= data.anpr_cropped_image
+        temp["vehicle_type"] = data.vehicle_type.name
+        temp["vehicle_make"] = data.vehicle_make.name
+        temp["vehicle_model"] = data.vehicle_model.name
+        temp["vehicle_color_name"] = data.vehicle_color.name
+        temp["vehicle_color_code"] = data.vehicle_color.code
+        entries.append(temp)
+    return entries
+
+
+
+# returns the initial data to the client like cameras, vehicle type, vehicle model, vehicle colors.
+# in addition to that it also sends the recongition count of the first camera and also the latest 5 entries of the camera for displaying in the database.
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -114,31 +148,9 @@ def initialData(request):
             ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
-
-def getRecognitionCountOfCamera(camera_name):
-    count = LicensePlates.objects.filter(camera_name = camera_name).count()
-    return count
-
-def getLatestEntriesOfCamera(camera_name):
-    plateQuerySet = LicensePlates.objects.filter(camera_name = camera_name).select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')[:5]
-    entries = []
-    for data in plateQuerySet:
-        temp={}
-        temp["id"]= data.pk
-        temp["camera_name"]= data.camera_name
-        temp["plate"]= data.plate_number
-        temp["date"]= data.date.strftime('%d/%m/%Y %H:%M:%S')
-        temp["anpr_full_image"]= data.anpr_full_image
-        temp["anpr_cropped_image"]= data.anpr_cropped_image
-        temp["vehicle_type"] = data.vehicle_type.name
-        temp["vehicle_make"] = data.vehicle_make.name
-        temp["vehicle_model"] = data.vehicle_model.name
-        temp["vehicle_color_name"] = data.vehicle_color.name
-        temp["vehicle_color_code"] = data.vehicle_color.code
-        entries.append(temp)
-    return entries
-
-
+# returns the total count and latest recognition of the camera
+# camera name is recieved from the client
+# this gets called every 5 seconds from the client for realtime data updation in the live screen page.
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -177,6 +189,8 @@ def getCameraLatestEntriesAndRecognitions(request):
         logging.info("Latest Entries - End")
         return HttpResponseBadRequest("Bad Request!",headers={"Access-Control-Allow-Origin":"*"})
 
+# this is used to return a queryset from the form_data sent from the client
+# this is for version1
 def getQueryFromFormDatav1(form_data):
     vehicle_no= form_data["vehicle_number"] #can be empty 
     cameras = form_data["camera_names"] #can be empty
@@ -198,6 +212,8 @@ def getQueryFromFormDatav1(form_data):
     platesQuerySet = platesQuerySet.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color')
     return platesQuerySet
 
+# this is used to return a queryset from the form_data sent from the client
+# this is for version2
 def getQueryFromFormDatav2(form_data):
     vehicle_no= form_data["vehicle_number"] #can be empty 
     cameras = form_data["camera_names"] #can be empty
@@ -244,7 +260,8 @@ def getQueryFromFormDatav2(form_data):
     platesQuerySet = platesQuerySet.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color')
     return platesQuerySet
 
-
+# retrive the data from the database and stores it in a list of dictionaries
+# return the list of dictionay.
 def getDictFromQuery(platesQuerySet):
     d=[]
     for data in platesQuerySet:
@@ -263,6 +280,9 @@ def getDictFromQuery(platesQuerySet):
         d.append(temp)
     return d
 
+# this endpoint gets called during the search.
+# gets the page number and number of entries from the client for paginated data
+# return the paginated data and the count of total entries(all entries from the database) for further pagination.
 @api_view(['POST' ])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -272,7 +292,7 @@ def plate_search(request):
         platesQuerySet = getQueryFromFormDatav2(form_data)
         page = int(form_data["page"])
         count = int(form_data["count"])
-        d = getDictFromQuery(platesQuerySet[(page) * count : (page+1)* count])
+        d = getDictFromQuery(platesQuerySet[(page) * count : (page+1) * count])
         return HttpResponse(json.dumps({
             "count":platesQuerySet.count(),
             "entries":d,
@@ -285,6 +305,8 @@ def plate_search(request):
             ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
+# create and return an excel sheet, populated with data.
+# for Version 1
 def createExcelv1(platesQuerySet, start, end):
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
@@ -353,7 +375,8 @@ def createExcelv1(platesQuerySet, start, end):
     workbook.close()
     return output.getvalue()
 
-
+# create and return an excel sheet, populated with data.
+# for Version 2
 def createExcelv2(platesQuerySet, start, end):
     output      = io.BytesIO()
     workbook    = xlsxwriter.Workbook(output)
@@ -426,10 +449,14 @@ def createExcelv2(platesQuerySet, start, end):
     workbook.close()
     return output.getvalue()
 
-
+# create the excel file in the usb and store the data.
+# for version 1
 def exportExcelToUsbv1(platesQuerySet, filename):
     entriesPerFile = 1000
     totalEntries = platesQuerySet.count()
+    # segment the total entries in 1000's and stored them in seperate file
+    # used this since export is taking much time segment the total entries in 1000's and stored them in seperate file
+    # used this since export is taking much time
     exportSegments = math.ceil(totalEntries/entriesPerFile)
     
     for segement in range(exportSegments):
@@ -499,10 +526,14 @@ def exportExcelToUsbv1(platesQuerySet, filename):
             row += 1
         workbook.close()
 
-
+# create the excel file in the usb and store the data.
+# for version 2
 def exportExcelToUsbv2(platesQuerySet, filename):
     entriesPerFile = 1000
     totalEntries = platesQuerySet.count()
+
+    # segment the total entries in 1000's and stored them in seperate file
+    # used this since export is taking much time
     exportSegments = math.ceil(totalEntries/entriesPerFile)
     for segement in range(exportSegments):
         tempFilename = filename + "-" + str(segement+1)+".xlsx"
@@ -577,7 +608,9 @@ def exportExcelToUsbv2(platesQuerySet, filename):
             row += 1
         workbook.close()
 
-
+# return the length of total entries with the search conditions. 
+# used for pagination in the export.
+# for version 1
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -596,6 +629,9 @@ def getExportDataLengthv1(request):
 
 
 
+# return the length of total entries with the search conditions. 
+# used for pagination in the export.
+# for version 2
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -612,6 +648,7 @@ def getExportDataLengthv2(request):
         return HttpResponse(json.dumps({"error":str(e)})
             ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
+# return the filename for export using some constrains.
 def getFilenameForExport(form_data):
     filename = "ANPR"
     start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
@@ -632,6 +669,8 @@ def getFilenameForExport(form_data):
     
     return filename
 
+# return the export data to the client
+# for version 1
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -653,6 +692,8 @@ def exportExcelv1(request):
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
+# return the export data to the client.
+# for version 2.
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -673,7 +714,7 @@ def exportExcelv2(request):
         return HttpResponse(json.dumps({"error":str(e)})
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
-
+# return the list of pendirves connected to the system.
 def getRemovables(context):
     removables = []
     for device in context.list_devices(subsystem='block', DEVTYPE='disk'):# if device.attributes.asstring('removable') == "1"]
@@ -689,7 +730,8 @@ def getRemovables(context):
     return removables
 
     
-
+# export the data directly to the usb
+# for version 1
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -702,13 +744,8 @@ def exportToUsbv1(request):
     if(removables):
         for device in removables:
             partitions = [device.device_node for device in context.list_devices(subsystem='block', DEVTYPE='partition', parent=device)]
-            # print("All removable partitions: {}".format(", ".join(partitions)))
-            # print("Mounted removable partitions:")
             for p in psutil.disk_partitions():
                 if p.device in partitions:
-                    # print("  {}: {}".format(p.device, p.mountpoint))
-                    # print("Excel file saved to",str(p.mountpoint).split('/')[3])
-                    # create a new excel and add a worksheet
                     exportExcelToUsbv1(platesQuerySet, str(p.mountpoint)+"/"+ filename)
     
         return HttpResponse(json.dumps({"msg": "Data exported successfully"})
@@ -719,7 +756,8 @@ def exportToUsbv1(request):
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"}) 
 
 
-
+# export the data directly to the usb
+# for version 2.
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
@@ -732,13 +770,8 @@ def exportToUsbv2(request):
     if(removables):
         for device in removables:
             partitions = [device.device_node for device in context.list_devices(subsystem='block', DEVTYPE='partition', parent=device)]
-            # print("All removable partitions: {}".format(", ".join(partitions)))
-            # print("Mounted removable partitions:")
             for p in psutil.disk_partitions():
                 if p.device in partitions:
-                    # print("  {}: {}".format(p.device, p.mountpoint))
-                    # print("Excel file saved to",str(p.mountpoint).split('/')[3])
-                    # create a new excel and add a worksheet
                     exportExcelToUsbv2(platesQuerySet,str(p.mountpoint)+"/"+ filename)
     
         return HttpResponse(json.dumps({"msg": "Data exported successfully"})
@@ -749,7 +782,7 @@ def exportToUsbv2(request):
                 ,content_type="application/json",headers={"Access-Control-Allow-Origin":"*"})
 
 
-
+# start a new live feed server.
 @api_view(['GET'])
 @permission_classes([])
 @authentication_classes([])
@@ -764,131 +797,3 @@ def camerafeed(request):
     except Exception as e:
         print("Exception: ", str(e))
         return HttpResponse("Error")
-    
-
-
-
-# def debug(request):
-
-#     imagePath = imageLocation + "noImage.jpg"
-#     print(imagePath)
-
-#     try:
-#         with Image.open(imagePath) as img:
-#             print("Success")        
-#     except Exception as e:
-#         print("Failed")
-
-            
-
-
-
-    # platesQuerySet=LicensePlates.objects.filter(plate_number__contains = "TN")
-
-    # entriesQuerySet = LicensePlates.objects.filter.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')
-    # recognitionCount = LicensePlates.objects.count()
-    # plateQuerySet = LicensePlates.objects.select_related('vehicle_type').select_related('vehicle_make').select_related('vehicle_model').select_related('vehicle_color').order_by('-entry_id')
-    # entries = []
-    # for data in plateQuerySet:
-    #     temp={}
-    #     temp["id"]= data.pk
-    #     temp["camera_name"]= data.camera_name
-    #     # temp["junction_name"]= e.junction_name
-    #     temp["plate"]= data.plate_number
-    #     temp["date"]= data.date.strftime('%d/%m/%Y %H:%M:%S')
-    #     temp["anpr_full_image"]= data.anpr_full_image
-    #     temp["anpr_cropped_image"]= data.anpr_cropped_image
-    #     temp["vehicle_type"] = data.vehicle_type.name
-    #     temp["vehicle_make"] = data.vehicle_make.name
-    #     temp["vehicle_model"] = data.vehicle_model.name
-    #     temp["vehicle_color_name"] = data.vehicle_color.name
-    #     temp["vehicle_color_code"] = data.vehicle_color.code
-    #     entries.append(temp)
-    
-        # pass 
-        # print(data.camera_name)
-        # temp={}
-        # temp["id"]= data.pk
-        # temp["camera_name"]= data.camera_name
-        # # temp["junction_name"]= e.junction_name
-        # temp["plate"]= data.plate_number
-        # temp["date"]= data.date.strftime('%d/%m/%Y %H:%M:%S')
-        # temp["anpr_full_image"]= data.anpr_full_image
-        # temp["anpr_cropped_image"]= data.anpr_cropped_image
-        # temp["vehicle_type"] = data.vehicle_type.name
-        # temp["vehicle_make"] = data.vehicle_make.name
-        # temp["vehicle_model"] = data.vehicle_model.name
-        # temp["vehicle_color"] = data.vehicle_color.name
-        # d.append(temp)
-    # print(d)
-    return render(request, 'index.html')
-
-
-
-
-    # def download_csv( request, array):
-#     response = HttpResponse(content_type='text/csv')
-#     response['Content-Disposition'] = 'attachment;filename=export.csv'
-#     writer = csv.writer(response)
-#     head=['entry_id','plate_number','camera_name','date','anpr_full_image','anpr_cropped_image']
-
-#     # writer.writerow(field_names)
-#     writer.writerow(head)
-#     # writer.writerow(body)
-#     # Write data rows
-#     # array= [['a','b'],['c','d']]
-#     for row in array:
-#         writer.writerow(row)
-#     return response
-
-# # @csrf_exempt
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# @authentication_classes([TokenAuthentication])
-# def export_csv(request):
-#     form_data=request.POST
-#     print("Form Data", form_data)
-#     try:
-#         vehicle_no= form_data["vehicle_number"] #can be empty 
-#         cameras = form_data["camera_names"] #can be empty
-#         start_date_time=form_data["start_date_time"] #can be empty. format: 2021-08-18T07:08  yyyy-mm-ddThh:mm
-#         end_date_time=form_data["end_date_time"]
-#         # vehicle_no = ""
-#         # cameras = ""
-#         # start_date_time = ""
-#         # end_date_time = ""
-
-#         plates=LicensePlates.objects.all()
-#         if cameras!="":
-#             cameras=cameras.split(',')
-            
-
-#         print("Vehicle NO: ", vehicle_no, "Cameras", cameras)
-#         if vehicle_no!="":
-#             plates = LicensePlates.objects.filter(plate_number__contains=vehicle_no)
-#         if len(cameras)>0:
-#             plates =plates.filter(camera_name__in=cameras)
-#         if start_date_time!="":
-#             plates=plates.filter(date__gte=start_date_time)
-#         if end_date_time!="":
-#             plates=plates.filter(date__lte=end_date_time)
-
-#         d=[]
-#         for e in plates:
-#             temp=[]
-#             temp.append(e.entry_id)
-#             temp.append(e.plate_number)
-#             temp.append(e.camera_name)
-#             temp.append(e.date.strftime('%d/%m/%Y %H:%M:%S'))
-#             temp.append(HOST_STATIC_FOLDER_URL + e.anpr_full_image)
-#             temp.append(HOST_STATIC_FOLDER_URL + e.anpr_cropped_image)
-#             d.append(temp)
-
-#         # print("CSV Data", d)
-#         data = download_csv( request, d)
-#         return HttpResponse (data, content_type='text/csv')
-#     except Exception as e:
-
-#         print("Exxception --> ",e)
-#         return HttpResponse("error")
